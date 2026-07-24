@@ -8,7 +8,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "sparkling-dream-f4e2",
+	"name": "mepuedoquedar",
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2026-07-23",
 	"compatibility_flags": [
