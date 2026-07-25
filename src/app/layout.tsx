@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Source_Serif_4 } from "next/font/google"
+import { Source_Serif_4, Inter } from "next/font/google"
 import "./globals.css";
 
 const titleFont = Source_Serif_4({
@@ -7,11 +7,16 @@ const titleFont = Source_Serif_4({
 	variable: "--font-title",
 })
 
+const textFont = Inter({
+	subsets: ["latin"],
+	variable: "--font-text",
+})
+
 export const metadata: Metadata = {
 	title: "¿Me puedo quedar?",
 	description: "",
 	icons: {
-		icon: "/favicon_2.ico",
+		icon: "/favicon.ico",
 	},
 };
 
@@ -21,8 +26,8 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
-			<body className={`${titleFont.variable} antialiased`}>{children}</body>
+		<html lang="es">
+			<body className={`${titleFont.variable} ${textFont.variable} antialiased`}>{children}</body>
 		</html>
 	);
 }
