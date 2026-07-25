@@ -2,13 +2,25 @@
 
 :root {
     --bg-color: #E7DCC3;
+    --bg-card: #A8B48A;
     --title-color: #1F3A2E;
     --text-color: #000000;
+    --text-color-2: #C46A4A;
+}
+
+.card {
+    background-color: var(--bg-card);
+}
+
+.text-color-2 {
+    color: var(--text-color-2);
 }
 
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
+    font-family: var(--font-text);
+    user-select: none;
 }
 
 h1 {
