@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
+import Link from "next/link";
+import { IoMdClose } from "react-icons/io";
 
 export interface Site {
     municipio: string;
@@ -58,6 +60,7 @@ function useTypewriter(words: string[], typingSpeed = 80, deletingSpeed = 40, pa
 }
 
 export default function SearchBar() {
+    const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<Site[]>([]);
 
@@ -81,6 +84,7 @@ export default function SearchBar() {
             if (!response.ok) throw new Error("Error al buscar");
             const data: { results: Site[] } = await response.json();
             setResults(data.results);
+            console.log(data);
         } catch (error) {
             if (error instanceof DOMException && error.name === "AbortError") return;
             console.error("Error:", error);
@@ -105,11 +109,19 @@ export default function SearchBar() {
     }
 
     useEffect(() => {
+        if (query.trim() !== "" || query.length >= 3) {
+            search(query);
+        } else {
+            setResults([]);
+        }
+    }, [query]);
+
+    useEffect(() => {
         getRandom();
     }, []);
 
     return (
-        <div className="flex flex-col justify-center items-center h-full">
+        <div className="flex flex-col justify-center items-center h-[75svh]">
             <h1 className="text-4xl max-md:text-3xl text-center mb-8 font-semibold tracking-tight">
                 ¿Me puedo quedar en{" "}
                 <span className="max-md:block">
@@ -122,16 +134,19 @@ export default function SearchBar() {
                 </span>
             </h1>
             <div className="flex flex-col gap-2 w-full max-w-xl mx-auto relative">
-                <div className="card rounded-lg overflow-hidden">
-                    <input autoFocus onChange={(e) => { if (e.target.value.length < 3) setResults([]); search(e.target.value) }} className={`w-full h-10 outline-none text-lg px-4 py-2`} />
+                <div className={`card border shadow-lg border-title/30 rounded-full transition-all duration-300 overflow-hidden flex gap-4 items-center px-4 h-12`}>
+                    <input placeholder="Busca tu municipio..." autoFocus onChange={(e) => { if (e.target.value.length < 3) setResults([]); setQuery(e.target.value); }} value={query} className={`w-full h-full outline-none text-title font-medium`} />
+                    {query.length > 0 && <button onClick={() => { setQuery(''); setResults([]); }} className="bg-white/20 rounded-full p-1 border border-black/20 shadow-inner hover:bg-white/30">
+                        <IoMdClose size={15} />
+                    </button>}
                 </div>
                 {results.length > 0 &&
-                    <div className="card rounded-lg overflow-hidden absolute top-full left-0 right-0 mt-2 max-h-80 overflow-y-auto">
-                        <div className="flex flex-col gap-6 px-4 pt-4 pb-2">
+                    <div className="mt-4 absolute top-full left-0 right-0 max-h-80 overflow-y-auto">
+                        <div className="flex flex-col gap-4 p-4 pt-0">
                             {results.map((result) => (
-                                <div key={result.cod_ine} className="">
+                                <Link href={`/municipio/${result.cod_municipio}`} key={result.cod_municipio} className="bg-scroll hover:bg-scroll/80 font-medium text-color-3 py-2 px-4">
                                     <p>{result.municipio}</p>
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     </div>}
