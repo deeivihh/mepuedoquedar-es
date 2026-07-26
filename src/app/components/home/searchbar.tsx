@@ -4,27 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { IoMdClose } from "react-icons/io";
-
-export interface Site {
-    municipio: string;
-    cod_municipio: string;
-    provincia: string;
-    cod_provincia: string;
-    cod_ine: number;
-    poblacion: number;
-    mancomunidades: string | null;
-    entidades_locales_menores: string | null;
-    comarca: string | null;
-    longitud: number;
-    latitud: number;
-    coordenadax: number;
-    coordenaday: number;
-    posicion: {
-        lon: number;
-        lat: number;
-    };
-    presencia_de_comercio: string;
-}
+import { BsFillSignTurnRightFill } from "react-icons/bs";
+import { Site } from "@/app/utils/types";
+import { useLocation } from "@/app/utils/getLocation";
 
 function useTypewriter(words: string[], typingSpeed = 80, deletingSpeed = 40, pauseMs = 5000) {
     const [displayed, setDisplayed] = useState("");
@@ -60,6 +42,7 @@ function useTypewriter(words: string[], typingSpeed = 80, deletingSpeed = 40, pa
 }
 
 export default function SearchBar() {
+    const locationParams = useLocation();
     const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<Site[]>([]);
@@ -78,13 +61,13 @@ export default function SearchBar() {
         setIsLoading(true);
         try {
             const response = await fetch(
-                `/api/jcyl/municipios?search=${encodeURIComponent(query)}&limit=10`,
+                `/api/jcyl/municipios?search=${encodeURIComponent(query)}&limit=10${locationParams}`,
                 { signal: controller.signal }
             );
             if (!response.ok) throw new Error("Error al buscar");
             const data: { results: Site[] } = await response.json();
             setResults(data.results);
-            console.log(data);
+            console.log(data.results);
         } catch (error) {
             if (error instanceof DOMException && error.name === "AbortError") return;
             console.error("Error:", error);
@@ -144,8 +127,16 @@ export default function SearchBar() {
                     <div className="mt-4 absolute top-full left-0 right-0 max-h-80 overflow-y-auto">
                         <div className="flex flex-col gap-4 p-4 pt-0">
                             {results.map((result) => (
-                                <Link href={`/municipio/${result.cod_municipio}`} key={result.cod_municipio} className="bg-scroll hover:bg-scroll/80 font-medium text-color-3 py-2 px-4">
+                                <Link href={`/municipio/${result.cod_ine}`} key={result.cod_ine} className="bg-scroll hover:bg-scroll/80 font-medium text-color-3 py-2 px-4 flex justify-between items-center">
                                     <p>{result.municipio}</p>
+                                    {result.distance != null && (
+                                        <span className="text-sm opacity-70 flex items-center gap-1">
+                                            <BsFillSignTurnRightFill />
+                                            {result.distance >= 1000
+                                                ? `${(result.distance / 1000).toFixed(1)} km`
+                                                : `${result.distance} m`}
+                                        </span>
+                                    )}
                                 </Link>
                             ))}
                         </div>
