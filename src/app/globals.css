@@ -1,19 +1,39 @@
 @import "tailwindcss";
 
+@theme {
+    --color-title: #1F3A2E;
+    --color-text: #000000;
+    --color-text-2: #C46A4A;
+    --color-text-3: #f7f8f2;
+    --color-bg: #E7DCC3;
+    --color-bg-card: #A8B48A;
+    --color-scroll: #6b7f4dbb;
+}
+
 :root {
     --bg-color: #E7DCC3;
     --bg-card: #A8B48A;
     --title-color: #1F3A2E;
     --text-color: #000000;
     --text-color-2: #C46A4A;
+    --text-color-3: #f7f8f2;
+    --scroll-color: #6b7f4dbb;
 }
 
 .card {
     background-color: var(--bg-card);
 }
 
+button {
+    cursor: pointer;
+}
+
 .text-color-2 {
     color: var(--text-color-2);
+}
+
+.text-color-3 {
+    color: var(--text-color-3);
 }
 
 body {
@@ -28,4 +48,20 @@ h1 {
     color: var(--title-color);
     letter-spacing: -0.025em;
 
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scroll-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--text-color-2);
+    border-radius: 4px;
+    transition: background-color 0.3s;
 }
