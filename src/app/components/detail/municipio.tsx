@@ -12,25 +12,26 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     const [error, setError] = useState<string | null>(null);
 
     const mapContainerRef = useRef<HTMLDivElement>(null);
-    const [mapSize, setMapSize] = useState({ width: 500, height: 275 });
+    const MAP_HEIGHT = 275;
+    const [mapWidth, setMapWidth] = useState(500);
 
-    // Cambiar el tamaño del mapa en base al contenedor
+    // Cambia el tamaño del mapa en base al contenedor
     useEffect(() => {
         const el = mapContainerRef.current;
         if (!el) return;
 
         const observer = new ResizeObserver((entries) => {
             for (const entry of entries) {
-                const { width, height } = entry.contentRect;
-                if (width > 0 && height > 0) {
-                    setMapSize({ width: Math.round(width), height: Math.round(height) });
+                const { width } = entry.contentRect;
+                if (width > 0) {
+                    setMapWidth(Math.round(width));
                 }
             }
         });
 
         observer.observe(el);
         return () => observer.disconnect();
-    }, []);
+    }, [data]);
 
     useEffect(() => {
         async function fetchData() {
@@ -57,20 +58,20 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     return (
         <div className="flex flex-col justify-start items-center h-full">
-            <div className="flex bg-gradient-to-r from-bg-card via-bg-card/80 to-bg-card/60 rounded-3xl max-w-5xl w-full min-h-50 mt-12 relative overflow-hidden">
-                <div className="flex items-center px-10 py-4 w-full max-w-2xl h-full z-10">
-                    <h1 className="text-6xl max-w-[17ch] font-bold text-pretty">{data.municipio}</h1>
+            <div className="flex max-md:flex-col bg-gradient-to-r from-bg-card/60 via-bg-transparent to-bg-card/60 rounded-[32px] max-w-5xl w-full min-h-50 mt-12 relative overflow-hidden shadow-inner border-2 border-title/10">
+                <div className="flex items-center justify-center px-10 py-4 w-full max-w-2xl h-full z-10 max-md:border-b-2 max-md:border-title/20">
+                    <h1 className="text-6xl max-md:text-3xl min-md:max-w-[17ch] font-bold text-pretty max-md:text-center">{data.municipio}</h1>
                 </div>
                 <div
                     ref={mapContainerRef}
-                    className="cursor-move absolute inset-y-0 right-0 w-1/2 -mr-3 image-fade"
+                    className="cursor-move max-md:h-[275px] min-md:absolute min-md:inset-y-0 min-md:right-0 min-md:w-1/2 min-md:-mr-3 image-fade"
                 >
                     <Map
                         center={[data.latitud, data.longitud]}
                         zoom={12}
                         minZoom={5}
-                        height={mapSize.height}
-                        width={mapSize.width}
+                        height={MAP_HEIGHT}
+                        width={mapWidth}
                     >
                         <Marker
                             width={30}
