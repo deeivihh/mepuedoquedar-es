@@ -6,13 +6,13 @@
     --color-text-2: #C46A4A;
     --color-text-3: #f7f8f2;
     --color-bg: #E7DCC3;
-    --color-bg-card: #A8B48A;
+    --color-bg-card: #f4ebe2;
     --color-scroll: #6b7f4dbb;
 }
 
 :root {
     --bg-color: #E7DCC3;
-    --bg-card: #A8B48A;
+    --bg-card: #f4ebe2;
     --title-color: #1F3A2E;
     --text-color: #000000;
     --text-color-2: #C46A4A;
@@ -64,4 +64,31 @@ h1 {
     background-color: var(--text-color-2);
     border-radius: 4px;
     transition: background-color 0.3s;
+}
+
+.image-fade {
+    display: block;
+
+    mask-image: linear-gradient(90deg,
+            transparent 0%,
+            black 40%);
+
+    -webkit-mask-image: linear-gradient(90deg,
+            transparent 0%,
+            black 40%);
+}
+
+.image-fade::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(120deg,
+            var(--bg-card) 5%,
+            color-mix(in srgb, var(--bg-card) 20%, transparent) 30%,
+            color-mix(in srgb, var(--bg-card) 20%, transparent) 0%,
+            transparent 40%);
+
+    z-index: 0.1;
+    pointer-events: none;
 }
