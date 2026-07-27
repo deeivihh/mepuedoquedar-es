@@ -36,6 +36,16 @@ button {
     color: var(--text-color-3);
 }
 
+.title-font {
+    font-family: var(--font-title);
+    letter-spacing: -0.025em;
+}
+
+Link,
+a {
+    transition: all 0.15s;
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -47,7 +57,6 @@ h1 {
     font-family: var(--font-title);
     color: var(--title-color);
     letter-spacing: -0.025em;
-
 }
 
 /* scrollbar */
@@ -57,7 +66,7 @@ h1 {
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--scroll-color);
+    background: color-mix(in srgb, var(--title-color) 20%, transparent);
 }
 
 ::-webkit-scrollbar-thumb {
