@@ -67,7 +67,6 @@ export default function SearchBar() {
             if (!response.ok) throw new Error("Error al buscar");
             const data: { results: Site[] } = await response.json();
             setResults(data.results);
-            console.log(data.results);
         } catch (error) {
             if (error instanceof DOMException && error.name === "AbortError") return;
             console.error("Error:", error);

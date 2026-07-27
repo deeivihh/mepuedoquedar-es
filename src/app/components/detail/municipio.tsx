@@ -41,7 +41,6 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                 const res = await fetch(`/api/jcyl/municipios?eq=${cod}&eq_by=cod_ine${locationParams}`);
                 if (!res.ok) throw new Error("Error al cargar el municipio");
                 const data: { results: Site[] } = await res.json();
-                console.log(data);
                 setData(data.results[0]);
             } catch (e) {
                 setError(e instanceof Error ? e.message : "Error desconocido");
