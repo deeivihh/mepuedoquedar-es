@@ -59,7 +59,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     return (
         <div className="flex flex-col justify-start items-center h-full">
             <div className="flex max-md:flex-col bg-gradient-to-r from-bg-card/60 via-bg-transparent to-bg-card/60 rounded-[32px] max-w-5xl w-full min-h-50 mt-12 relative overflow-hidden shadow-inner border-2 border-title/10">
-                <div className="flex items-center justify-center px-10 py-4 w-full max-w-2xl h-full z-10 max-md:border-b-2 max-md:border-title/20">
+                <div className="flex items-center justify-start px-10 py-5 w-full max-w-2xl h-full z-10 max-md:border-b-2 max-md:border-title/20">
                     <h1 className="text-6xl max-md:text-3xl min-md:max-w-[17ch] font-bold text-pretty max-md:text-center">{data.municipio}</h1>
                 </div>
                 <div
