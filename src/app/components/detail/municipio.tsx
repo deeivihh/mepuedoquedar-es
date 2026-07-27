@@ -1,8 +1,7 @@
 "use client"
 import { Site } from "@/app/utils/types";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useLocation } from "@/app/utils/getLocation";
-
+import { useState, useEffect, useRef } from "react";
+import { useLocation } from "@/app/utils/useLocation";
 import { Map, Marker } from "pigeon-maps";
 
 export default function MunicipioDetail({ cod }: { cod: string }) {
@@ -12,7 +11,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     const [error, setError] = useState<string | null>(null);
 
     const mapContainerRef = useRef<HTMLDivElement>(null);
-    const MAP_HEIGHT = 275;
+    const MAP_HEIGHT = 305;
     const [mapWidth, setMapWidth] = useState(500);
 
     // Cambia el tamaño del mapa en base al contenedor
@@ -56,30 +55,28 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     if (!data) return <div>Municipio no encontrado.</div>;
 
     return (
-        <div className="flex flex-col justify-start items-center h-full">
-            <div className="flex max-md:flex-col bg-gradient-to-r from-bg-card/60 via-bg-transparent to-bg-card/60 rounded-[32px] max-w-5xl w-full min-h-50 mt-12 relative overflow-hidden shadow-inner border-2 border-title/10">
-                <div className="flex items-center justify-start px-10 py-5 w-full max-w-2xl h-full z-10 max-md:border-b-2 max-md:border-title/20">
-                    <h1 className="text-6xl max-md:text-3xl min-md:max-w-[17ch] font-bold text-pretty max-md:text-center">{data.municipio}</h1>
-                </div>
-                <div
-                    ref={mapContainerRef}
-                    className="cursor-move max-md:h-[275px] min-md:absolute min-md:inset-y-0 min-md:right-0 min-md:w-1/2 min-md:-mr-3 image-fade"
-                >
-                    <Map
-                        center={[data.latitud, data.longitud]}
-                        zoom={12}
-                        minZoom={5}
-                        height={MAP_HEIGHT}
-                        width={mapWidth}
+        <div className="flex flex-col gap-2 justify-center items-center mx-auto w-full h-full max-w-6xl">
+            <div className="flex flex-col bg-bg-card rounded-[32px] my-4 w-full h-full overflow-hidden border-2 border-title/10">
+                <section className="flex flex-col gap-2 overflow-hidden relative w-full h-[30svh] max-md:h-[50svh]">
+                    <div className="flex flex-col items-start justify-center min-md:gap-12 p-10 w-full max-w-2xl h-full z-10 max-md:border-b-2 max-md:border-title/20">
+                        <h1 className="text-6xl max-md:text-3xl min-md:max-w-[17ch] font-bold text-pretty max-md:text-center">{data.municipio}</h1>
+                    </div>
+                    <div
+                        ref={mapContainerRef}
+                        className="cursor-move h-full min-md:absolute min-md:inset-y-0 min-md:right-0 min-md:w-3/5 min-md:-mr-5 image-fade"
                     >
-                        <Marker
-                            width={30}
-                            anchor={[data.latitud, data.longitud]}
-                            color="#A8B48A"
-                            hover={false}
+                        <Map
+                            center={[data.latitud, data.longitud]}
+                            zoom={14}
+                            minZoom={5}
+                            height={MAP_HEIGHT}
+                            width={mapWidth}
                         />
-                    </Map>
-                </div>
+                    </div>
+                </section>
+                <section className="flex flex-col gap-2 overflow-hidden relative w-full border-t border-title">
+
+                </section>
             </div>
         </div>
     );

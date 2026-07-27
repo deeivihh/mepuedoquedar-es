@@ -6,40 +6,8 @@ import Link from "next/link";
 import { IoMdClose } from "react-icons/io";
 import { BsFillSignTurnRightFill } from "react-icons/bs";
 import { Site } from "@/app/utils/types";
-import { useLocation } from "@/app/utils/getLocation";
-
-function useTypewriter(words: string[], typingSpeed = 80, deletingSpeed = 40, pauseMs = 5000) {
-    const [displayed, setDisplayed] = useState("");
-    const [wordIndex, setWordIndex] = useState(0);
-    const [isDeleting, setIsDeleting] = useState(false);
-
-    const currentWord = words[wordIndex] || "";
-
-    useEffect(() => {
-        if (words.length === 0) return;
-
-        const timeout = setTimeout(() => {
-            if (!isDeleting) {
-                if (displayed.length < currentWord.length) {
-                    setDisplayed(currentWord.slice(0, displayed.length + 1));
-                } else {
-                    setTimeout(() => setIsDeleting(true), pauseMs);
-                }
-            } else {
-                if (displayed.length > 0) {
-                    setDisplayed(currentWord.slice(0, displayed.length - 1));
-                } else {
-                    setIsDeleting(false);
-                    setWordIndex((prev) => (prev + 1) % words.length);
-                }
-            }
-        }, isDeleting ? deletingSpeed : typingSpeed);
-
-        return () => clearTimeout(timeout);
-    }, [displayed, isDeleting, currentWord, words, typingSpeed, deletingSpeed, pauseMs]);
-
-    return displayed;
-}
+import { useLocation } from "@/app/utils/useLocation";
+import { useTypewriter } from "@/app/utils/useTypewriter";
 
 export default function SearchBar() {
     const locationParams = useLocation();
@@ -116,20 +84,20 @@ export default function SearchBar() {
                 </span>
             </h1>
             <div className="flex flex-col gap-2 w-full max-w-xl mx-auto relative">
-                <div className={`card border shadow-lg border-title/30 rounded-full transition-all duration-300 overflow-hidden flex gap-4 items-center px-4 h-12`}>
+                <div className={`card border shadow-xl border-title/30 rounded-full transition-all duration-300 overflow-hidden flex gap-4 items-center px-4 h-12`}>
                     <input placeholder="Busca tu municipio..." autoFocus onChange={(e) => { if (e.target.value.length < 3) setResults([]); setQuery(e.target.value); }} value={query} className={`w-full h-full outline-none text-title font-medium`} />
-                    {query.length > 0 && <button onClick={() => { setQuery(''); setResults([]); }} className="bg-white/20 rounded-full p-1 border border-black/20 shadow-inner hover:bg-white/30">
+                    {query.length > 0 && <button onClick={() => { setQuery(''); setResults([]); }} className="bg-white/20 rounded-full p-1 border border-title/20 shadow-inner hover:bg-white/30">
                         <IoMdClose size={15} />
                     </button>}
                 </div>
                 {results.length > 0 &&
-                    <div className="mt-4 absolute top-full left-0 right-0 max-h-80 overflow-y-auto">
-                        <div className="flex flex-col gap-4 p-4 pt-0">
+                    <div className="mt-5 absolute top-full left-0 right-0 max-h-80 overflow-y-auto">
+                        <div className="flex flex-col gap-4 px-4 pt-0">
                             {results.map((result) => (
-                                <Link href={`/municipio/${result.cod_ine}`} key={result.cod_ine} className="bg-scroll hover:bg-scroll/80 font-medium text-color-3 py-2 px-4 flex justify-between items-center">
-                                    <p>{result.municipio}</p>
+                                <Link href={`/municipio/${result.cod_ine}`} key={result.cod_ine} className="rounded-sm hover:bg-bg-card/80 border border-title/30 flex max-md:flex-col gap-2 py-2 px-4 justify-between items-center">
+                                    <p className="font-semibold text-title text-balance">{result.municipio}</p>
                                     {result.distance != null && (
-                                        <span className="text-sm opacity-70 flex items-center gap-1">
+                                        <span className="text-sm text-title opacity-70 flex items-center gap-1">
                                             <BsFillSignTurnRightFill />
                                             {result.distance >= 1000
                                                 ? `${(result.distance / 1000).toFixed(1)} km`
