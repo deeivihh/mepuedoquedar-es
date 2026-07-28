@@ -56,7 +56,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     return (
         <div className="flex flex-col gap-2 justify-center items-center mx-auto w-full h-full max-w-6xl">
-            <div className="flex flex-col bg-bg-card rounded-[32px] my-4 w-full h-full overflow-hidden border-2 border-title/10">
+            <div className="flex flex-col bg-bg-card rounded-[32px] my-4 w-full h-full overflow-hidden border-3 border-title/10">
                 <section className="flex flex-col gap-2 overflow-hidden relative w-full h-[30svh] max-md:h-[50svh]">
                     <div className="flex flex-col items-start justify-center min-md:gap-12 p-10 w-full max-w-2xl h-full z-10 max-md:border-b-2 max-md:border-title/20">
                         <h1 className="text-6xl max-md:text-3xl min-md:max-w-[17ch] font-bold text-pretty max-md:text-center">{data.municipio}</h1>
@@ -74,8 +74,13 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                         />
                     </div>
                 </section>
-                <section className="flex flex-col gap-2 overflow-hidden relative w-full border-t border-title">
-
+                <section className="flex flex-col gap-2 overflow-hidden relative w-full border-t border-title px-8 py-4">
+                    <div className="flex flex-col items-start justify-center p-6 w-80 h-60 bg-bg shadow-inner rounded-[32px] border-3 border-title/10">
+                        <div className="flex flex-col">
+                            <h2 className="text-8xl font-bold ">67</h2>
+                            <p className="text-xl px-2">de 100</p>
+                        </div>
+                    </div>
                 </section>
             </div>
         </div>
