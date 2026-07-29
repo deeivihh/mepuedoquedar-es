@@ -18,10 +18,14 @@ export async function GET() {
           id: "registro-de-centros-sanitarios-de-castilla-y-leon",
           where: `tipo_de_centro = 'HOSPITALES GENERALES'`,
         },
-        actividadPediatria: {
+        actividadPediatriaCS: {
           id: "actividad-de-pediatria-a-nivel-de-zona-basica-de-salud-2026",
-          where: `fecha >= '${oneMonthAgo}'`,
+          where: `fecha >= date'${oneMonthAgo}'`,
         },
+        ocupacionCamasHospitales: {
+          id: "ocupacion-de-camas-en-hospitales",
+          where: `fecha >= date'${oneMonthAgo}'`,
+        }
       },
       indicators: {
         centrosSalud: {
@@ -43,8 +47,32 @@ export async function GET() {
             foreignKey: "cudigo_zona_b_sica_de_salud",
           },
           operation: "sum",
-          field: "n_de_consultas",
+          fields: ["n_de_consultas"],
           details: false,
+          requires: "centrosSalud",
+          dateField: "fecha",
+        },
+        camasHospitales: {
+          dataset: "ocupacionCamasHospitales",
+          joinVia: {
+            dataset: "centrosSanitarios",
+            municipality: "localidad",
+            localKey: "nombre_del_centro",
+            foreignKey: "hospital",
+          },
+          filter: (row: any) => Number(row.camas_habilitadas_planta) > 0,
+          operation: "sum",
+          fields: [
+            "camas_habilitadas_planta",
+            "camas_ocupadas_planta",
+            "camas_habilitadas_uci",
+            "camas_ocupadas_uci"
+          ],
+          details: false,
+          requires: "hospitales",
+          latestBy: "fecha",
+          latestGroupBy: "hospital",
+          dateField: "fecha",
         },
       },
       includeEmpty: true,

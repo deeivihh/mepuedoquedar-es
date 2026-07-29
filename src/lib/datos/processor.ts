@@ -49,6 +49,13 @@ function findMunicipality(
   throw new Error(`Indicator requires "municipality" or "ineCode"`);
 }
 
+function normalizeJoinKey(value: unknown): string {
+  return normalizeText(value)
+    .replace(/\b(DE|DEL|LA|LAS|EL|LOS)\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function buildJoinIndex(
   ind: IndicatorConfig,
   datasets: Map<string, Row[]>,
@@ -64,7 +71,7 @@ function buildJoinIndex(
     const muni = muniName ? muniMap.get(muniName) : undefined;
     if (!muni) continue;
 
-    const key = String(row[join.localKey] ?? "").trim();
+    const key = normalizeJoinKey(row[join.localKey]);
     if (!key) continue;
 
     if (!index.has(key)) index.set(key, []);
@@ -99,19 +106,36 @@ function processIndicator(
 ) {
   const rows = datasets.get(ind.dataset);
   if (!rows) throw new Error(`Dataset "${ind.dataset}" not found`);
-  if ((ind.operation === "sum" || ind.operation === "average") && !ind.field) {
-    throw new Error(`Indicator "${name}" requires a "field"`);
+  if ((ind.operation === "sum" || ind.operation === "average") && !ind.field && !ind.fields) {
+    throw new Error(`Indicator "${name}" requires a "field" or "fields"`);
   }
 
   const joinIndex = ind.joinVia ? buildJoinIndex(ind, datasets, muniMap) : null;
-  const buckets = new Map<string, { values: number[]; details: Row[] }>();
+  const buckets = new Map<string, { values: number[]; multiValues: Record<string, number[]>; details: Row[]; dates?: Set<string> }>();
 
-  for (const row of rows) {
-    if (ind.filter && !ind.filter(row)) continue;
+  let processedRows = rows;
+  if (ind.latestBy && ind.latestGroupBy) {
+    const latestMap = new Map<string, { row: Row; sortVal: string | number }>();
+    for (const row of rows) {
+      if (ind.filter && !ind.filter(row)) continue;
+      const groupKey = normalizeText(row[ind.latestGroupBy]);
+      if (!groupKey) continue;
+      
+      const sortVal = row[ind.latestBy] as string | number;
+      const existing = latestMap.get(groupKey);
+      if (!existing || sortVal > existing.sortVal) {
+        latestMap.set(groupKey, { row, sortVal });
+      }
+    }
+    processedRows = Array.from(latestMap.values()).map(x => x.row);
+  }
+
+  for (const row of processedRows) {
+    if (!ind.latestBy && ind.filter && !ind.filter(row)) continue;
 
     let codes: string[];
     if (joinIndex) {
-      const fk = String(row[ind.joinVia!.foreignKey] ?? "").trim();
+      const fk = normalizeJoinKey(row[ind.joinVia!.foreignKey]);
       codes = fk ? (joinIndex.get(fk) ?? []) : [];
     } else {
       const muni = findMunicipality(row, ind, muniMap);
@@ -119,24 +143,63 @@ function processIndicator(
     }
 
     const needsValue = ind.operation === "sum" || ind.operation === "average";
-    const value = needsValue ? normalizeNumber(row[ind.field!]) : 1;
+    const value = (needsValue && ind.field) ? normalizeNumber(row[ind.field]) : 1;
+    
+    const multiVals: Record<string, number> = {};
+    if (needsValue && ind.fields) {
+      for (const f of ind.fields) {
+        multiVals[f] = normalizeNumber(row[f]);
+      }
+    }
 
     const withDetails = ind.details !== false;
     for (const code of codes) {
-      if (!buckets.has(code)) buckets.set(code, { values: [], details: [] });
+      if (!buckets.has(code)) buckets.set(code, { values: [], multiValues: {}, details: [] });
       const bucket = buckets.get(code)!;
-      bucket.values.push(value);
+      if (ind.field || !ind.fields) bucket.values.push(value);
+      if (ind.fields) {
+        for (const f of ind.fields) {
+          if (!bucket.multiValues[f]) bucket.multiValues[f] = [];
+          bucket.multiValues[f].push(multiVals[f]);
+        }
+      }
+      if (ind.dateField) {
+        const d = String(row[ind.dateField] ?? "").trim();
+        if (d && d !== "undefined" && d !== "null") {
+          if (!bucket.dates) bucket.dates = new Set();
+          bucket.dates.add(d);
+        }
+      }
       if (withDetails) bucket.details.push(row);
     }
   }
 
   for (const [code, record] of results) {
+    const groupObj = (record[group] ??= {}) as Record<string, unknown>;
+
+    if (ind.requires) {
+      const req = groupObj[ind.requires] as Record<string, unknown> | undefined;
+      const count = Number(req?.cantidad ?? req?.promedio ?? req?.existe ?? 0);
+      if (count === 0) continue;
+    }
+
     const bucket = buckets.get(code);
     const values = bucket?.values ?? [];
-    const groupObj = (record[group] ??= {}) as Record<string, unknown>;
-    const entry: Record<string, unknown> = {
-      [OP_LABELS[ind.operation] ?? ind.operation]: aggregate(ind.operation, values),
-    };
+    const entry: Record<string, unknown> = {};
+
+    if (ind.fields) {
+      for (const f of ind.fields) {
+        entry[f] = aggregate(ind.operation, bucket?.multiValues?.[f] ?? []);
+      }
+    } else {
+      entry[OP_LABELS[ind.operation] ?? ind.operation] = aggregate(ind.operation, values);
+    }
+    
+    if (ind.dateField && bucket?.dates && bucket.dates.size > 0) {
+      const dates = Array.from(bucket.dates).sort();
+      entry.fecha = dates.length === 1 ? dates[0] : `${dates[0]} al ${dates[dates.length - 1]}`;
+    }
+
     if (ind.details !== false) entry.detalles = bucket?.details ?? [];
     groupObj[name] = entry;
   }

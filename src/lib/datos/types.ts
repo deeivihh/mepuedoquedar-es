@@ -18,8 +18,13 @@ export type IndicatorConfig = {
     joinVia?: JoinConfig;
     operation: Operation;
     field?: string;
+    fields?: string[];
     filter?: (row: Row) => boolean;
     details?: boolean;
+    requires?: string;
+    latestBy?: string;
+    latestGroupBy?: string;
+    dateField?: string;
 };
 
 export type ProcessingConfig = {
