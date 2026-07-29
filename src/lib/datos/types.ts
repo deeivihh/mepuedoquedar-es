@@ -1,35 +1,31 @@
-export type ConfiguracionMunicipios = {
-    id: string;
-    campoNombre: string;
-    campoCodigo: string;
-};
+type Row = Record<string, unknown>;
 
-export type ConfiguracionDataset = {
-    id: string;
-    where?: string;
-    onlyLastRecord?: string;
-};
+export type Operation = "count" | "sum" | "average" | "exists";
 
-export type OperacionIndicador =
-    | "contar"
-    | "sumar"
-    | "promedio"
-    | "existe";
+export type DatasetConfig = { id: string; where?: string };
 
-export type ConfiguracionIndicador = {
+export type JoinConfig = {
     dataset: string;
-    campoMunicipio: string;
-    operacion: OperacionIndicador;
-    campo?: string;
-    filtro?: (fila: Record<string, unknown>) => boolean;
+    municipality: string;
+    localKey: string;
+    foreignKey: string;
 };
 
-export type ConfiguracionProcesamiento = {
-    municipios: ConfiguracionMunicipios;
+export type IndicatorConfig = {
+    dataset: string;
+    municipality?: string;
+    ineCode?: string;
+    joinVia?: JoinConfig;
+    operation: Operation;
+    field?: string;
+    filter?: (row: Row) => boolean;
+    details?: boolean;
+};
 
-    datasets: Record<string, ConfiguracionDataset>;
-
-    indicadores: Record<string, ConfiguracionIndicador>;
-
-    incluirMunicipiosSinDatos?: boolean;
+export type ProcessingConfig = {
+    group: string;
+    municipalities: { id: string; nameField: string; codeField: string };
+    datasets: Record<string, DatasetConfig>;
+    indicators: Record<string, IndicatorConfig>;
+    includeEmpty?: boolean;
 };

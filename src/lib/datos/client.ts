@@ -1,62 +1,36 @@
 import { parse } from "csv-parse/sync";
 
-const URL_BASE =
-    "https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets";
+const BASE = "https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets";
 
-export async function obtenerDataset<T = Record<string, unknown>>(
-    idDataset: string
-): Promise<T[]> {
-    const url = `${URL_BASE}/${idDataset}/exports/csv`;
-
-    const respuesta = await fetch(url, {
-        cache: "no-store",
-    });
-
-    if (!respuesta.ok) {
-        throw new Error(
-            `Error descargando el dataset "${idDataset}": ${respuesta.status}`
-        );
-    }
-
-    const csv = await respuesta.text();
-
-    return parse(csv, {
-        columns: true,
-        skip_empty_lines: true,
-        delimiter: ";",
-        trim: true,
-    }) as T[];
+function buildParams(opts?: { where?: string; orderBy?: string; limit?: number }) {
+  const p = new URLSearchParams();
+  if (opts?.where) p.set("where", opts.where);
+  if (opts?.orderBy) p.set("order_by", opts.orderBy);
+  if (opts?.limit !== undefined) p.set("limit", String(opts.limit));
+  return p;
 }
 
-export async function obtenerRegistros<T = Record<string, unknown>>(
-    idDataset: string,
-    opciones?: {
-        where?: string;
-        orderBy?: string;
-        limit?: number;
-    }
+async function safeFetch(url: string, label: string) {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to fetch ${label}: ${res.status}`);
+  return res;
+}
+
+export async function fetchDataset<T = Record<string, unknown>>(
+  id: string,
+  opts?: { where?: string; orderBy?: string },
 ): Promise<T[]> {
-    const params = new URLSearchParams();
+  const url = `${BASE}/${id}/exports/csv?${buildParams(opts)}`;
+  const res = await safeFetch(url, `dataset "${id}"`);
+  return parse(await res.text(), { columns: true, skip_empty_lines: true, delimiter: ";", trim: true }) as T[];
+}
 
-    if (opciones?.where) params.set("where", opciones.where);
-    if (opciones?.orderBy) params.set("order_by", opciones.orderBy);
-    params.set("limit", String(opciones?.limit ?? 100));
-
-    const url = `${URL_BASE}/${idDataset}/records?${params}`;
-    console.log(url)
-
-
-    const respuesta = await fetch(url, {
-        cache: "no-store",
-    });
-
-    if (!respuesta.ok) {
-        throw new Error(
-            `Error descargando registros del dataset "${idDataset}": ${respuesta.status}`
-        );
-    }
-
-    const json: { results: T[] } = await respuesta.json();
-
-    return json.results;
+export async function fetchRecords<T = Record<string, unknown>>(
+  id: string,
+  opts?: { where?: string; orderBy?: string; limit?: number },
+): Promise<T[]> {
+  const params = buildParams({ ...opts, limit: opts?.limit ?? 100 });
+  const url = `${BASE}/${id}/records?${params}`;
+  const res = await safeFetch(url, `records "${id}"`);
+  return ((await res.json()) as { results: T[] }).results;
 }

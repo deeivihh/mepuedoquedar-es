@@ -1,251 +1,143 @@
-import { obtenerDataset, obtenerRegistros } from "./client";
-import { normalizarNumero, normalizarTexto } from "./normalize";
-import {
-    ConfiguracionIndicador,
-    ConfiguracionProcesamiento,
-} from "./types";
+import { fetchDataset } from "./client";
+import { normalizeNumber, normalizeText } from "./normalize";
+import type { IndicatorConfig, ProcessingConfig } from "./types";
 
-type Fila = Record<string, unknown>;
+type Row = Record<string, unknown>;
+type Municipality = { name: string; code: string };
 
-type Municipio = {
-    nombre: string;
-    codigo: string;
-};
+export async function processDatasets(config: ProcessingConfig) {
+  const rawMunis = await fetchDataset<Row>(config.municipalities.id);
+  const muniMap = new Map<string, Municipality>();
+  for (const row of rawMunis) {
+    const name = normalizeText(row[config.municipalities.nameField]);
+    const code = String(row[config.municipalities.codeField] ?? "").trim();
+    if (name && code) muniMap.set(name, { name, code });
+  }
 
-export async function procesarDatasets(
-    configuracion: ConfiguracionProcesamiento
-) {
-    // Descargar municipios
-    const municipios = await obtenerDataset<Fila>(
-        configuracion.municipios.id
-    );
+  const datasets = new Map<string, Row[]>();
+  for (const [key, ds] of Object.entries(config.datasets)) {
+    datasets.set(key, await fetchDataset<Row>(ds.id, { where: ds.where }));
+  }
 
-    // Descargar datasets solicitados
-    const datasets = new Map<string, Fila[]>();
-
-    for (const [nombre, configuracionDataset] of Object.entries(
-        configuracion.datasets
-    )) {
-        let filas: Fila[];
-
-        if (configuracionDataset.onlyLastRecord) {
-            const campo = configuracionDataset.onlyLastRecord;
-            const [ultimo] = await obtenerRegistros<Fila>(
-                configuracionDataset.id,
-                { orderBy: `${campo} desc`, limit: 1 }
-            );
-
-            if (!ultimo) {
-                filas = [];
-            } else {
-                const ultimaFecha = String(ultimo[campo]);
-
-                filas = await obtenerRegistros<Fila>(
-                    configuracionDataset.id,
-                    {
-                        where: `${campo}=date'${ultimaFecha}'`,
-                        limit: 100,
-                    }
-                );
-            }
-        } else if (configuracionDataset.where) {
-            filas = await obtenerRegistros<Fila>(
-                configuracionDataset.id,
-                { where: configuracionDataset.where }
-            );
-        } else {
-            filas = await obtenerDataset<Fila>(
-                configuracionDataset.id
-            );
-        }
-
-        datasets.set(nombre, filas);
+  const results = new Map<string, Record<string, unknown>>();
+  if (config.includeEmpty) {
+    for (const m of muniMap.values()) {
+      results.set(m.code, { codigo: m.code, municipio: m.name });
     }
+  }
 
-    // Crear mapa de municipios
-    const municipiosMap = new Map<string, Municipio>();
+  for (const [name, indicator] of Object.entries(config.indicators)) {
+    processIndicator(config.group, name, indicator, datasets, muniMap, results);
+  }
 
-    for (const fila of municipios) {
-        const nombre = normalizarTexto(
-            fila[configuracion.municipios.campoNombre]
-        );
-
-        const codigo = String(
-            fila[configuracion.municipios.campoCodigo] ?? ""
-        ).trim();
-
-        if (!nombre || !codigo) {
-            continue;
-        }
-
-        municipiosMap.set(nombre, {
-            nombre,
-            codigo,
-        });
-    }
-
-    // Inicializar resultados
-    const resultados = new Map<
-        string,
-        Record<string, unknown>
-    >();
-
-    if (configuracion.incluirMunicipiosSinDatos) {
-        for (const municipio of municipiosMap.values()) {
-            resultados.set(municipio.codigo, {
-                codigo: municipio.codigo,
-                municipio: municipio.nombre,
-            });
-        }
-    }
-
-    // Procesar indicadores
-    for (const [nombreIndicador, indicador] of Object.entries(
-        configuracion.indicadores
-    )) {
-        procesarIndicador({
-            nombreIndicador,
-            indicador,
-            datasets,
-            municipiosMap,
-            resultados,
-        });
-    }
-
-    return Array.from(resultados.values());
+  return [...results.values()];
 }
 
-function procesarIndicador({
-    nombreIndicador,
-    indicador,
-    datasets,
-    municipiosMap,
-    resultados,
-}: {
-    nombreIndicador: string;
-    indicador: ConfiguracionIndicador;
-    datasets: Map<string, Fila[]>;
-    municipiosMap: Map<string, Municipio>;
-    resultados: Map<string, Record<string, unknown>>;
-}) {
-    const filas = datasets.get(indicador.dataset);
+function findMunicipality(
+  row: Row, ind: IndicatorConfig, muniMap: Map<string, Municipality>,
+): Municipality | undefined {
+  if (ind.ineCode) {
+    const code = String(row[ind.ineCode] ?? "").trim();
+    if (!code) return;
+    for (const m of muniMap.values()) if (m.code === code) return m;
+    return;
+  }
+  if (ind.municipality) {
+    const name = normalizeText(row[ind.municipality]);
+    return name ? muniMap.get(name) : undefined;
+  }
+  throw new Error(`Indicator requires "municipality" or "ineCode"`);
+}
 
-    if (!filas) {
-        throw new Error(
-            `El dataset "${indicador.dataset}" no se encuentra`
-        );
+function buildJoinIndex(
+  ind: IndicatorConfig,
+  datasets: Map<string, Row[]>,
+  muniMap: Map<string, Municipality>,
+): Map<string, string[]> {
+  const join = ind.joinVia!;
+  const bridgeRows = datasets.get(join.dataset);
+  if (!bridgeRows) throw new Error(`Join dataset "${join.dataset}" not found`);
+
+  const index = new Map<string, string[]>();
+  for (const row of bridgeRows) {
+    const muniName = normalizeText(row[join.municipality]);
+    const muni = muniName ? muniMap.get(muniName) : undefined;
+    if (!muni) continue;
+
+    const key = String(row[join.localKey] ?? "").trim();
+    if (!key) continue;
+
+    if (!index.has(key)) index.set(key, []);
+    if (!index.get(key)!.includes(muni.code)) index.get(key)!.push(muni.code);
+  }
+  return index;
+}
+
+const OP_LABELS: Record<string, string> = {
+  count: "cantidad", sum: "suma", average: "promedio", exists: "existe",
+};
+
+function aggregate(op: string, values: number[]): number {
+  const len = values.length;
+  if (!len) return 0;
+  switch (op) {
+    case "count": return len;
+    case "exists": return 1;
+    case "sum": return values.reduce((a, b) => a + b, 0);
+    case "average": return values.reduce((a, b) => a + b, 0) / len;
+    default: return 0;
+  }
+}
+
+function processIndicator(
+  group: string,
+  name: string,
+  ind: IndicatorConfig,
+  datasets: Map<string, Row[]>,
+  muniMap: Map<string, Municipality>,
+  results: Map<string, Record<string, unknown>>,
+) {
+  const rows = datasets.get(ind.dataset);
+  if (!rows) throw new Error(`Dataset "${ind.dataset}" not found`);
+  if ((ind.operation === "sum" || ind.operation === "average") && !ind.field) {
+    throw new Error(`Indicator "${name}" requires a "field"`);
+  }
+
+  const joinIndex = ind.joinVia ? buildJoinIndex(ind, datasets, muniMap) : null;
+  const buckets = new Map<string, { values: number[]; details: Row[] }>();
+
+  for (const row of rows) {
+    if (ind.filter && !ind.filter(row)) continue;
+
+    let codes: string[];
+    if (joinIndex) {
+      const fk = String(row[ind.joinVia!.foreignKey] ?? "").trim();
+      codes = fk ? (joinIndex.get(fk) ?? []) : [];
+    } else {
+      const muni = findMunicipality(row, ind, muniMap);
+      codes = muni ? [muni.code] : [];
     }
 
-    const valores = new Map<string, number[]>();
+    const needsValue = ind.operation === "sum" || ind.operation === "average";
+    const value = needsValue ? normalizeNumber(row[ind.field!]) : 1;
 
-    for (const fila of filas) {
-        const nombreMunicipio = normalizarTexto(
-            fila[indicador.campoMunicipio]
-        );
-
-        if (!nombreMunicipio) {
-            continue;
-        }
-
-        const municipio = municipiosMap.get(nombreMunicipio);
-
-        if (!municipio) {
-            continue;
-        }
-
-        if (
-            indicador.filtro &&
-            !indicador.filtro(fila)
-        ) {
-            continue;
-        }
-
-        const codigo = municipio.codigo;
-
-        if (!valores.has(codigo)) {
-            valores.set(codigo, []);
-        }
-
-        switch (indicador.operacion) {
-            case "contar":
-                valores.get(codigo)!.push(1);
-                break;
-
-            case "existe":
-                valores.get(codigo)!.push(1);
-                break;
-
-            case "sumar": {
-                if (!indicador.campo) {
-                    throw new Error(
-                        `El indicador "${nombreIndicador}" requiere un campo`
-                    );
-                }
-
-                valores
-                    .get(codigo)!
-                    .push(
-                        normalizarNumero(
-                            fila[indicador.campo]
-                        )
-                    );
-
-                break;
-            }
-
-            case "promedio": {
-                if (!indicador.campo) {
-                    throw new Error(
-                        `El indicador "${nombreIndicador}" requiere un campo`
-                    );
-                }
-
-                valores
-                    .get(codigo)!
-                    .push(
-                        normalizarNumero(
-                            fila[indicador.campo]
-                        )
-                    );
-
-                break;
-            }
-        }
+    const withDetails = ind.details !== false;
+    for (const code of codes) {
+      if (!buckets.has(code)) buckets.set(code, { values: [], details: [] });
+      const bucket = buckets.get(code)!;
+      bucket.values.push(value);
+      if (withDetails) bucket.details.push(row);
     }
+  }
 
-    for (const [codigo, resultado] of resultados) {
-        const elementos = valores.get(codigo) ?? [];
-
-        let valor = 0;
-
-        switch (indicador.operacion) {
-            case "contar":
-                valor = elementos.length;
-                break;
-
-            case "existe":
-                valor = elementos.length > 0 ? 1 : 0;
-                break;
-
-            case "sumar":
-                valor = elementos.reduce(
-                    (total, elemento) => total + elemento,
-                    0
-                );
-                break;
-
-            case "promedio":
-                valor =
-                    elementos.length > 0
-                        ? elementos.reduce(
-                            (total, elemento) =>
-                                total + elemento,
-                            0
-                        ) / elementos.length
-                        : 0;
-                break;
-        }
-
-        resultado[nombreIndicador] = valor;
-    }
+  for (const [code, record] of results) {
+    const bucket = buckets.get(code);
+    const values = bucket?.values ?? [];
+    const groupObj = (record[group] ??= {}) as Record<string, unknown>;
+    const entry: Record<string, unknown> = {
+      [OP_LABELS[ind.operation] ?? ind.operation]: aggregate(ind.operation, values),
+    };
+    if (ind.details !== false) entry.detalles = bucket?.details ?? [];
+    groupObj[name] = entry;
+  }
 }
