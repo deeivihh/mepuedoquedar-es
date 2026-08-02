@@ -29,11 +29,6 @@ export async function processDatasets(config: ProcessingConfig) {
     });
   }
 
-  const datasets = new Map<string, Row[]>();
-  for (const [key, ds] of Object.entries(config.datasets)) {
-    datasets.set(key, await fetchDataset<Row>(ds.id, { where: ds.where }));
-  }
-
   const results = new Map<string, Record<string, unknown>>();
   if (config.includeEmpty) {
     for (const m of muniMap.values()) {
@@ -51,8 +46,15 @@ export async function processDatasets(config: ProcessingConfig) {
     }
   }
 
-  for (const [name, indicator] of Object.entries(config.indicators)) {
-    processIndicator(config.group, name, indicator, datasets, muniMap, results);
+  for (const groupConfig of config.groups) {
+    const datasets = new Map<string, Row[]>();
+    for (const [key, ds] of Object.entries(groupConfig.datasets)) {
+      datasets.set(key, await fetchDataset<Row>(ds.id, { where: ds.where }));
+    }
+
+    for (const [name, indicator] of Object.entries(groupConfig.indicators)) {
+      processIndicator(groupConfig.group, name, indicator, datasets, muniMap, results);
+    }
   }
 
   return [...results.values()];

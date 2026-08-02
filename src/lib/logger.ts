@@ -23,17 +23,19 @@ export function createLog(module: string) {
       error?: string;
     }) {
       const now = new Date();
-      await getSupabase().from("sync_logs").insert({
-        module,
-        status: opts.status,
-        started_at: startedAt.toISOString(),
-        finished_at: now.toISOString(),
-        duration_ms: now.getTime() - startedAt.getTime(),
-        total_municipalities: opts.totalMunicipalities ?? 0,
-        total_datasets: opts.totalDatasets ?? 0,
-        logs,
-        error: opts.error ?? null,
-      });
+      if (process.env.NODE_ENV !== 'development') {
+        await getSupabase().from("sync_logs").insert({
+          module,
+          status: opts.status,
+          started_at: startedAt.toISOString(),
+          finished_at: now.toISOString(),
+          duration_ms: now.getTime() - startedAt.getTime(),
+          total_municipalities: opts.totalMunicipalities ?? 0,
+          total_datasets: opts.totalDatasets ?? 0,
+          logs,
+          error: opts.error ?? null,
+        });
+      }
     },
   };
 }
