@@ -1,4 +1,4 @@
-import { supabase } from "./client";
+import { getSupabase } from "./client";
 
 type Municipality = Record<string, any>;
 
@@ -11,7 +11,7 @@ export async function saveMunicipalities(
 
     for (let i = 0; i < rows.length; i += batchSize) {
         const batch = rows.slice(i, i + batchSize);
-        const { error } = await supabase
+        const { error } = await getSupabase()
             .from("municipios")
             .upsert(batch, {
                 onConflict: "codigo",

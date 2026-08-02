@@ -1,8 +1,8 @@
-import { supabase } from "@/lib/supabase/client";
+import { getSupabase } from "@/lib/supabase/client";
 
 type LogEntry = { ts: string; level: string; msg: string };
 
-export function createSyncLog(module: string) {
+export function createLog(module: string) {
   const logs: LogEntry[] = [];
   const startedAt = new Date();
 
@@ -23,7 +23,7 @@ export function createSyncLog(module: string) {
       error?: string;
     }) {
       const now = new Date();
-      await supabase.from("sync_logs").insert({
+      await getSupabase().from("sync_logs").insert({
         module,
         status: opts.status,
         started_at: startedAt.toISOString(),

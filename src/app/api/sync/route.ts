@@ -1,5 +1,5 @@
 import { processDatasets } from "@/lib/datos/processor";
-import { createSyncLog } from "@/lib/logger";
+import { createLog } from "@/lib/logger";
 import { saveMunicipalities } from "@/lib/supabase/municipalities";
 import { NextResponse } from "next/server";
 import { isAuthorized } from "@/app/utils/isAuthorized";
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   }
 
   const startedAt = performance.now();
-  const log = createSyncLog("sync");
+  const log = createLog("sync");
 
   try {
     log.info("Iniciando sincronización...");
