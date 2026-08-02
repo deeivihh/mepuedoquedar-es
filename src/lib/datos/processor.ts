@@ -3,15 +3,30 @@ import { normalizeNumber, normalizeText } from "./normalize";
 import type { IndicatorConfig, ProcessingConfig } from "./types";
 
 type Row = Record<string, unknown>;
-type Municipality = { name: string; code: string };
+type Municipality = {
+  code: string;
+  data: Row;
+};
 
 export async function processDatasets(config: ProcessingConfig) {
   const rawMunis = await fetchDataset<Row>(config.municipalities.id);
   const muniMap = new Map<string, Municipality>();
+
   for (const row of rawMunis) {
-    const name = normalizeText(row[config.municipalities.nameField]);
-    const code = String(row[config.municipalities.codeField] ?? "").trim();
-    if (name && code) muniMap.set(name, { name, code });
+    const name = normalizeText(
+      row[config.municipalities.nameField]
+    );
+
+    const code = String(
+      row[config.municipalities.codeField] ?? ""
+    ).trim();
+
+    if (!name || !code) continue;
+
+    muniMap.set(name, {
+      code,
+      data: row,
+    });
   }
 
   const datasets = new Map<string, Row[]>();
@@ -22,7 +37,17 @@ export async function processDatasets(config: ProcessingConfig) {
   const results = new Map<string, Record<string, unknown>>();
   if (config.includeEmpty) {
     for (const m of muniMap.values()) {
-      results.set(m.code, { codigo: m.code, municipio: m.name });
+      results.set(m.code, {
+        codigo: m.code,
+
+        municipio: m.data[
+          config.municipalities.nameField
+        ],
+
+        provincia: m.data.provincia,
+
+        ...m.data,
+      });
     }
   }
 
@@ -120,7 +145,7 @@ function processIndicator(
       if (ind.filter && !ind.filter(row)) continue;
       const groupKey = normalizeText(row[ind.latestGroupBy]);
       if (!groupKey) continue;
-      
+
       const sortVal = row[ind.latestBy] as string | number;
       const existing = latestMap.get(groupKey);
       if (!existing || sortVal > existing.sortVal) {
@@ -144,7 +169,7 @@ function processIndicator(
 
     const needsValue = ind.operation === "sum" || ind.operation === "average";
     const value = (needsValue && ind.field) ? normalizeNumber(row[ind.field]) : 1;
-    
+
     const multiVals: Record<string, number> = {};
     if (needsValue && ind.fields) {
       for (const f of ind.fields) {
@@ -194,7 +219,7 @@ function processIndicator(
     } else {
       entry[OP_LABELS[ind.operation] ?? ind.operation] = aggregate(ind.operation, values);
     }
-    
+
     if (ind.dateField && bucket?.dates && bucket.dates.size > 0) {
       const dates = Array.from(bucket.dates).sort();
       entry.fecha = dates.length === 1 ? dates[0] : `${dates[0]} al ${dates[dates.length - 1]}`;

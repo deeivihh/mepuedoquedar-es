@@ -1,10 +1,38 @@
 import { processDatasets } from "@/lib/datos/processor";
+import { createSyncLog } from "@/lib/logger";
+import { saveMunicipalities } from "@/lib/supabase/municipalities";
 import { NextResponse } from "next/server";
+import { isAuthorized } from "@/app/utils/isAuthorized";
 
-const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+function getOneMonthAgo() {
+  return new Date(
+    Date.now() - 30 * 24 * 60 * 60 * 1000
+  ).toISOString().slice(0, 10);
+}
 
-export async function GET() {
+export async function POST(req: Request) {
+  if (!isAuthorized(req)) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Unauthorized",
+      },
+      {
+        status: 401,
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      }
+    );
+  }
+
+  const startedAt = performance.now();
+  const log = createSyncLog("sync");
+
   try {
+    log.info("Iniciando sincronización...");
+
+    const oneMonthAgo = getOneMonthAgo();
     const data = await processDatasets({
       group: "sanidad",
       municipalities: {
@@ -25,7 +53,7 @@ export async function GET() {
         ocupacionCamasHospitales: {
           id: "ocupacion-de-camas-en-hospitales",
           where: `fecha >= date'${oneMonthAgo}'`,
-        }
+        },
       },
       indicators: {
         centrosSalud: {
@@ -66,7 +94,7 @@ export async function GET() {
             "camas_habilitadas_planta",
             "camas_ocupadas_planta",
             "camas_habilitadas_uci",
-            "camas_ocupadas_uci"
+            "camas_ocupadas_uci",
           ],
           details: false,
           requires: "hospitales",
@@ -78,9 +106,34 @@ export async function GET() {
       includeEmpty: true,
     });
 
-    return NextResponse.json({ ok: true, municipios: data.length, datos: data });
+    log.info(`Procesados ${data.length} municipios`);
+
+    const total = await saveMunicipalities(data);
+    log.info(`Guardados ${total} municipios en Supabase`);
+
+    const seconds = ((performance.now() - startedAt) / 1000).toFixed(2);
+    log.info(`Sincronización completada en ${seconds}s`);
+
+    await log.save({
+      status: "completed",
+      totalMunicipalities: total,
+      totalDatasets: 4,
+    });
+
+    return NextResponse.json({
+      ok: true,
+      time: `${seconds}s`,
+      municipios: total,
+    }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ ok: false, error: "Error procesando los datos" }, { status: 500 });
+    const msg = (error as Error).message;
+    log.error(msg);
+
+    await log.save({ status: "error", error: msg });
+
+    return NextResponse.json(
+      { ok: false, error: 'Internal sync error' },
+      { status: 500, headers: { "Cache-Control": "no-store", }, },
+    );
   }
 }
