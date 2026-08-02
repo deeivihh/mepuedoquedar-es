@@ -27,10 +27,14 @@ export type IndicatorConfig = {
     dateField?: string;
 };
 
-export type ProcessingConfig = {
+export type GroupConfig = {
     group: string;
-    municipalities: { id: string; nameField: string; codeField: string };
     datasets: Record<string, DatasetConfig>;
     indicators: Record<string, IndicatorConfig>;
+};
+
+export type ProcessingConfig = {
+    municipalities: { id: string; nameField: string; codeField: string };
+    groups: GroupConfig[];
     includeEmpty?: boolean;
 };
