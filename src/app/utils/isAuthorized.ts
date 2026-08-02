@@ -30,12 +30,7 @@ function createSignature(timestamp: string, secret: string) {
 export function isAuthorized(req: Request): boolean {
     const secret = process.env.INT_SYNC_SECRET_KEY;
 
-    if (!secret) {
-        console.error(
-            "INT_SYNC_SECRET_KEY no configurada"
-        );
-        return false;
-    }
+    if (!secret) return false;
 
     const token = req.headers
         .get("authorization")
