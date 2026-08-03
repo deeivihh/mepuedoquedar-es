@@ -123,6 +123,24 @@ function aggregate(op: string, values: number[]): number {
   }
 }
 
+function shouldExcludeRow(ind: IndicatorConfig, row: Row): boolean {
+  if (!ind.exclude) return false;
+  if (typeof ind.exclude === "function") {
+    return ind.exclude(row);
+  }
+  if (typeof ind.exclude === "object" && !Array.isArray(ind.exclude) && ind.exclude !== null) {
+    return Object.entries(ind.exclude).every(([k, v]) => row[k] === v);
+  }
+  return false;
+}
+
+function getExcludedFields(ind: IndicatorConfig): string[] {
+  if (!ind.exclude) return [];
+  if (typeof ind.exclude === "string") return [ind.exclude];
+  if (Array.isArray(ind.exclude)) return ind.exclude;
+  return [];
+}
+
 function processIndicator(
   group: string,
   name: string,
@@ -145,6 +163,7 @@ function processIndicator(
     const latestMap = new Map<string, { row: Row; sortVal: string | number }>();
     for (const row of rows) {
       if (ind.filter && !ind.filter(row)) continue;
+      if (shouldExcludeRow(ind, row)) continue;
       const groupKey = normalizeText(row[ind.latestGroupBy]);
       if (!groupKey) continue;
 
@@ -157,8 +176,16 @@ function processIndicator(
     processedRows = Array.from(latestMap.values()).map(x => x.row);
   }
 
+  const excludedFields = getExcludedFields(ind);
+  const activeFields = ind.fields
+    ? ind.fields.filter((f) => !excludedFields.includes(f))
+    : undefined;
+
   for (const row of processedRows) {
-    if (!ind.latestBy && ind.filter && !ind.filter(row)) continue;
+    if (!ind.latestBy) {
+      if (ind.filter && !ind.filter(row)) continue;
+      if (shouldExcludeRow(ind, row)) continue;
+    }
 
     let codes: string[];
     if (joinIndex) {
@@ -173,8 +200,8 @@ function processIndicator(
     const value = (needsValue && ind.field) ? normalizeNumber(row[ind.field]) : 1;
 
     const multiVals: Record<string, number> = {};
-    if (needsValue && ind.fields) {
-      for (const f of ind.fields) {
+    if (needsValue && activeFields) {
+      for (const f of activeFields) {
         multiVals[f] = normalizeNumber(row[f]);
       }
     }
@@ -183,9 +210,9 @@ function processIndicator(
     for (const code of codes) {
       if (!buckets.has(code)) buckets.set(code, { values: [], multiValues: {}, details: [] });
       const bucket = buckets.get(code)!;
-      if (ind.field || !ind.fields) bucket.values.push(value);
-      if (ind.fields) {
-        for (const f of ind.fields) {
+      if (ind.field || !activeFields) bucket.values.push(value);
+      if (activeFields) {
+        for (const f of activeFields) {
           if (!bucket.multiValues[f]) bucket.multiValues[f] = [];
           bucket.multiValues[f].push(multiVals[f]);
         }
@@ -197,7 +224,17 @@ function processIndicator(
           bucket.dates.add(d);
         }
       }
-      if (withDetails) bucket.details.push(row);
+      if (withDetails) {
+        if (excludedFields.length > 0) {
+          const detailRow = { ...row };
+          for (const f of excludedFields) {
+            delete detailRow[f];
+          }
+          bucket.details.push(detailRow);
+        } else {
+          bucket.details.push(row);
+        }
+      }
     }
   }
 
@@ -214,8 +251,8 @@ function processIndicator(
     const values = bucket?.values ?? [];
     const entry: Record<string, unknown> = {};
 
-    if (ind.fields) {
-      for (const f of ind.fields) {
+    if (activeFields) {
+      for (const f of activeFields) {
         entry[f] = aggregate(ind.operation, bucket?.multiValues?.[f] ?? []);
       }
     } else {

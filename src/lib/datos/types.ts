@@ -19,6 +19,7 @@ export type IndicatorConfig = {
     operation: Operation;
     field?: string;
     fields?: string[];
+    exclude?: string | string[] | ((row: Row) => boolean) | Record<string, unknown>;
     filter?: (row: Row) => boolean;
     details?: boolean;
     requires?: string;
