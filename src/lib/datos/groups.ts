@@ -79,7 +79,7 @@ export function getGroups(): GroupConfig[] {
       datasets: {
         establecimientosTuristicos: {
           id: "registro-de-turismo-de-castilla-y-leon",
-          select: ["municipio", "nombre", "direccion", "categoria", "tipo"]
+          select: ["municipio"]
         }
       },
       indicators: {
@@ -87,6 +87,7 @@ export function getGroups(): GroupConfig[] {
           dataset: "establecimientosTuristicos",
           municipality: "municipio",
           operation: "count",
+          details: false
         },
       },
     },
