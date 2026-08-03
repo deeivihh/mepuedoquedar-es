@@ -2,20 +2,22 @@ import { getSupabase } from "./client";
 
 type Municipality = Record<string, any>;
 
-export async function saveMunicipalities(
+export async function saveGroup(
     municipalities: Municipality[]
 ) {
-    const rows = municipalities.map(toDatabase);
-
     const batchSize = 500;
+
+    const rows = municipalities.map(toDatabase);
 
     for (let i = 0; i < rows.length; i += batchSize) {
         const batch = rows.slice(i, i + batchSize);
-        const { error } = await getSupabase()
-            .from("municipios")
-            .upsert(batch, {
-                onConflict: "codigo",
-            });
+
+        const { error } = await getSupabase().rpc(
+            "upsert_municipios",
+            {
+                rows: batch,
+            }
+        );
 
         if (error) {
             throw error;
