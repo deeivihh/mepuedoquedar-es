@@ -2,11 +2,12 @@ import { parse } from "csv-parse/sync";
 
 const BASE = "https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets";
 
-function buildParams(opts?: { where?: string; orderBy?: string; limit?: number }) {
+function buildParams(opts?: { where?: string; orderBy?: string; limit?: number; select?: string[] }) {
   const p = new URLSearchParams();
   if (opts?.where) p.set("where", opts.where);
   if (opts?.orderBy) p.set("order_by", opts.orderBy);
   if (opts?.limit !== undefined) p.set("limit", String(opts.limit));
+  if (opts?.select) p.set("select", opts.select.join(", "));
   return p;
 }
 
@@ -18,9 +19,11 @@ async function safeFetch(url: string, label: string) {
 
 export async function fetchDataset<T = Record<string, unknown>>(
   id: string,
-  opts?: { where?: string; orderBy?: string },
+  opts?: { where?: string; orderBy?: string; select?: string[] },
 ): Promise<T[]> {
-  const url = `${BASE}/${id}/exports/csv?${buildParams(opts)}`;
+  const params = buildParams(opts);
+  if (opts?.select) params.set("select", opts.select.join(", "));
+  const url = `${BASE}/${id}/exports/csv?${params}`;
   const res = await safeFetch(url, `dataset "${id}"`);
   return parse(await res.text(), { columns: true, skip_empty_lines: true, delimiter: ";", trim: true }) as T[];
 }

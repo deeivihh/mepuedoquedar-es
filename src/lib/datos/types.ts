@@ -2,7 +2,7 @@ type Row = Record<string, unknown>;
 
 export type Operation = "count" | "sum" | "average" | "exists";
 
-export type DatasetConfig = { id: string; where?: string };
+export type DatasetConfig = { id: string; where?: string; select?: string[] };
 
 export type JoinConfig = {
     dataset: string;

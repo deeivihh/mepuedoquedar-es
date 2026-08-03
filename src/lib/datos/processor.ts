@@ -49,7 +49,7 @@ export async function processDatasets(config: ProcessingConfig) {
   for (const groupConfig of config.groups) {
     const datasets = new Map<string, Row[]>();
     for (const [key, ds] of Object.entries(groupConfig.datasets)) {
-      datasets.set(key, await fetchDataset<Row>(ds.id, { where: ds.where }));
+      datasets.set(key, await fetchDataset<Row>(ds.id, { where: ds.where, select: ds.select }));
     }
 
     for (const [name, indicator] of Object.entries(groupConfig.indicators)) {
