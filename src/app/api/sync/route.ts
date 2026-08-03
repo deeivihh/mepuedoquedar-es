@@ -11,6 +11,10 @@ function getOneMonthAgo() {
   ).toISOString().slice(0, 10);
 }
 
+function lastYear() {
+  return new Date().getFullYear() - 1;
+}
+
 export async function POST(req: Request) {
   if (!isAuthorized(req)) {
     return NextResponse.json(
@@ -35,6 +39,20 @@ export async function POST(req: Request) {
 
     const oneMonthAgo = getOneMonthAgo();
     const groups: GroupConfig[] = [
+      {
+        group: "seguridad",
+        datasets: {
+          policiaLocal: { id: "datos-plantillas-cuerpos-policia-local", where: `ano = date'${lastYear()}'` },
+        },
+        indicators: {
+          policiaLocal: {
+            dataset: "policiaLocal",
+            municipality: "ayuntamiento",
+            operation: "sum",
+            fields: ["total"],
+          },
+        },
+      },
       {
         group: "educacion",
         datasets: {
