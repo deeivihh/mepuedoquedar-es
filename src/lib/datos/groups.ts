@@ -6,6 +6,7 @@ function getOneMonthAgo() {
   ).toISOString().slice(0, 10);
 }
 
+
 function lastYear() {
   return new Date().getFullYear() - 1;
 }
@@ -37,8 +38,8 @@ export function getGroups(): GroupConfig[] {
     {
       group: "educacion",
       datasets: {
-        centrosDocentes: { id: "directorio-de-centros-docentes" },
-        ofertaFP: { id: "oferta-de-formacion-profesional" },
+        centrosDocentes: { id: "directorio-de-centros-docentes", select: ["municipio", "denominacion_generica", "denominacion_generica_breve", "denominacion_especifica", "naturaleza", "localizacion", "web", "telefono"] },
+        ofertaFP: { id: "oferta-de-formacion-profesional", select: ["localidad", "centro_educativo", "modalidad", "tipo_ensenanza", "nivel_educativo", "familia_profesional"] },
       },
       indicators: {
         centrosDocentes: {
@@ -56,8 +57,8 @@ export function getGroups(): GroupConfig[] {
     {
       group: "comercio",
       datasets: {
-        empresasTIERRADESABOR: { id: "empresas-acogidas-a-la-marca-tierra-de-sabor" },
-        serviciosProximidad: { id: "servicios-proximidad" }
+        empresasTIERRADESABOR: { id: "empresas-acogidas-a-la-marca-tierra-de-sabor", select: ["localidad"] },
+        serviciosProximidad: { id: "servicios-proximidad", select: ["municipio"] }
       },
       indicators: {
         empresasTIERRADESABOR: {
@@ -94,8 +95,8 @@ export function getGroups(): GroupConfig[] {
     {
       group: "economia",
       datasets: {
-        establecimientosComerciales: { id: "establecimientos-comerciales" },
-        cooperativas: { id: "registrocooperativas" }
+        establecimientosComerciales: { id: "establecimientos-comerciales", select: ["municipio"] },
+        cooperativas: { id: "registrocooperativas", select: ["localidad"] }
       },
       indicators: {
         establecimientosComerciales: {
@@ -115,36 +116,39 @@ export function getGroups(): GroupConfig[] {
     {
       group: "empleo",
       datasets: {
-        oficinasECYL: { id: "oficinas-del-servicio-publico-de-empleo-ecyl" },
-        ofertasEMPLEO: { id: "ofertas-de-empleo" },
+        oficinasECYL: { id: "oficinas-del-servicio-publico-de-empleo-ecyl", select: ["localidad", "enlace_al_contenido", "nombre_del_organismo"] },
+        ofertasEMPLEO: { id: "ofertas-de-empleo", select: ["localidad"] },
       },
       indicators: {
         oficinasECYL: {
           dataset: "oficinasECYL",
           municipality: "localidad",
           operation: "count",
-          exclude: ["soloclasificar", "fax", "telefax_oficial", "paginas_de_internet"]
         },
         ofertasEMPLEO: {
           dataset: "ofertasEMPLEO",
           municipality: "localidad",
           operation: "count",
-          // exclude: ["provinciaalternativa"]
-          details: false,
         },
       },
     },
     {
       group: "sanidad",
       datasets: {
-        centrosSalud: { id: "centros-de-salud-municipios" },
+        centrosSalud: {
+          id: "registro-de-centros-sanitarios-de-castilla-y-leon",
+          where: `tipo_de_centro = "CENTROS DE ATENCION PRIMARIA: CENTROS DE SALUD"`,
+          select: ["localidad", "direccion", "telefono", "finalidad_asistencial"]
+        },
         centrosSanitarios: {
           id: "registro-de-centros-sanitarios-de-castilla-y-leon",
           where: `tipo_de_centro = 'HOSPITALES GENERALES'`,
+          select: ["localidad", "nombre_del_centro", "posicion", "telefono", "finalidad_asistencial"]
         },
         ocupacionCamasHospitales: {
           id: "ocupacion-de-camas-en-hospitales",
-          where: `fecha >= date'${oneMonthAgo}'`,
+          where: `fecha >= date'${oneMonthAgo}' AND camas_habilitadas_planta > 0`,
+          select: ["camas_habilitadas_planta", "camas_ocupadas_planta", "camas_habilitadas_uci", "camas_ocupadas_uci"]
         },
       },
       indicators: {
@@ -166,7 +170,6 @@ export function getGroups(): GroupConfig[] {
             localKey: "nombre_del_centro",
             foreignKey: "hospital",
           },
-          filter: (row: any) => Number(row.camas_habilitadas_planta) > 0,
           operation: "sum",
           fields: [
             "camas_habilitadas_planta",
@@ -185,11 +188,11 @@ export function getGroups(): GroupConfig[] {
     {
       group: "ocio",
       datasets: {
-        asociacionesJuveniles: { id: "asociaciones-juveniles" },
-        bibiliotecas: { id: "bibliotecas-bibliobuses-y-puntos-de-servicio-movil-geolocalizados" },
-        museos: { id: "museos" },
-        teatros: { id: "red_teatros" },
-        clubesDeportivos: { id: "registro-clubes-deportivos" },
+        asociacionesJuveniles: { id: "asociaciones-juveniles", select: ["localidad", "denominacion", "tipo_de_asociacion", "ambito", "direccion", "no_inscripcion"] },
+        bibiliotecas: { id: "bibliotecas-bibliobuses-y-puntos-de-servicio-movil-geolocalizados", select: ["nombre_entidad", "tipo", "enlace_contenido", "localidad"] },
+        museos: { id: "museos", select: ["nombreentidad", "localidad", "enlace_al_contenido"] },
+        teatros: { id: "red_teatros", select: ["municipio", "sala", "direccion", "email"] },
+        clubesDeportivos: { id: "registro-clubes-deportivos", select: ["localidad"] },
       },
       indicators: {
         asociacionesJuveniles: {
@@ -206,18 +209,16 @@ export function getGroups(): GroupConfig[] {
           dataset: "museos",
           municipality: "localidad",
           operation: "count",
-          exclude: ["columne_5", "columne_6", "directoriorelacionado1", "localidad0", "soloclasificar"]
         },
         teatros: {
           dataset: "teatros",
-          municipality: "localidad",
+          municipality: "municipio",
           operation: "count",
         },
         clubesDeportivos: {
           dataset: "clubesDeportivos",
           municipality: "localidad",
           operation: "count",
-          // exclude: ["column_14", "fax"],
           details: false,
         },
       },
@@ -225,7 +226,7 @@ export function getGroups(): GroupConfig[] {
     {
       group: "cultura",
       datasets: {
-        monumentos: { id: "relacion-monumentos" },
+        monumentos: { id: "relacion-monumentos", select: ["poblacion_municipio", "nombre", "tipomonumento", "periodohistorico", "identificadorbieninterescultural", "coordenadas"] },
       },
       indicators: {
         monumentos: {
