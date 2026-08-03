@@ -290,7 +290,9 @@ export async function POST(req: Request) {
       ok: true,
       time: `${seconds}s`,
       municipios: total,
-      preview: data.filter((m: any) => String(m.municipio).toUpperCase() === "MEDINA DEL CAMPO"),
+      datasets: totalDatasets,
+      grupos: groups.map(g => g.group),
+      ...(process.env.NODE_ENV === 'development' && { preview: data.filter((m: any) => String(m.municipio).toUpperCase() === "MEDINA DEL CAMPO") }),
     }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const msg = (error as Error).message;
