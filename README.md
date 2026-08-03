@@ -55,5 +55,5 @@ camasHospitales: {
 Si un dataset tiene datos "basura" (por ejemplo, hospitales que reportan 0 camas por error de servidor), puedes añadir un `filter` en el indicador para limpiarlos en memoria antes de hacer la matemática:
 
 ```typescript
-filter: (row: any) => Number(row.camas_habilitadas_planta) > 0,
+filter: (row: any) => Number(row.camas_habilitadas_planta) > 0
 ```
