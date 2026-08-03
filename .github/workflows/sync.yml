@@ -3,7 +3,7 @@ name: Sincronizar datos de la Junta de Castilla y León diariamente
 on:
   workflow_dispatch:
   schedule:
-    - cron: "15 3 * * *"
+    - cron: "20 1 * * *"
 
 jobs:
   sync:
