@@ -1,10 +1,9 @@
 name: Sincronizar datos de la Junta de Castilla y León diariamente
 
 on:
-  schedule:
-    - cron: "10 3 * * *"
-
   workflow_dispatch:
+  schedule:
+    - cron: "15 3 * * *"
 
 jobs:
   sync:
@@ -43,5 +42,3 @@ jobs:
           fi
 
           echo "✅ Sincronización completada"
-            -H "X-Sync-Timestamp: $TIMESTAMP" \
-            -H "X-Sync-Signature: $SIGNATURE"
