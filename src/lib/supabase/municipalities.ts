@@ -79,3 +79,17 @@ function toDatabase(
         updated_at: new Date().toISOString(),
     };
 }
+
+export async function getData(cod_ine: string) {
+    const { data, error } = await getSupabase()
+        .from("municipios")
+        .select("codigo, municipio, poblacion, provincia, latitud, longitud")
+        .eq("codigo", cod_ine)
+        .single();
+
+    if (error) {
+        throw error;
+    }
+
+    return data;
+}
