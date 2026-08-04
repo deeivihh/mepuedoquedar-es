@@ -1,8 +1,10 @@
 "use client"
 import { useEffect, useState } from "react";
 
-export function useLocation() {
+export function useLocation(hasExistingParams: boolean = false) {
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+    const [ready, setReady] = useState(false);
+
     useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
@@ -11,13 +13,21 @@ export function useLocation() {
                         latitude: pos.coords.latitude,
                         longitude: pos.coords.longitude,
                     });
+                    setReady(true);
                 },
-                (err) => console.warn("Error getting location, please enable it to get more accurate search results.", err)
+                (err) => {
+                    console.warn("Error getting location, please enable it to get more accurate search results.", err);
+                    setReady(true);
+                }
             );
+        } else {
+            setReady(true);
         }
     }, []);
+
+    const prefix = hasExistingParams ? "&" : "?";
     const locationParams = userLocation
-        ? `&lat=${userLocation.latitude}&lon=${userLocation.longitude}`
+        ? `${prefix}lat=${userLocation.latitude}&lon=${userLocation.longitude}`
         : "";
-    return locationParams;
+    return { locationParams, ready };
 }

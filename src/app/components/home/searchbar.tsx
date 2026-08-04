@@ -10,7 +10,7 @@ import { useLocation } from "@/app/utils/useLocation";
 import { useTypewriter } from "@/app/utils/useTypewriter";
 
 export default function SearchBar() {
-    const locationParams = useLocation();
+    const { locationParams, ready } = useLocation(true);
     const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<Site[]>([]);
@@ -59,12 +59,13 @@ export default function SearchBar() {
     }
 
     useEffect(() => {
+        if (!ready) return;
         if (query.trim() !== "" || query.length >= 3) {
             search(query);
         } else {
             setResults([]);
         }
-    }, [query]);
+    }, [query, ready]);
 
     useEffect(() => {
         getRandom();
