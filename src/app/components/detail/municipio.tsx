@@ -1,12 +1,11 @@
 "use client"
-import { Site } from "@/app/utils/types";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "@/app/utils/useLocation";
-import { Map, Marker } from "pigeon-maps";
+import { Map } from "pigeon-maps";
 import { IoPeopleSharp } from "react-icons/io5";
 import { FaCarSide, FaMapMarkedAlt, FaRoute } from "react-icons/fa";
-import { LiaExternalLinkSquareAltSolid } from "react-icons/lia";
 import { MdArrowOutward } from "react-icons/md";
+import { calculateScores, ScoreResult } from "@/lib/scores/calculateScores";
 
 function capitalize(value: string) {
     const firstLetter = value.charAt(0);
@@ -23,6 +22,8 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const [mapWidth, setMapWidth] = useState(400);
     const [mapHeight, setMapHeight] = useState(305);
+
+    const [scores, setScores] = useState<ScoreResult | null>(null);
 
     // Cambia el tamaño del mapa en base al contenedor
     useEffect(() => {
@@ -61,6 +62,18 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         }
         fetchData();
     }, [cod, locationParams, ready]);
+
+    useEffect(() => {
+        if (!data) return;
+
+        async function generateScores() {
+            const scores = calculateScores(data?.datos);
+            console.log(scores)
+            setScores(scores);
+        }
+
+        generateScores();
+    }, [data])
 
     if (isLoading) return <div>Cargando municipio...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -106,7 +119,13 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                         />
                     </div>
                 </section>
-                <section className="flex flex-col gap-2 overflow-hidden relative w-full border-t-2 border-title/20 px-8 py-4">
+                <section className="flex flex-col gap-2 overflow-hidden relative w-full border-t-2 border-title/20">
+                    <div className="w-50 h-50 flex flex-col items-center justify-center">
+                        <div className="flex flex-col items-start">
+                            <div className="text-8xl font-bold">{scores?.global}</div>
+                            <span className="px-2 text-lg">de 100</span>
+                        </div>
+                    </div>
                 </section>
             </div>
         </div>

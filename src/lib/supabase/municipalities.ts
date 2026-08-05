@@ -83,13 +83,51 @@ function toDatabase(
 export async function getData(cod_ine: string) {
     const { data, error } = await getSupabase()
         .from("municipios")
-        .select("codigo, municipio, poblacion, provincia, latitud, longitud")
+        .select(`codigo, municipio, poblacion, provincia, latitud, longitud, ${datosSelect}`)
         .eq("codigo", cod_ine)
         .single();
+    if (error) throw error;
+    const row = data as Record<string, any>;
+    return {
+        codigo: row.codigo,
+        municipio: row.municipio,
+        poblacion: row.poblacion,
+        provincia: row.provincia,
+        latitud: row.latitud,
+        longitud: row.longitud,
+        datos: buildDatos(row),
+    };
+}
 
-    if (error) {
-        throw error;
+import weightsConfig from "../scores/weights.json";
+
+type FieldEntry = { dept: string; parts: string[]; alias: string };
+
+const fields: FieldEntry[] = Object.entries(weightsConfig).flatMap(([dept, cfg]) =>
+    (cfg as any).rules.map((r: any) => {
+        const parts: string[] = r.field.split(".");
+        return { dept, parts, alias: `${dept}_${parts.join("_")}` };
+    })
+);
+
+const datosSelect = fields
+    .map((f) => `${f.alias}:datos->${f.dept}->${f.parts.join("->")}`)
+    .join(",");
+
+function buildDatos(data: Record<string, any>): Record<string, any> {
+    const datos: Record<string, any> = {};
+
+    for (const { dept, parts, alias } of fields) {
+        datos[dept] ??= {};
+        let cur = datos[dept];
+
+        for (let i = 0; i < parts.length - 1; i++) {
+            cur[parts[i]] ??= {};
+            cur = cur[parts[i]];
+        }
+
+        cur[parts.at(-1)!] = data[alias] ?? 0;
     }
 
-    return data;
+    return datos;
 }
