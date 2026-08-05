@@ -88,7 +88,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                                 </div>
                             </div>
                         </div>
-                        <div className="min-md:absolute min-md:right-7 min-md:bottom-5 max-md:flex max-[23.5rem]:flex-col max-[23.5rem]:w-full max-md:justify-center max-md:items-center gap-2 z-50">
+                        <div className="min-md:absolute min-md:right-7 min-md:bottom-5.5 max-md:flex max-[23.5rem]:flex-col max-[23.5rem]:w-full max-md:justify-center max-md:items-center gap-2 z-50">
                             <a href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`} target="_blank" rel="noopener noreferrer" className="w-fit flex backdrop-blur-xs items-center gap-2 py-1 max-md:justify-center rounded-full hover:shadow-inner hover:bg-text-2 bg-text-2/90 font-semibold border border-title/20 min-md:px-4 max-md:w-80 max-[23.5rem]:w-90"><span className="text-white flex gap-2 items-center">Cómo llegar <MdArrowOutward /></span></a>
                         </div>
                     </div>
