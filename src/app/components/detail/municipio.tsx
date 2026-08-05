@@ -5,6 +5,8 @@ import { useLocation } from "@/app/utils/useLocation";
 import { Map, Marker } from "pigeon-maps";
 import { IoPeopleSharp } from "react-icons/io5";
 import { FaCarSide, FaMapMarkedAlt, FaRoute } from "react-icons/fa";
+import { LiaExternalLinkSquareAltSolid } from "react-icons/lia";
+import { MdArrowOutward } from "react-icons/md";
 
 function capitalize(value: string) {
     const firstLetter = value.charAt(0);
@@ -67,25 +69,27 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     return (
         <div className="flex flex-col gap-2 justify-center items-center min-md:mx-auto w-full h-full max-w-6xl">
             <div className="flex flex-col bg-bg-card rounded-[32px] my-4 w-full h-full overflow-hidden border-3 border-title/10">
-                <section className="flex flex-col justify-end items-start overflow-hidden relative w-full h-fit min-h-[30svh]">
-                    <div className="flex flex-col h-full max-md:w-full gap-4 py-4 min-md:p-10 px-6 z-50">
-                        <div className="flex flex-col items-start justify-center w-full max-w-2xl h-full z-10 pt-2">
-                            <h1 className="text-6xl max-md:text-4xl max-md:w-full min-md:max-w-[17ch] font-bold text-pretty max-md:text-center">{data.municipio}</h1>
+                <section className="flex flex-col justify-end items-start overflow-hidden relative w-full h-fit min-h-[20svh]">
+                    <div className="flex flex-col gap-4 max-md:py-6 p-8 pb-6 h-full w-full">
+                        <div className="flex flex-col items-start justify-center h-full w-full max-w-2xl">
+                            <h1 className="text-6xl max-md:text-4xl max-md:w-full min-md:max-w-[17ch] font-bold text-pretty max-md:text-center z-10">{data.municipio}</h1>
                         </div>
-                        <div className="flex items-start justify-bottom w-full max-md:items-center max-md:justify-center">
-                            <div className="flex max-md:flex-col max-md:w-full gap-2 max-md:items-center max-md:justify-center">
-                                <a href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 max-md:py-1 max-md:justify-center rounded-full hover:bg-text-2/90 hover:shadow-md bg-text-2 shadow-sm shadow-text-2/50 font-semibold text-white min-md:px-4 max-md:w-80 max-[23.5rem]:w-90">Cómo llegar</a>
-                                <div className="flex max-[23.5rem]:flex-col max-[23.5rem]:w-full max-md:justify-center max-md:items-center gap-2">
-                                    {data.provincia && <span className="flex items-center gap-2 rounded-full bg-white px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center border"><FaMapMarkedAlt /> {capitalize(data?.provincia)}</span>}
-                                    {data.poblacion > 0 && <span className="flex items-center gap-2 rounded-full bg-white px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center border"><IoPeopleSharp /> {data?.poblacion.toLocaleString('es-ES', { useGrouping: true })}</span>}
+                        <div className="flex max-md:items-center max-md:justify-center z-50">
+                            <div className="flex flex-col max-md:w-full gap-4 max-md:items-center max-md:justify-center px-0.5">
+                                <div className="flex max-[23.5rem]:flex-col gap-2">
+                                    {data.provincia && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border"><FaMapMarkedAlt /> {capitalize(data?.provincia)}</span>}
+                                    {data.poblacion > 0 && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border"><IoPeopleSharp /> {data?.poblacion.toLocaleString('es-ES', { useGrouping: true })}</span>}
                                     {data.distance > 0 && (
-                                        <span className="flex items-center gap-2 rounded-full bg-white px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center border"><FaCarSide /> {data.distance >= 1000
+                                        <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border"><FaCarSide /> {data.distance >= 1000
                                             ? `${(data.distance / 1000).toFixed(0)}km`
                                             : `${data.distance}m`}
                                         </span>
                                     )}
                                 </div>
                             </div>
+                        </div>
+                        <div className="min-md:absolute min-md:right-7 min-md:bottom-5 max-md:flex max-[23.5rem]:flex-col max-[23.5rem]:w-full max-md:justify-center max-md:items-center gap-2 z-50">
+                            <a href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`} target="_blank" rel="noopener noreferrer" className="w-fit flex backdrop-blur-xs items-center gap-2 py-1 max-md:justify-center rounded-full hover:shadow-inner hover:bg-text-2 bg-text-2/90 font-semibold border border-title/20 min-md:px-4 max-md:w-80 max-[23.5rem]:w-90"><span className="text-white flex gap-2 items-center">Cómo llegar <MdArrowOutward /></span></a>
                         </div>
                     </div>
                     <div
