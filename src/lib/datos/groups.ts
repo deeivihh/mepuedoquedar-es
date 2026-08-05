@@ -138,50 +138,24 @@ export function getGroups(): GroupConfig[] {
         centrosSalud: {
           id: "registro-de-centros-sanitarios-de-castilla-y-leon",
           where: `tipo_de_centro = "CENTROS DE ATENCION PRIMARIA: CENTROS DE SALUD"`,
-          select: ["localidad", "direccion", "telefono", "finalidad_asistencial"]
+          select: ["localidad", "nombre_del_centro", "direccion", "telefono", "finalidad_asistencial"]
         },
         centrosSanitarios: {
           id: "registro-de-centros-sanitarios-de-castilla-y-leon",
           where: `tipo_de_centro = 'HOSPITALES GENERALES'`,
           select: ["localidad", "nombre_del_centro", "posicion", "telefono", "finalidad_asistencial"]
         },
-        ocupacionCamasHospitales: {
-          id: "ocupacion-de-camas-en-hospitales",
-          where: `fecha >= date'${oneMonthAgo}' AND camas_habilitadas_planta > 0`,
-          select: ["camas_habilitadas_planta", "camas_ocupadas_planta", "camas_habilitadas_uci", "camas_ocupadas_uci"]
-        },
       },
       indicators: {
         centrosSalud: {
           dataset: "centrosSalud",
-          municipality: "municipio",
+          municipality: "localidad",
           operation: "count",
         },
         hospitales: {
           dataset: "centrosSanitarios",
           municipality: "localidad",
           operation: "count",
-        },
-        camasHospitales: {
-          dataset: "ocupacionCamasHospitales",
-          joinVia: {
-            dataset: "centrosSanitarios",
-            municipality: "localidad",
-            localKey: "nombre_del_centro",
-            foreignKey: "hospital",
-          },
-          operation: "sum",
-          fields: [
-            "camas_habilitadas_planta",
-            "camas_ocupadas_planta",
-            "camas_habilitadas_uci",
-            "camas_ocupadas_uci",
-          ],
-          details: false,
-          requires: "hospitales",
-          latestBy: "fecha",
-          latestGroupBy: "hospital",
-          dateField: "fecha",
         },
       },
     },
