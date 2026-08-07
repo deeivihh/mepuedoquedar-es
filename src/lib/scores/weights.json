@@ -313,5 +313,69 @@
                 ]
             }
         ]
+    },
+    "juventud": {
+        "weight": 10,
+        "rules": [
+            {
+                "label": "Asociaciones juveniles",
+                "field": "asociacionesJuveniles.cantidad",
+                "type": "range",
+                "ranges": [
+                    {
+                        "min": 0,
+                        "max": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 1,
+                        "max": 2,
+                        "points": 20
+                    },
+                    {
+                        "min": 3,
+                        "max": 5,
+                        "points": 50
+                    },
+                    {
+                        "min": 6,
+                        "max": 999999,
+                        "points": 100
+                    }
+                ]
+            }
+        ]
+    },
+    "deportes": {
+        "weight": 10,
+        "rules": [
+            {
+                "label": "Clubes deportivos",
+                "field": "clubesDeportivos.cantidad",
+                "type": "range",
+                "ranges": [
+                    {
+                        "min": 0,
+                        "max": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 1,
+                        "max": 5,
+                        "points": 10
+                    },
+                    {
+                        "min": 6,
+                        "max": 20,
+                        "points": 20
+                    },
+                    {
+                        "min": 21,
+                        "max": 999999,
+                        "points": 30
+                    }
+                ]
+            }
+        ]
     }
 }
