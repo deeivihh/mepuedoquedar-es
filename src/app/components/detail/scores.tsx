@@ -25,6 +25,7 @@ const DEPARTMENT_ICONS: Record<string, IconType> = {
     ocio: GiBowlingPin,
     seguridad: FaShieldAlt,
     juventud: FaPeopleGroup,
+    deporte: MdOutlineSportsMartialArts,
     deportes: MdOutlineSportsMartialArts,
 };
 

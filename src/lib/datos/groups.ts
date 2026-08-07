@@ -162,7 +162,6 @@ export function getGroups(): GroupConfig[] {
     {
       group: "ocio",
       datasets: {
-        asociacionesJuveniles: { id: "asociaciones-juveniles", select: ["localidad", "denominacion", "tipo_de_asociacion", "ambito", "direccion", "no_inscripcion"] },
         bibiliotecas: { id: "bibliotecas-bibliobuses-y-puntos-de-servicio-movil-geolocalizados", select: ["nombre_entidad", "tipo", "enlace_contenido", "localidad"] },
         museos: { id: "museos", select: ["nombreentidad", "localidad", "enlace_al_contenido"] },
         teatros: { id: "red_teatros", select: ["municipio", "sala", "direccion", "email"] }
@@ -182,12 +181,6 @@ export function getGroups(): GroupConfig[] {
           dataset: "teatros",
           municipality: "municipio",
           operation: "count",
-        },
-        clubesDeportivos: {
-          dataset: "clubesDeportivos",
-          municipality: "localidad",
-          operation: "count",
-          details: false,
         },
       },
     },
