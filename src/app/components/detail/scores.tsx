@@ -10,8 +10,9 @@ import {
 } from "react-icons/fa";
 import { IconType } from "react-icons";
 import { IoIosStar, IoIosStarHalf, IoIosStarOutline } from "react-icons/io";
-import { MdLocalHospital, MdOutlineTravelExplore } from "react-icons/md";
+import { MdLocalHospital, MdOutlineSportsMartialArts, MdOutlineTravelExplore } from "react-icons/md";
 import { GiBowlingPin } from "react-icons/gi";
+import { FaPeopleGroup } from "react-icons/fa6";
 
 const DEPARTMENT_ICONS: Record<string, IconType> = {
     sanidad: MdLocalHospital,
@@ -23,6 +24,8 @@ const DEPARTMENT_ICONS: Record<string, IconType> = {
     cultura: FaLandmark,
     ocio: GiBowlingPin,
     seguridad: FaShieldAlt,
+    juventud: FaPeopleGroup,
+    deportes: MdOutlineSportsMartialArts,
 };
 
 

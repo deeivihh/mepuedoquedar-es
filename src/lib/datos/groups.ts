@@ -165,15 +165,9 @@ export function getGroups(): GroupConfig[] {
         asociacionesJuveniles: { id: "asociaciones-juveniles", select: ["localidad", "denominacion", "tipo_de_asociacion", "ambito", "direccion", "no_inscripcion"] },
         bibiliotecas: { id: "bibliotecas-bibliobuses-y-puntos-de-servicio-movil-geolocalizados", select: ["nombre_entidad", "tipo", "enlace_contenido", "localidad"] },
         museos: { id: "museos", select: ["nombreentidad", "localidad", "enlace_al_contenido"] },
-        teatros: { id: "red_teatros", select: ["municipio", "sala", "direccion", "email"] },
-        clubesDeportivos: { id: "registro-clubes-deportivos", select: ["localidad"] },
+        teatros: { id: "red_teatros", select: ["municipio", "sala", "direccion", "email"] }
       },
       indicators: {
-        asociacionesJuveniles: {
-          dataset: "asociacionesJuveniles",
-          municipality: "localidad",
-          operation: "count",
-        },
         bibiliotecas: {
           dataset: "bibiliotecas",
           municipality: "localidad",
@@ -198,9 +192,37 @@ export function getGroups(): GroupConfig[] {
       },
     },
     {
+      group: "deporte",
+      datasets: {
+        clubesDeportivos: { id: "registro-clubes-deportivos", select: ["localidad"] },
+      },
+      indicators: {
+        clubesDeportivos: {
+          dataset: "clubesDeportivos",
+          municipality: "localidad",
+          operation: "count",
+          details: false,
+        },
+      },
+    },
+    {
+      group: "juventud",
+      datasets: {
+        asociacionesJuveniles: { id: "asociaciones-juveniles", select: ["localidad"] }, // , "denominacion", "tipo_de_asociacion", "ambito", "direccion", "no_inscripcion"
+      },
+      indicators: {
+        asociacionesJuveniles: {
+          dataset: "asociacionesJuveniles",
+          municipality: "localidad",
+          operation: "count",
+          details: false,
+        },
+      },
+    },
+    {
       group: "cultura",
       datasets: {
-        monumentos: { id: "relacion-monumentos", select: ["poblacion_municipio", "nombre", "tipomonumento", "periodohistorico", "identificadorbieninterescultural", "coordenadas"] },
+        monumentos: { id: "relacion-monumentos", select: ["poblacion_municipio", "nombre", "tipomonumento", "periodohistorico", "identificador bieninterescultural", "coordenadas"] },
       },
       indicators: {
         monumentos: {
