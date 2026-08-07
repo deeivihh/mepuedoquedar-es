@@ -6,6 +6,7 @@ import { IoPeopleSharp } from "react-icons/io5";
 import { FaCarSide, FaMapMarkedAlt, FaRoute } from "react-icons/fa";
 import { MdArrowOutward } from "react-icons/md";
 import { calculateScores, ScoreResult } from "@/lib/scores/calculateScores";
+import GeneralScore, { ScoreItem } from "@/app/components/detail/scores";
 
 function capitalize(value: string) {
     const firstLetter = value.charAt(0);
@@ -81,7 +82,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     return (
         <div className="flex flex-col gap-2 justify-center items-center min-md:mx-auto w-full h-full max-w-6xl">
-            <div className="flex flex-col bg-bg-card rounded-[32px] my-4 w-full h-full overflow-hidden border-3 border-title/10">
+            <div className="flex flex-col bg-bg-card rounded-[32px] my-4 pb-8 w-full min-h-[94svh] overflow-hidden border-3 border-title/10">
                 <section className="flex flex-col justify-end items-start overflow-hidden relative w-full h-fit min-h-[20svh]">
                     <div className="flex flex-col gap-4 max-md:py-6 p-8 pb-6 h-full w-full">
                         <div className="flex flex-col items-start justify-center h-full w-full max-w-2xl">
@@ -90,10 +91,10 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                         <div className="flex max-md:items-center max-md:justify-center z-50">
                             <div className="flex flex-col max-md:w-full gap-4 max-md:items-center max-md:justify-center px-0.5">
                                 <div className="flex max-[23.5rem]:flex-col gap-2">
-                                    {data.provincia && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border"><FaMapMarkedAlt /> {capitalize(data?.provincia)}</span>}
-                                    {data.poblacion > 0 && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border"><IoPeopleSharp /> {data?.poblacion.toLocaleString('es-ES', { useGrouping: true })}</span>}
+                                    {data.provincia && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><FaMapMarkedAlt /> {capitalize(data?.provincia)}</span>}
+                                    {data.poblacion > 0 && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><IoPeopleSharp /> {data?.poblacion.toLocaleString('es-ES', { useGrouping: true })}</span>}
                                     {data.distance > 0 && (
-                                        <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border"><FaCarSide /> {data.distance >= 1000
+                                        <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><FaCarSide /> {data.distance >= 1000
                                             ? `${(data.distance / 1000).toFixed(0)}km`
                                             : `${data.distance}m`}
                                         </span>
@@ -119,11 +120,13 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                         />
                     </div>
                 </section>
-                <section className="flex flex-col gap-2 overflow-hidden relative w-full border-t-2 border-title/20">
-                    <div className="w-50 h-50 flex flex-col items-center justify-center">
-                        <div className="flex flex-col items-start">
-                            <div className="text-8xl font-bold">{scores?.global}</div>
-                            <span className="px-2 text-lg">de 100</span>
+                <section className="flex flex-col gap-4 overflow-hidden relative w-full border-t-2 border-title/20">
+                    <GeneralScore number={scores?.global ?? 0} />
+                    <div className="min-xl:flex min-xl:justify-center min-xl:items-center w-full px-8">
+                        <div className="grid min-xl:grid-cols-6 min-md:grid-cols-3 max-md:grid-cols-2 max-[25rem]:grid-cols-1 gap-12">
+                            {Object.entries(scores?.departments ?? {}).map(([key, value]) => (
+                                <ScoreItem key={key} name={key} number={value} />
+                            ))}
                         </div>
                     </div>
                 </section>

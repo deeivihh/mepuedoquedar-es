@@ -8,7 +8,7 @@ export default async function DetailPage({
     const { cod } = await params;
 
     return (
-        <main className="flex flex-col h-screen w-full max-md:p-4">
+        <main className="flex flex-col justify-start items-center min-h-screen w-full max-md:p-4 p-4">
             <MunicipioDetail cod={cod} />
         </main>
     );
