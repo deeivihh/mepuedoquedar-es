@@ -185,7 +185,7 @@ export function getGroups(): GroupConfig[] {
       },
     },
     {
-      group: "deporte",
+      group: "deportes",
       datasets: {
         clubesDeportivos: { id: "registro-clubes-deportivos", select: ["localidad"] },
       },
@@ -215,7 +215,7 @@ export function getGroups(): GroupConfig[] {
     {
       group: "cultura",
       datasets: {
-        monumentos: { id: "relacion-monumentos", select: ["poblacion_municipio", "nombre", "tipomonumento", "periodohistorico", "identificador bieninterescultural", "coordenadas"] },
+        monumentos: { id: "relacion-monumentos", select: ["poblacion_municipio", "nombre", "tipomonumento", "periodohistorico", "identificadorbieninterescultural", "coordenadas"] },
       },
       indicators: {
         monumentos: {
