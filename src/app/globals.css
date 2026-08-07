@@ -44,6 +44,7 @@ button {
 Link,
 a {
     transition: all 0.15s;
+    outline: none;
 }
 
 body {
