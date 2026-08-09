@@ -1,43 +1,31 @@
 import config from "./weights.json";
 
-interface BooleanRule {
+interface ThresholdRule {
     label: string;
     field: string;
-    type: "boolean";
+    type: "threshold";
+    min: number;
     points: number;
 }
 
-interface LinearRule {
+interface InterpolatedRule {
     label: string;
     field: string;
-    type: "linear";
-    multiplier: number;
+    type: "interpolated";
+    points: { at: number; score: number }[];
+    per_capita?: { per: number };
+}
+
+interface LogScaleRule {
+    label: string;
+    field: string;
+    type: "log_scale";
+    base: number;
     max: number;
+    per_capita?: { per: number };
 }
 
-interface RangeRule {
-    label: string;
-    field: string;
-    type: "range";
-    ranges: { min: number; max: number; points: number }[];
-}
-
-interface FixedRule {
-    label: string;
-    field: string;
-    type: "fixed";
-    values: Record<string, number>;
-}
-
-interface PerCapitaRule {
-    label: string;
-    field: string;
-    type: "per_capita";
-    per: number;
-    ranges: { min: number; max: number; points: number }[];
-}
-
-type Rule = BooleanRule | LinearRule | RangeRule | FixedRule | PerCapitaRule;
+type Rule = ThresholdRule | InterpolatedRule | LogScaleRule;
 
 interface DepartmentConfig {
     weight: number;
@@ -56,6 +44,7 @@ export interface DepartmentScore {
     score: number;
     maxScore: number;
     indicators: Indicator[];
+    noData?: boolean;
 }
 
 export interface ScoreResult {
@@ -63,92 +52,153 @@ export interface ScoreResult {
     departments: Record<string, DepartmentScore>;
 }
 
+type Evaluation = {
+    score: number;
+    max: number;
+    ratio?: number;
+};
+
 type RuleEvaluator = (
     rule: Rule,
     value: unknown,
     poblacion: number
-) => { score: number; max: number; ratio?: number };
+) => Evaluation;
 
 const evaluators: Record<string, RuleEvaluator> = {
-    boolean(rule, value) {
-        const r = rule as BooleanRule;
-        const num = toNumber(value);
+    threshold(rule, value) {
+        const r = rule as ThresholdRule;
+        const n = toNumber(value);
+
         return {
-            score: num > 0 ? r.points : 0,
-            max: r.points,
+            score: n >= r.min ? r.points : 0,
+            max: r.points
         };
     },
 
-    linear(rule, value) {
-        const r = rule as LinearRule;
-        const num = toNumber(value);
-        return {
-            score: Math.min(num * r.multiplier, r.max),
-            max: r.max,
-        };
-    },
+    interpolated(rule, value, poblacion) {
+        const r = rule as InterpolatedRule;
+        let n = toNumber(value);
 
-    range(rule, value) {
-        const r = rule as RangeRule;
-        const num = toNumber(value);
-        const maxPoints = Math.max(...r.ranges.map((rng) => rng.points));
+        const anchors = [...r.points].sort((a, b) => a.at - b.at);
+        const maxScore = Math.max(...anchors.map((p) => p.score));
 
-        const sortedRanges = [...r.ranges].sort((a, b) => b.min - a.min);
-        const matched = sortedRanges.find((rng) => num >= rng.min);
-        return {
-            score: matched ? matched.points : 0,
-            max: maxPoints,
-        };
-    },
-
-    fixed(rule, value) {
-        const r = rule as FixedRule;
-        const key = String(value ?? "");
-        const maxPoints = Math.max(...Object.values(r.values), 0);
-        return {
-            score: r.values[key] ?? 0,
-            max: maxPoints,
-        };
-    },
-
-    per_capita(rule, value, poblacion) {
-        const r = rule as PerCapitaRule;
-        const cantidad = toNumber(value);
-        const maxPoints = Math.max(...r.ranges.map((rng) => rng.points));
-
-        if (poblacion <= 0 || cantidad <= 0) {
-            return { score: 0, max: maxPoints, ratio: 0 };
+        if (r.per_capita) {
+            if (poblacion <= 0) {
+                return { score: 0, max: maxScore, ratio: 0 };
+            }
+            n = (n / poblacion) * r.per_capita.per;
         }
 
-        const ratio = (cantidad / poblacion) * r.per;
-        const comparableRatio = Math.round(ratio * 1_000_000) / 1_000_000;
-        const sortedRanges = [...r.ranges].sort((a, b) => b.min - a.min);
-        const matched = sortedRanges.find((rng) => comparableRatio >= rng.min);
+        if (anchors.length === 0) {
+            return { score: 0, max: 0 };
+        }
+
+        if (n <= anchors[0].at) {
+            return {
+                score: anchors[0].score,
+                max: maxScore,
+                ...(r.per_capita ? { ratio: round(n, 3) } : {})
+            };
+        }
+
+        if (n >= anchors[anchors.length - 1].at) {
+            return {
+                score: anchors[anchors.length - 1].score,
+                max: maxScore,
+                ...(r.per_capita ? { ratio: round(n, 3) } : {})
+            };
+        }
+
+        for (let i = 0; i < anchors.length - 1; i++) {
+            if (n >= anchors[i].at && n <= anchors[i + 1].at) {
+                const t =
+                    (n - anchors[i].at) /
+                    (anchors[i + 1].at - anchors[i].at);
+
+                const score =
+                    anchors[i].score +
+                    t * (anchors[i + 1].score - anchors[i].score);
+
+                return {
+                    score,
+                    max: maxScore,
+                    ...(r.per_capita
+                        ? { ratio: round(n, 3) }
+                        : {})
+                };
+            }
+        }
 
         return {
-            score: matched ? matched.points : 0,
-            max: maxPoints,
-            ratio: Math.round(ratio * 100) / 100,
+            score: 0,
+            max: maxScore,
+            ...(r.per_capita ? { ratio: round(n, 3) } : {})
         };
     },
+
+    log_scale(rule, value, poblacion) {
+        const r = rule as LogScaleRule;
+        let n = toNumber(value);
+
+        if (r.per_capita) {
+            if (poblacion <= 0) {
+                return { score: 0, max: r.max, ratio: 0 };
+            }
+            n = (n / poblacion) * r.per_capita.per;
+        }
+
+        if (n <= 0) {
+            return {
+                score: 0,
+                max: r.max,
+                ...(r.per_capita ? { ratio: 0 } : {})
+            };
+        }
+
+        const score = Math.min(
+            r.max,
+            r.max * (Math.log(1 + n) / Math.log(1 + r.base))
+        );
+
+        return {
+            score,
+            max: r.max,
+            ...(r.per_capita ? { ratio: round(n, 3) } : {})
+        };
+    }
 };
 
 function toNumber(value: unknown): number {
-    if (typeof value === "number") return value;
+    if (typeof value === "number") {
+        return Number.isFinite(value) ? value : 0;
+    }
+
     if (typeof value === "string") {
         const parsed = Number(value);
-        return Number.isNaN(parsed) ? 0 : parsed;
+        return Number.isFinite(parsed) ? parsed : 0;
     }
+
     return 0;
 }
-function resolve(obj: Record<string, unknown>, path: string): unknown {
+
+function round(value: number, decimals: number): number {
+    const factor = 10 ** decimals;
+    return Math.round(value * factor) / factor;
+}
+
+function resolve(
+    object: Record<string, unknown>,
+    path: string
+): unknown {
     return path.split(".").reduce<unknown>((current, key) => {
         if (current !== null && typeof current === "object") {
             return (current as Record<string, unknown>)[key];
         }
+
         return undefined;
-    }, obj);
+    }, object);
 }
+
 function evaluateRule(
     rule: Rule,
     departmentData: Record<string, unknown>,
@@ -158,48 +208,92 @@ function evaluateRule(
     const evaluator = evaluators[rule.type];
 
     if (!evaluator) {
-        return { label: rule.label, value, score: 0, max: 0 };
+        return {
+            label: rule.label,
+            value: value ?? 0,
+            score: 0,
+            max: 0
+        };
     }
 
-    const { score, max, ratio } = evaluator(rule, value, poblacion);
+    const result = evaluator(rule, value, poblacion);
 
     return {
         label: rule.label,
         value: value ?? 0,
-        score: Math.round(score),
-        max: Math.round(max),
-        ...(ratio !== undefined && { ratio }),
+        score: Math.round(result.score),
+        max: Math.round(result.max),
+        ...(result.ratio !== undefined
+            ? { ratio: result.ratio }
+            : {})
     };
 }
 
-export function calculateScores(municipio: Record<string, unknown>): ScoreResult {
+export function calculateScores(
+    municipio: Record<string, unknown>
+): ScoreResult {
     const departments: Record<string, DepartmentScore> = {};
-    const typedConfig = config as unknown as Record<string, DepartmentConfig>;
+
+    const typedConfig =
+        config as unknown as Record<string, DepartmentConfig>;
 
     const poblacion = toNumber(municipio.poblacion);
-    const datos = (municipio.datos ?? municipio) as Record<string, unknown>;
+
+    const datos = (municipio.datos ?? municipio) as Record<
+        string,
+        unknown
+    >;
 
     let weightedSum = 0;
     let totalWeight = 0;
 
-    for (const [departmentKey, departmentConfig] of Object.entries(typedConfig)) {
-        const departmentData = (datos[departmentKey] ?? {}) as Record<string, unknown>;
+    for (const [departmentKey, departmentConfig] of Object.entries(
+        typedConfig
+    )) {
+        const departmentData = (datos[departmentKey] ?? {}) as Record<
+            string,
+            unknown
+        >;
 
         const indicators = departmentConfig.rules.map((rule) =>
             evaluateRule(rule, departmentData, poblacion)
         );
 
-        const score = indicators.reduce((sum, ind) => sum + ind.score, 0);
-        const maxScore = indicators.reduce((sum, ind) => sum + ind.max, 0);
+        const score = indicators.reduce(
+            (sum, indicator) => sum + indicator.score,
+            0
+        );
 
-        departments[departmentKey] = { score, maxScore, indicators };
+        const maxScore = indicators.reduce(
+            (sum, indicator) => sum + indicator.max,
+            0
+        );
 
-        const normalised = maxScore > 0 ? score / maxScore : 0;
-        weightedSum += normalised * departmentConfig.weight;
+        const hasData = indicators.some(
+            (ind) => toNumber(ind.value) > 0
+        );
+
+        departments[departmentKey] = {
+            score,
+            maxScore,
+            indicators,
+            ...(hasData ? {} : { noData: true })
+        };
+
+        const normalized =
+            maxScore > 0 ? score / maxScore : 0;
+
+        weightedSum += normalized * departmentConfig.weight;
         totalWeight += departmentConfig.weight;
     }
 
-    const global = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 100) : 0;
+    const global =
+        totalWeight > 0
+            ? Math.round((weightedSum / totalWeight) * 100)
+            : 0;
 
-    return { global, departments };
+    return {
+        global,
+        departments
+    };
 }
