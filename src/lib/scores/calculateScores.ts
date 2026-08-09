@@ -121,9 +121,9 @@ const evaluators: Record<string, RuleEvaluator> = {
         }
 
         const ratio = (cantidad / poblacion) * r.per;
-
+        const comparableRatio = Math.round(ratio * 1_000_000) / 1_000_000;
         const sortedRanges = [...r.ranges].sort((a, b) => b.min - a.min);
-        const matched = sortedRanges.find((rng) => ratio >= rng.min);
+        const matched = sortedRanges.find((rng) => comparableRatio >= rng.min);
 
         return {
             score: matched ? matched.points : 0,
