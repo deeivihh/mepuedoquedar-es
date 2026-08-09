@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import { IconType } from "react-icons";
 import { IoIosStar, IoIosStarHalf, IoIosStarOutline } from "react-icons/io";
-import { MdLocalHospital, MdOutlineSportsMartialArts, MdOutlineTravelExplore } from "react-icons/md";
+import { MdLocalHospital, MdOutlineSportsMartialArts, MdOutlineTravelExplore, MdPublic } from "react-icons/md";
 import { GiBowlingPin } from "react-icons/gi";
 import { FaPeopleGroup } from "react-icons/fa6";
 
@@ -27,6 +27,7 @@ const DEPARTMENT_ICONS: Record<string, IconType> = {
     juventud: FaPeopleGroup,
     deporte: MdOutlineSportsMartialArts,
     deportes: MdOutlineSportsMartialArts,
+    sociedad: MdPublic,
 };
 
 
@@ -60,12 +61,12 @@ export default function GeneralScore({ number }: { number: number }) {
 
     return (
         <div className="flex flex-col items-start justify-center gap-4 w-full p-8">
-            <div className="flex max-lg:flex-col gap-2 w-full justify-between items-center">
+            <div className="flex max-[73rem]:flex-col gap-2 w-full justify-between items-center">
                 <div className="flex gap-1 text-6xl max-[23rem]:text-5xl">
                     {stars}
                 </div>
                 <span
-                    className="text-5xl max-md:text-3xl max-md:text-center font-semibold pt-0.5 text-title"
+                    className="text-5xl max-[51rem]:text-3xl max-md:text-center font-semibold pt-0.5 text-title"
                 >
                     {labelText()}
                 </span>
