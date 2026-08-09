@@ -137,7 +137,7 @@ export function getGroups(): GroupConfig[] {
       datasets: {
         centrosSalud: {
           id: "registro-de-centros-sanitarios-de-castilla-y-leon",
-          where: `tipo_de_centro = 'CENTROS DE ATENCION PRIMARIA: CENTROS DE SALUD'`,
+          where: `tipo_de_centro = 'CENTROS DE ATENCION PRIMARIA: CENTROS DE SALUD' OR tipo_de_centro = 'CONSULTORIOS DE ATENCION PRIMARIA'`,
           select: ["localidad", "nombre_del_centro", "direccion", "telefono", "finalidad_asistencial"]
         },
         centrosSanitarios: {
