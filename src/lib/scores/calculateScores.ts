@@ -29,7 +29,15 @@ interface FixedRule {
     values: Record<string, number>;
 }
 
-type Rule = BooleanRule | LinearRule | RangeRule | FixedRule;
+interface PerCapitaRule {
+    label: string;
+    field: string;
+    type: "per_capita";
+    per: number;
+    ranges: { min: number; max: number; points: number }[];
+}
+
+type Rule = BooleanRule | LinearRule | RangeRule | FixedRule | PerCapitaRule;
 
 interface DepartmentConfig {
     weight: number;
@@ -41,6 +49,7 @@ export interface Indicator {
     value: unknown;
     score: number;
     max: number;
+    ratio?: number;
 }
 
 export interface DepartmentScore {
@@ -54,7 +63,11 @@ export interface ScoreResult {
     departments: Record<string, DepartmentScore>;
 }
 
-type RuleEvaluator = (rule: Rule, value: unknown) => { score: number; max: number };
+type RuleEvaluator = (
+    rule: Rule,
+    value: unknown,
+    poblacion: number
+) => { score: number; max: number; ratio?: number };
 
 const evaluators: Record<string, RuleEvaluator> = {
     boolean(rule, value) {
@@ -79,7 +92,9 @@ const evaluators: Record<string, RuleEvaluator> = {
         const r = rule as RangeRule;
         const num = toNumber(value);
         const maxPoints = Math.max(...r.ranges.map((rng) => rng.points));
-        const matched = r.ranges.find((rng) => num >= rng.min && num <= rng.max);
+
+        const sortedRanges = [...r.ranges].sort((a, b) => b.min - a.min);
+        const matched = sortedRanges.find((rng) => num >= rng.min);
         return {
             score: matched ? matched.points : 0,
             max: maxPoints,
@@ -93,6 +108,27 @@ const evaluators: Record<string, RuleEvaluator> = {
         return {
             score: r.values[key] ?? 0,
             max: maxPoints,
+        };
+    },
+
+    per_capita(rule, value, poblacion) {
+        const r = rule as PerCapitaRule;
+        const cantidad = toNumber(value);
+        const maxPoints = Math.max(...r.ranges.map((rng) => rng.points));
+
+        if (poblacion <= 0 || cantidad <= 0) {
+            return { score: 0, max: maxPoints, ratio: 0 };
+        }
+
+        const ratio = (cantidad / poblacion) * r.per;
+
+        const sortedRanges = [...r.ranges].sort((a, b) => b.min - a.min);
+        const matched = sortedRanges.find((rng) => ratio >= rng.min);
+
+        return {
+            score: matched ? matched.points : 0,
+            max: maxPoints,
+            ratio: Math.round(ratio * 100) / 100,
         };
     },
 };
@@ -113,7 +149,11 @@ function resolve(obj: Record<string, unknown>, path: string): unknown {
         return undefined;
     }, obj);
 }
-function evaluateRule(rule: Rule, departmentData: Record<string, unknown>): Indicator {
+function evaluateRule(
+    rule: Rule,
+    departmentData: Record<string, unknown>,
+    poblacion: number
+): Indicator {
     const value = resolve(departmentData, rule.field);
     const evaluator = evaluators[rule.type];
 
@@ -121,28 +161,32 @@ function evaluateRule(rule: Rule, departmentData: Record<string, unknown>): Indi
         return { label: rule.label, value, score: 0, max: 0 };
     }
 
-    const { score, max } = evaluator(rule, value);
+    const { score, max, ratio } = evaluator(rule, value, poblacion);
 
     return {
         label: rule.label,
         value: value ?? 0,
         score: Math.round(score),
         max: Math.round(max),
+        ...(ratio !== undefined && { ratio }),
     };
 }
 
 export function calculateScores(municipio: Record<string, unknown>): ScoreResult {
     const departments: Record<string, DepartmentScore> = {};
-    const typedConfig = config as Record<string, DepartmentConfig>;
+    const typedConfig = config as unknown as Record<string, DepartmentConfig>;
+
+    const poblacion = toNumber(municipio.poblacion);
+    const datos = (municipio.datos ?? municipio) as Record<string, unknown>;
 
     let weightedSum = 0;
     let totalWeight = 0;
 
     for (const [departmentKey, departmentConfig] of Object.entries(typedConfig)) {
-        const departmentData = (municipio[departmentKey] ?? {}) as Record<string, unknown>;
+        const departmentData = (datos[departmentKey] ?? {}) as Record<string, unknown>;
 
         const indicators = departmentConfig.rules.map((rule) =>
-            evaluateRule(rule, departmentData)
+            evaluateRule(rule, departmentData, poblacion)
         );
 
         const score = indicators.reduce((sum, ind) => sum + ind.score, 0);

@@ -68,7 +68,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         if (!data) return;
 
         async function generateScores() {
-            const scores = calculateScores(data?.datos);
+            const scores = calculateScores(data);
             console.log(scores)
             setScores(scores);
         }

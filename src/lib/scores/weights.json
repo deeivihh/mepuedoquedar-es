@@ -1,284 +1,138 @@
 {
     "sanidad": {
-        "weight": 20,
+        "weight": 22,
         "rules": [
             {
-                "label": "Hospital",
+                "label": "Hospitales generales",
                 "field": "hospitales.cantidad",
-                "type": "boolean",
-                "points": 50
+                "type": "per_capita",
+                "per": 100000,
+                "ranges": [
+                    {
+                        "min": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 0.05,
+                        "points": 60
+                    },
+                    {
+                        "min": 0.2,
+                        "points": 100
+                    }
+                ]
             },
             {
                 "label": "Centros de salud",
                 "field": "centrosSalud.cantidad",
-                "type": "boolean",
-                "points": 50
+                "type": "per_capita",
+                "per": 10000,
+                "ranges": [
+                    {
+                        "min": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 0.2,
+                        "points": 40
+                    },
+                    {
+                        "min": 0.5,
+                        "points": 70
+                    },
+                    {
+                        "min": 1.0,
+                        "points": 100
+                    }
+                ]
             }
         ]
     },
     "educacion": {
-        "weight": 15,
+        "weight": 16,
         "rules": [
             {
                 "label": "Centros docentes",
                 "field": "centrosDocentes.cantidad",
-                "type": "range",
+                "type": "per_capita",
+                "per": 1000,
                 "ranges": [
                     {
                         "min": 0,
-                        "max": 0,
                         "points": 0
                     },
                     {
-                        "min": 1,
-                        "max": 2,
-                        "points": 20
-                    },
-                    {
-                        "min": 3,
-                        "max": 5,
+                        "min": 0.2,
                         "points": 40
                     },
                     {
-                        "min": 6,
-                        "max": 999,
-                        "points": 60
+                        "min": 0.5,
+                        "points": 70
+                    },
+                    {
+                        "min": 1.0,
+                        "points": 100
                     }
                 ]
             },
             {
                 "label": "Oferta de FP",
                 "field": "ofertaFP.cantidad",
-                "type": "linear",
-                "multiplier": 20,
-                "max": 40
+                "type": "per_capita",
+                "per": 10000,
+                "ranges": [
+                    {
+                        "min": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 0.2,
+                        "points": 40
+                    },
+                    {
+                        "min": 1.0,
+                        "points": 70
+                    },
+                    {
+                        "min": 3.0,
+                        "points": 100
+                    }
+                ]
             }
         ]
     },
     "empleo": {
-        "weight": 15,
+        "weight": 16,
         "rules": [
             {
-                "label": "Oficinas ECYL",
+                "label": "Oficina ECYL",
                 "field": "oficinasECYL.cantidad",
                 "type": "boolean",
-                "points": 50
+                "points": 80
             },
             {
-                "label": "Ofertas de empleo",
+                "label": "Ofertas de empleo recientes",
                 "field": "ofertasEMPLEO.cantidad",
-                "type": "linear",
-                "multiplier": 10,
-                "max": 50
-            }
-        ]
-    },
-    "economia": {
-        "weight": 10,
-        "rules": [
-            {
-                "label": "Cooperativas",
-                "field": "cooperativas.cantidad",
-                "type": "linear",
-                "multiplier": 5,
-                "max": 30
-            },
-            {
-                "label": "Establecimientos comerciales",
-                "field": "establecimientosComerciales.cantidad",
-                "type": "range",
+                "type": "per_capita",
+                "per": 1000,
                 "ranges": [
                     {
                         "min": 0,
-                        "max": 0,
                         "points": 0
                     },
                     {
-                        "min": 1,
-                        "max": 10,
-                        "points": 15
-                    },
-                    {
-                        "min": 11,
-                        "max": 50,
-                        "points": 35
-                    },
-                    {
-                        "min": 51,
-                        "max": 200,
-                        "points": 55
-                    },
-                    {
-                        "min": 201,
-                        "max": 999999,
-                        "points": 70
-                    }
-                ]
-            }
-        ]
-    },
-    "comercio": {
-        "weight": 10,
-        "rules": [
-            {
-                "label": "Servicios de proximidad",
-                "field": "serviciosProximidad.cantidad",
-                "type": "range",
-                "ranges": [
-                    {
-                        "min": 0,
-                        "max": 0,
-                        "points": 0
-                    },
-                    {
-                        "min": 1,
-                        "max": 3,
-                        "points": 20
-                    },
-                    {
-                        "min": 4,
-                        "max": 10,
-                        "points": 40
-                    },
-                    {
-                        "min": 11,
-                        "max": 999999,
-                        "points": 60
-                    }
-                ]
-            },
-            {
-                "label": "Empresas Tierra de Sabor",
-                "field": "empresasTIERRADESABOR.cantidad",
-                "type": "linear",
-                "multiplier": 10,
-                "max": 40
-            }
-        ]
-    },
-    "turismo": {
-        "weight": 10,
-        "rules": [
-            {
-                "label": "Establecimientos turísticos",
-                "field": "establecimientosTuristicos.cantidad",
-                "type": "range",
-                "ranges": [
-                    {
-                        "min": 0,
-                        "max": 0,
-                        "points": 0
-                    },
-                    {
-                        "min": 1,
-                        "max": 10,
-                        "points": 20
-                    },
-                    {
-                        "min": 11,
-                        "max": 50,
-                        "points": 40
-                    },
-                    {
-                        "min": 51,
-                        "max": 200,
-                        "points": 70
-                    },
-                    {
-                        "min": 201,
-                        "max": 999999,
-                        "points": 100
-                    }
-                ]
-            }
-        ]
-    },
-    "cultura": {
-        "weight": 5,
-        "rules": [
-            {
-                "label": "Monumentos",
-                "field": "monumentos.cantidad",
-                "type": "range",
-                "ranges": [
-                    {
-                        "min": 0,
-                        "max": 0,
-                        "points": 0
-                    },
-                    {
-                        "min": 1,
-                        "max": 3,
+                        "min": 0.05,
                         "points": 30
                     },
                     {
-                        "min": 4,
-                        "max": 10,
+                        "min": 0.2,
                         "points": 60
                     },
                     {
-                        "min": 11,
-                        "max": 999999,
+                        "min": 0.6,
                         "points": 100
                     }
                 ]
-            }
-        ]
-    },
-    "ocio": {
-        "weight": 5,
-        "rules": [
-            {
-                "label": "Museos",
-                "field": "museos.cantidad",
-                "type": "linear",
-                "multiplier": 15,
-                "max": 30
-            },
-            {
-                "label": "Teatros",
-                "field": "teatros.cantidad",
-                "type": "boolean",
-                "points": 15
-            },
-            {
-                "label": "Bibliotecas",
-                "field": "bibiliotecas.cantidad",
-                "type": "boolean",
-                "points": 15
-            },
-            {
-                "label": "Clubes deportivos",
-                "field": "clubesDeportivos.cantidad",
-                "type": "range",
-                "ranges": [
-                    {
-                        "min": 0,
-                        "max": 0,
-                        "points": 0
-                    },
-                    {
-                        "min": 1,
-                        "max": 5,
-                        "points": 10
-                    },
-                    {
-                        "min": 6,
-                        "max": 20,
-                        "points": 20
-                    },
-                    {
-                        "min": 21,
-                        "max": 999999,
-                        "points": 30
-                    }
-                ]
-            },
-            {
-                "label": "Asociaciones juveniles",
-                "field": "asociacionesJuveniles.cantidad",
-                "type": "boolean",
-                "points": 10
             }
         ]
     },
@@ -288,58 +142,251 @@
             {
                 "label": "Policía local",
                 "field": "policiaLocal.total",
-                "type": "range",
+                "type": "per_capita",
+                "per": 1000,
                 "ranges": [
                     {
                         "min": 0,
-                        "max": 0,
                         "points": 0
                     },
                     {
-                        "min": 1,
-                        "max": 5,
-                        "points": 30
+                        "min": 0.1,
+                        "points": 40
                     },
                     {
-                        "min": 6,
-                        "max": 15,
-                        "points": 60
+                        "min": 0.8,
+                        "points": 70
                     },
                     {
-                        "min": 16,
-                        "max": 999999,
+                        "min": 1.5,
                         "points": 100
                     }
                 ]
             }
         ]
     },
-    "juventud": {
-        "weight": 10,
+    "economia": {
+        "weight": 8,
         "rules": [
             {
-                "label": "Asociaciones juveniles",
-                "field": "asociacionesJuveniles.cantidad",
+                "label": "Cooperativas",
+                "field": "cooperativas.cantidad",
+                "type": "per_capita",
+                "per": 10000,
+                "ranges": [
+                    {
+                        "min": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 0.1,
+                        "points": 30
+                    },
+                    {
+                        "min": 1.5,
+                        "points": 60
+                    },
+                    {
+                        "min": 4.0,
+                        "points": 100
+                    }
+                ]
+            },
+            {
+                "label": "Establecimientos comerciales",
+                "field": "establecimientosComerciales.cantidad",
+                "type": "per_capita",
+                "per": 1000,
+                "ranges": [
+                    {
+                        "min": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 0.5,
+                        "points": 40
+                    },
+                    {
+                        "min": 2.0,
+                        "points": 70
+                    },
+                    {
+                        "min": 5.0,
+                        "points": 100
+                    }
+                ]
+            }
+        ]
+    },
+    "comercio": {
+        "weight": 6,
+        "rules": [
+            {
+                "label": "Servicios de proximidad",
+                "field": "serviciosProximidad.cantidad",
+                "type": "per_capita",
+                "per": 1000,
+                "ranges": [
+                    {
+                        "min": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 0.2,
+                        "points": 40
+                    },
+                    {
+                        "min": 1.0,
+                        "points": 70
+                    },
+                    {
+                        "min": 2.0,
+                        "points": 100
+                    }
+                ]
+            },
+            {
+                "label": "Empresas Tierra de Sabor",
+                "field": "empresasTIERRADESABOR.cantidad",
+                "type": "per_capita",
+                "per": 10000,
+                "ranges": [
+                    {
+                        "min": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 0.1,
+                        "points": 40
+                    },
+                    {
+                        "min": 0.5,
+                        "points": 70
+                    },
+                    {
+                        "min": 1.0,
+                        "points": 100
+                    }
+                ]
+            }
+        ]
+    },
+    "turismo": {
+        "weight": 6,
+        "rules": [
+            {
+                "label": "Establecimientos turísticos",
+                "field": "establecimientosTuristicos.cantidad",
+                "type": "per_capita",
+                "per": 1000,
+                "ranges": [
+                    {
+                        "min": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 0.2,
+                        "points": 40
+                    },
+                    {
+                        "min": 1.5,
+                        "points": 70
+                    },
+                    {
+                        "min": 3.0,
+                        "points": 100
+                    }
+                ]
+            }
+        ]
+    },
+    "cultura": {
+        "weight": 6,
+        "rules": [
+            {
+                "label": "Monumentos",
+                "field": "monumentos.cantidad",
                 "type": "range",
                 "ranges": [
                     {
                         "min": 0,
-                        "max": 0,
                         "points": 0
                     },
                     {
                         "min": 1,
-                        "max": 2,
-                        "points": 20
+                        "points": 40
                     },
                     {
                         "min": 3,
-                        "max": 5,
+                        "points": 70
+                    },
+                    {
+                        "min": 10,
+                        "points": 100
+                    }
+                ]
+            }
+        ]
+    },
+    "ocio": {
+        "weight": 6,
+        "rules": [
+            {
+                "label": "Museos",
+                "field": "museos.cantidad",
+                "type": "range",
+                "ranges": [
+                    {
+                        "min": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 1,
                         "points": 50
                     },
                     {
-                        "min": 6,
-                        "max": 999999,
+                        "min": 3,
+                        "points": 100
+                    }
+                ]
+            },
+            {
+                "label": "Teatros",
+                "field": "teatros.cantidad",
+                "type": "boolean",
+                "points": 80
+            },
+            {
+                "label": "Bibliotecas",
+                "field": "bibiliotecas.cantidad",
+                "type": "boolean",
+                "points": 80
+            }
+        ]
+    },
+    "juventud": {
+        "weight": 4,
+        "rules": [
+            {
+                "label": "Asociaciones juveniles",
+                "field": "asociacionesJuveniles.cantidad",
+                "type": "per_capita",
+                "per": 10000,
+                "ranges": [
+                    {
+                        "min": 0,
+                        "points": 0
+                    },
+                    {
+                        "min": 0.2,
+                        "points": 40
+                    },
+                    {
+                        "min": 1.0,
+                        "points": 70
+                    },
+                    {
+                        "min": 2.0,
                         "points": 100
                     }
                 ]
@@ -347,32 +394,29 @@
         ]
     },
     "deportes": {
-        "weight": 10,
+        "weight": 4,
         "rules": [
             {
                 "label": "Clubes deportivos",
                 "field": "clubesDeportivos.cantidad",
-                "type": "range",
+                "type": "per_capita",
+                "per": 10000,
                 "ranges": [
                     {
                         "min": 0,
-                        "max": 0,
                         "points": 0
                     },
                     {
-                        "min": 1,
-                        "max": 5,
-                        "points": 10
+                        "min": 1.0,
+                        "points": 40
                     },
                     {
-                        "min": 6,
-                        "max": 20,
-                        "points": 20
+                        "min": 5.0,
+                        "points": 70
                     },
                     {
-                        "min": 21,
-                        "max": 999999,
-                        "points": 30
+                        "min": 12.0,
+                        "points": 100
                     }
                 ]
             }
