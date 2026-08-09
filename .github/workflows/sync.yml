@@ -24,6 +24,7 @@ jobs:
           - cultura
           - juventud
           - deportes
+          - sociedad
     timeout-minutes: 15
     steps:
       - name: Sincronizando grupo "${{ matrix.group }}"

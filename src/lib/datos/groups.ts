@@ -225,6 +225,34 @@ export function getGroups(): GroupConfig[] {
         },
       },
     },
+    {
+      group: "sociedad",
+      datasets: {
+        entidadesSociales: { id: "entidades-de-caracter-social", select: ["localidad"] },
+        serviciosSociales: { id: "servicios-de-caracter-social", select: ["localidad"] },
+        centrosSocials: { id: "centros-de-caracter-social", select: ["localidad"] }
+      },
+      indicators: {
+        entidadesSociales: {
+          dataset: "entidadesSociales",
+          municipality: "localidad",
+          operation: "count",
+          details: false,
+        },
+        serviciosSociales: {
+          dataset: "serviciosSociales",
+          municipality: "localidad",
+          operation: "count",
+          details: false,
+        },
+        centrosSocials: {
+          dataset: "centrosSocials",
+          municipality: "localidad",
+          operation: "count",
+          details: false,
+        },
+      }
+    }
   ];
 }
 
