@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { IoMdClose } from "react-icons/io";
 import { BsFillSignTurnRightFill } from "react-icons/bs";
-import { IoSettingsSharp } from "react-icons/io5";
+import { IoCloseSharp, IoSettingsSharp } from "react-icons/io5";
 import { Site } from "@/app/utils/types";
 import { useLocation } from "@/app/utils/useLocation";
 import { useTypewriter } from "@/app/utils/useTypewriter";
@@ -92,6 +92,9 @@ function PreferencesPanel({
 
     useEffect(() => {
         function handleClick(e: MouseEvent) {
+            const target = e.target as Element;
+            if (target.closest('#pref-button')) return;
+            
             if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
                 onClose();
             }
@@ -107,11 +110,7 @@ function PreferencesPanel({
     return (
         <motion.div
             ref={panelRef}
-            initial={{ opacity: 0, y: -8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.97 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute top-[calc(100%+12px)] left-0 right-0 z-50 card border border-title/20 rounded-2xl shadow-xl p-5 flex flex-col gap-5"
+            className="absolute top-[calc(100%+12px)] left-0 right-0 z-50 card border border-title/20 rounded-3xl p-4 flex flex-col gap-5"
         >
             <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-title text-base">Personaliza tu búsqueda</h2>
@@ -236,8 +235,8 @@ export default function SearchBar() {
                     />?
                 </span>
             </h1>
-            <div className="flex flex-col gap-2 w-full max-w-xl mx-auto relative">
-                <div className={`card border shadow-xl border-title/30 rounded-full transition-all duration-300 overflow-hidden flex gap-2 items-center px-4 h-12`}>
+            <div className="flex gap-1 w-full max-w-xl mx-auto relative">
+                <div className={`w-full card border border-title/30 rounded-full transition-all duration-300 overflow-hidden flex gap-2 items-center px-4 h-12`}>
                     <input
                         placeholder="Busca tu municipio..."
                         autoFocus
@@ -246,20 +245,17 @@ export default function SearchBar() {
                         className={`w-full h-full outline-none text-title font-medium`}
                     />
                     {query.length > 0 && (
-                        <button onClick={() => { setQuery(''); setResults([]); }} className="bg-white/20 rounded-full p-1 border border-title/20 shadow-inner hover:bg-white/30 shrink-0">
-                            <IoMdClose size={15} />
+                        <button onClick={() => { setQuery(''); setResults([]); }} className="bg-white/30 rounded-full p-1.5 border border-title/20 hover:bg-white/50 transition-all duration-150 shrink-0 ">
+                            <IoMdClose size={15} strokeWidth="10" />
                         </button>
                     )}
                     <button
-                        id="open-preferences"
-                        onClick={() => setShowPrefs((v) => !v)}
+                        id="pref-button"
+                        onClick={() => setShowPrefs(v => !v)}
                         title="Personalizar búsqueda"
-                        className={`relative shrink-0 rounded-full p-1.5 border transition-colors duration-200 ${showPrefs ? "bg-title border-title text-bg-card" : "bg-white/20 border-title/20 hover:bg-white/30 text-title"}`}
+                        className={`bg-white/50 rounded-full p-1.5 border border-title/20 hover:bg-white transition-all duration-150 shrink-0`}
                     >
-                        <IoSettingsSharp size={16} />
-                        {!isDefault && !showPrefs && (
-                            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-text-color-2 border border-bg-card" />
-                        )}
+                        <IoSettingsSharp size={15} />
                     </button>
                 </div>
 
@@ -293,6 +289,6 @@ export default function SearchBar() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
