@@ -68,11 +68,11 @@ export default function MetodologiaPage() {
                         </a>.
                     </p>
                     <p className="text-title/75 leading-relaxed">
-                        Todos los datos se obtienen en tiempo real a través de la{" "}
+                        Todos los datos se obtienen de manera automatizada todas las madrugadas a través de la{" "}
                         <a href="https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/console" target="_blank" rel="noopener noreferrer" className="text-text-2 hover:underline font-medium">
                             API v2.1
                         </a>{" "}
-                        del portal, se descargan en formato CSV y se cruzan por municipio para generar
+                        del portal, se procesan y se cruzan por municipio para generar
                         indicadores cuantitativos en {groups.length} categorías.
                     </p>
                 </section>
