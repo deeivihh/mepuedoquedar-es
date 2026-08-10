@@ -12,6 +12,8 @@ import { useTypewriter } from "@/app/utils/useTypewriter";
 import { usePreferences } from "@/app/contexts/PreferencesContext";
 import { UserPreferences } from "@/lib/scores/userPreferences";
 import { PREFERENCES_SCHEMA } from "@/lib/scores/preferencesSchema";
+import { FaArrowLeft } from "react-icons/fa";
+import { usePathname } from "next/navigation";
 
 function Toggle({
     id,
@@ -110,7 +112,7 @@ function PreferencesPanel({
     return (
         <motion.div
             ref={panelRef}
-            className="absolute top-[calc(100%+12px)] left-0 right-0 z-50 card border border-title/20 rounded-3xl p-4 flex flex-col gap-5"
+            className="absolute top-[calc(100%+15px)] left-0 right-0 z-50 card border border-title/20 rounded-[32px] p-8 flex flex-col gap-5"
         >
             <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-title text-base">Personaliza tu búsqueda</h2>
@@ -163,12 +165,8 @@ export default function SearchBar() {
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<Site[]>([]);
     const [showPrefs, setShowPrefs] = useState(false);
-
     const { preferences, setPreferences, isDefault } = usePreferences();
-
-    const [randomSites, setRandomSites] = useState<Site[]>([]);
-    const municipioNames = useMemo(() => randomSites.map((s) => s.municipio), [randomSites]);
-    const typed = useTypewriter(municipioNames, 70, 35, 4000);
+    const pathname = usePathname();
 
     const abortRef = useRef<AbortController | null>(null);
 
@@ -194,21 +192,6 @@ export default function SearchBar() {
         }
     }
 
-    async function getRandom() {
-        try {
-            const response = await fetch(
-                `/api/jcyl/municipios?limit=10&random=true`
-            );
-            if (!response.ok) throw new Error("Error al buscar");
-            const data: { results: Site[] } = await response.json();
-            setRandomSites(data.results);
-        } catch (error) {
-            console.error("Error:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
     useEffect(() => {
         if (!ready) return;
         if (query.trim() !== "" || query.length >= 3) {
@@ -218,25 +201,19 @@ export default function SearchBar() {
         }
     }, [query, ready]);
 
-    useEffect(() => {
-        getRandom();
-    }, []);
 
     return (
-        <div className="flex flex-col justify-center items-center h-[75svh]">
-            <h1 className="text-4xl max-md:text-3xl text-center mb-8 font-semibold tracking-tight">
-                ¿Me puedo quedar en{" "}
-                <span className="max-md:block">
-                    <span className="text-color-2">{typed || ""}</span>
-                    <motion.span
-                        animate={{ opacity: [1, 0] }}
-                        transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-                        className="inline-block w-[2px] h-[1em] bg-current mx-[2px] align-middle translate-y-[-4px] text-color-2"
-                    />?
-                </span>
-            </h1>
-            <div className="flex gap-1 w-full max-w-xl mx-auto relative">
-                <div className={`w-full card border border-title/30 rounded-full transition-all duration-300 overflow-hidden flex gap-2 items-center px-4 h-12`}>
+        <div className={`flex flex-col justify-center items-center w-full ${pathname === "/" ? "max-w-xl" : ""}`} style={{ zIndex: 100 }}>
+            <div className="flex gap-2 w-full w-full mx-auto relative">
+                {pathname !== "/" && (
+                    <Link
+                        href="/"
+                        className="inline-flex items-center gap-2 text-sm text-title hover:text-black transition-colors w-fit px-4.5 card border border-title/30 rounded-full"
+                    >
+                        <FaArrowLeft size={15} />
+                    </Link>
+                )}
+                <div className={`w-full card border border-title/30 rounded-[32px] transition-all duration-300 overflow-hidden flex gap-2 items-center px-4 h-12`}>
                     <input
                         placeholder="Busca tu municipio..."
                         autoFocus
@@ -270,25 +247,27 @@ export default function SearchBar() {
                 </AnimatePresence>
 
                 {results.length > 0 && !showPrefs && (
-                    <div className="mt-5 absolute top-full left-0 right-0 max-h-80 overflow-y-auto">
-                        <div className="flex flex-col gap-4 px-4 pt-0">
-                            {results.map((result) => (
-                                <Link href={`/municipio/${result.cod_ine}`} key={result.cod_ine} className="rounded-sm hover:bg-bg-card/80 border border-title/30 flex max-md:flex-col gap-2 py-2 px-4 justify-between items-center">
-                                    <p className="font-semibold text-title text-balance">{result.municipio}</p>
-                                    {result.distance != null && (
-                                        <span className="text-sm text-title opacity-70 flex items-center gap-1">
-                                            <BsFillSignTurnRightFill />
-                                            {result.distance >= 1000
-                                                ? `${(result.distance / 1000).toFixed(1)} km`
-                                                : `${result.distance} m`}
-                                        </span>
-                                    )}
-                                </Link>
-                            ))}
+                    <div className="mt-2 absolute top-full left-0 right-0">
+                        <div className="card border border-title/20 rounded-3xl overflow-hidden">
+                            <div className="flex flex-col gap-2 max-h-[20rem] overflow-y-auto p-4">
+                                {results.map((result) => (
+                                    <Link href={`/municipio/${result.cod_ine}`} key={result.cod_ine} className="flex justify-between gap-4 items-center w-full h-full hover:bg-scroll/20 px-4 py-2">
+                                        <p className="font-semibold text-title text-balance">{result.municipio}</p>
+                                        {result.distance != null && (
+                                            <span className="text-sm text-title opacity-70 flex items-center justify-end gap-1 shrink-0 whitespace-nowrap min-w-[5rem]">
+                                                <BsFillSignTurnRightFill className="shrink-0" />
+                                                {result.distance >= 1000
+                                                    ? `${(result.distance / 1000).toFixed(1)} km`
+                                                    : `${result.distance} m`}
+                                            </span>
+                                        )}
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 )}
             </div>
-        </div >
+        </div>
     );
 }
