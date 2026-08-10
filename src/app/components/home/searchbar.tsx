@@ -1,19 +1,171 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { IoMdClose } from "react-icons/io";
 import { BsFillSignTurnRightFill } from "react-icons/bs";
+import { IoSettingsSharp } from "react-icons/io5";
 import { Site } from "@/app/utils/types";
 import { useLocation } from "@/app/utils/useLocation";
 import { useTypewriter } from "@/app/utils/useTypewriter";
+import { usePreferences } from "@/app/contexts/PreferencesContext";
+import { UserPreferences } from "@/lib/scores/userPreferences";
+import { PREFERENCES_SCHEMA } from "@/lib/scores/preferencesSchema";
+
+function Toggle({
+    id,
+    checked,
+    onChange,
+}: {
+    id: string;
+    checked: boolean;
+    onChange: (v: boolean) => void;
+}) {
+    return (
+        <button
+            id={id}
+            role="switch"
+            aria-checked={checked}
+            onClick={() => onChange(!checked)}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 focus:outline-none ${checked ? "bg-title border-title" : "bg-title/20 border-title/20"}`}
+        >
+            <span
+                className={`inline-block h-4 w-4 mt-0.5 rounded-full bg-bg-card shadow-sm transition-transform duration-200 ${checked ? "translate-x-5" : "translate-x-0.5"}`}
+            />
+        </button>
+    );
+}
+
+function AgeSlider({
+    value,
+    onChange,
+}: {
+    value: number;
+    onChange: (v: number) => void;
+}) {
+    function ageLabel(age: number) {
+        if (age < 30) return "Joven";
+        if (age < 45) return "Adulto/a joven";
+        if (age < 60) return "Adulto/a";
+        return "Mayor";
+    }
+
+    return (
+        <div className="flex flex-col gap-1">
+            <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-title">¿Cuántos años tienes?</span>
+                <span className="text-sm font-semibold text-title/70">
+                    {value} años · <span className="text-text-color-2">{ageLabel(value)}</span>
+                </span>
+            </div>
+            <input
+                id="pref-age"
+                type="range"
+                min={16}
+                max={90}
+                value={value}
+                onChange={(e) => onChange(Number(e.target.value))}
+                className="w-full h-2 rounded-full appearance-none cursor-pointer accent-title"
+                style={{
+                    background: `linear-gradient(to right, var(--title-color) 0%, var(--title-color) ${((value - 16) / 74) * 100}%, color-mix(in srgb, var(--title-color) 20%, transparent) ${((value - 16) / 74) * 100}%, color-mix(in srgb, var(--title-color) 20%, transparent) 100%)`
+                }}
+            />
+            <div className="flex justify-between text-xs text-title/50">
+                <span>16</span>
+                <span>90</span>
+            </div>
+        </div>
+    );
+}
+
+function PreferencesPanel({
+    preferences,
+    onChange,
+    onClose,
+}: {
+    preferences: UserPreferences;
+    onChange: (prefs: UserPreferences) => void;
+    onClose: () => void;
+}) {
+    const panelRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClick(e: MouseEvent) {
+            if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+                onClose();
+            }
+        }
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, [onClose]);
+
+    function update(key: string, value: any) {
+        onChange({ ...preferences, [key]: value });
+    }
+
+    return (
+        <motion.div
+            ref={panelRef}
+            initial={{ opacity: 0, y: -8, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute top-[calc(100%+12px)] left-0 right-0 z-50 card border border-title/20 rounded-2xl shadow-xl p-5 flex flex-col gap-5"
+        >
+            <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-title text-base">Personaliza tu búsqueda</h2>
+                <button
+                    onClick={onClose}
+                    className="rounded-full p-1 hover:bg-title/10 transition-colors"
+                    aria-label="Cerrar"
+                >
+                    <IoMdClose size={16} className="text-title" />
+                </button>
+            </div>
+
+            <p className="text-xs text-title/60 -mt-3">
+                Ajustamos la puntuación de cada municipio según tu situación.
+            </p>
+
+            {PREFERENCES_SCHEMA.map((config) => {
+                if (config.type === "boolean") {
+                    return (
+                        <div key={config.id} className="flex items-center justify-between gap-4">
+                            <div>
+                                <p className="text-sm font-medium text-title">{config.label}</p>
+                                <p className="text-xs text-title/50">{config.description}</p>
+                            </div>
+                            <Toggle
+                                id={`pref-${config.id}`}
+                                checked={preferences[config.id] as boolean}
+                                onChange={(v) => update(config.id, v)}
+                            />
+                        </div>
+                    );
+                } else if (config.type === "range" && config.id === "age") {
+                    return (
+                        <AgeSlider
+                            key={config.id}
+                            value={preferences[config.id] as number}
+                            onChange={(v) => update(config.id, v)}
+                        />
+                    );
+                }
+                return null;
+            })}
+        </motion.div>
+    );
+}
 
 export default function SearchBar() {
     const { locationParams, ready } = useLocation(true);
     const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<Site[]>([]);
+    const [showPrefs, setShowPrefs] = useState(false);
+
+    const { preferences, setPreferences, isDefault } = usePreferences();
 
     const [randomSites, setRandomSites] = useState<Site[]>([]);
     const municipioNames = useMemo(() => randomSites.map((s) => s.municipio), [randomSites]);
@@ -85,13 +237,43 @@ export default function SearchBar() {
                 </span>
             </h1>
             <div className="flex flex-col gap-2 w-full max-w-xl mx-auto relative">
-                <div className={`card border shadow-xl border-title/30 rounded-full transition-all duration-300 overflow-hidden flex gap-4 items-center px-4 h-12`}>
-                    <input placeholder="Busca tu municipio..." autoFocus onChange={(e) => { if (e.target.value.length < 3) setResults([]); setQuery(e.target.value); }} value={query} className={`w-full h-full outline-none text-title font-medium`} />
-                    {query.length > 0 && <button onClick={() => { setQuery(''); setResults([]); }} className="bg-white/20 rounded-full p-1 border border-title/20 shadow-inner hover:bg-white/30">
-                        <IoMdClose size={15} />
-                    </button>}
+                <div className={`card border shadow-xl border-title/30 rounded-full transition-all duration-300 overflow-hidden flex gap-2 items-center px-4 h-12`}>
+                    <input
+                        placeholder="Busca tu municipio..."
+                        autoFocus
+                        onChange={(e) => { if (e.target.value.length < 3) setResults([]); setQuery(e.target.value); }}
+                        value={query}
+                        className={`w-full h-full outline-none text-title font-medium`}
+                    />
+                    {query.length > 0 && (
+                        <button onClick={() => { setQuery(''); setResults([]); }} className="bg-white/20 rounded-full p-1 border border-title/20 shadow-inner hover:bg-white/30 shrink-0">
+                            <IoMdClose size={15} />
+                        </button>
+                    )}
+                    <button
+                        id="open-preferences"
+                        onClick={() => setShowPrefs((v) => !v)}
+                        title="Personalizar búsqueda"
+                        className={`relative shrink-0 rounded-full p-1.5 border transition-colors duration-200 ${showPrefs ? "bg-title border-title text-bg-card" : "bg-white/20 border-title/20 hover:bg-white/30 text-title"}`}
+                    >
+                        <IoSettingsSharp size={16} />
+                        {!isDefault && !showPrefs && (
+                            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-text-color-2 border border-bg-card" />
+                        )}
+                    </button>
                 </div>
-                {results.length > 0 &&
+
+                <AnimatePresence>
+                    {showPrefs && (
+                        <PreferencesPanel
+                            preferences={preferences}
+                            onChange={setPreferences}
+                            onClose={() => setShowPrefs(false)}
+                        />
+                    )}
+                </AnimatePresence>
+
+                {results.length > 0 && !showPrefs && (
                     <div className="mt-5 absolute top-full left-0 right-0 max-h-80 overflow-y-auto">
                         <div className="flex flex-col gap-4 px-4 pt-0">
                             {results.map((result) => (
@@ -108,7 +290,8 @@ export default function SearchBar() {
                                 </Link>
                             ))}
                         </div>
-                    </div>}
+                    </div>
+                )}
             </div>
         </div>
     );

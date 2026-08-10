@@ -7,6 +7,8 @@ import { FaCarSide, FaMapMarkedAlt, FaRoute } from "react-icons/fa";
 import { MdArrowOutward } from "react-icons/md";
 import { calculateScores, ScoreResult } from "@/lib/scores/calculateScores";
 import GeneralScore, { ScoreItem } from "@/app/components/detail/scores";
+import { usePreferences } from "@/app/contexts/PreferencesContext";
+import { computeWeightMultipliers } from "@/lib/scores/userPreferences";
 
 function capitalize(value: string) {
     const firstLetter = value.charAt(0);
@@ -16,6 +18,7 @@ function capitalize(value: string) {
 
 export default function MunicipioDetail({ cod }: { cod: string }) {
     const { locationParams, ready } = useLocation(false);
+    const { preferences, isDefault } = usePreferences();
     const [data, setData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -67,14 +70,10 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     useEffect(() => {
         if (!data) return;
 
-        async function generateScores() {
-            const scores = calculateScores(data);
-            console.log(scores)
-            setScores(scores);
-        }
-
-        generateScores();
-    }, [data])
+        const multipliers = isDefault ? undefined : computeWeightMultipliers(preferences);
+        const scores = calculateScores(data, multipliers);
+        setScores(scores);
+    }, [data, preferences])
 
     if (isLoading) return <div>Cargando municipio...</div>;
     if (error) return <div>Error: {error}</div>;

@@ -230,7 +230,8 @@ function evaluateRule(
 }
 
 export function calculateScores(
-    municipio: Record<string, unknown>
+    municipio: Record<string, unknown>,
+    weightMultipliers?: Record<string, number>
 ): ScoreResult {
     const departments: Record<string, DepartmentScore> = {};
 
@@ -283,8 +284,11 @@ export function calculateScores(
         const normalized =
             maxScore > 0 ? score / maxScore : 0;
 
-        weightedSum += normalized * departmentConfig.weight;
-        totalWeight += departmentConfig.weight;
+        const effectiveWeight =
+            departmentConfig.weight * (weightMultipliers?.[departmentKey] ?? 1.0);
+
+        weightedSum += normalized * effectiveWeight;
+        totalWeight += effectiveWeight;
     }
 
     const global =
