@@ -81,7 +81,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     return (
         <div className="flex flex-col gap-2 justify-center items-center min-md:mx-auto w-full h-full">
-            <div className="flex flex-col bg-bg-card rounded-[32px] my-4 pb-8 w-full min-h-[94svh] overflow-hidden border-3 border-title/10">
+            <div className="flex flex-col bg-bg-card rounded-[32px] my-2 pb-8 w-full min-h-[90svh] overflow-hidden border border-title/20">
                 <section className="flex flex-col justify-end items-start overflow-hidden relative w-full h-fit min-h-[20svh]">
                     <div className="flex flex-col gap-4 max-md:py-6 p-8 pb-6 h-full w-full">
                         <div className="flex flex-col items-start justify-center h-full w-full max-w-2xl">
@@ -119,7 +119,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                         />
                     </div>
                 </section>
-                <section className="flex flex-col gap-4 overflow-hidden relative w-full border-t-2 border-title/20">
+                <section className="flex flex-col gap-4 overflow-hidden relative w-full border-t border-title/20">
                     <GeneralScore number={scores?.global ?? 0} />
                     <div className="min-xl:flex min-xl:justify-center min-xl:items-center w-full px-8">
                         <div className="grid min-xl:grid-cols-6 min-md:grid-cols-3 max-md:grid-cols-2 max-[25rem]:grid-cols-1 gap-12">

@@ -112,7 +112,8 @@ function PreferencesPanel({
     return (
         <motion.div
             ref={panelRef}
-            className="absolute top-[calc(100%+15px)] left-0 right-0 z-50 card border border-title/20 rounded-[32px] p-8 flex flex-col gap-5"
+            className="flex w-full mt-2 mb-4 card border border-title/20 rounded-2xl shadow-xl p-4 flex flex-col gap-5"
+            style={{ zIndex: 100 }}
         >
             <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-title text-base">Personaliza tu búsqueda</h2>
@@ -203,12 +204,13 @@ export default function SearchBar() {
 
 
     return (
-        <div className={`flex flex-col justify-center items-center w-full ${pathname === "/" ? "max-w-xl" : ""}`} style={{ zIndex: 100 }}>
-            <div className="flex gap-2 w-full w-full mx-auto relative">
+        <div className={`relative flex flex-col justify-center items-center w-full ${pathname === "/" ? "max-w-xl" : ""}`} style={{ zIndex: 100 }}>
+            <div className="flex gap-1 w-full mx-auto relative">
                 {pathname !== "/" && (
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 text-sm text-title hover:text-black transition-colors w-fit px-4.5 card border border-title/30 rounded-full"
+                        title="Volver"
+                        className="inline-flex items-center gap-2 text-sm text-title/80 hover:text-title transition-colors w-fit px-4 bg-bg-card hover:bg-white border border-title/30 rounded-full"
                     >
                         <FaArrowLeft size={15} />
                     </Link>
@@ -235,7 +237,8 @@ export default function SearchBar() {
                         <IoSettingsSharp size={15} />
                     </button>
                 </div>
-
+            </div>
+            <div className={`w-full flex flex-col ${pathname === "/" ? "absolute top-full left-0" : ""}`}>
                 <AnimatePresence>
                     {showPrefs && (
                         <PreferencesPanel
@@ -245,28 +248,29 @@ export default function SearchBar() {
                         />
                     )}
                 </AnimatePresence>
-
-                {results.length > 0 && !showPrefs && (
-                    <div className="mt-2 absolute top-full left-0 right-0">
-                        <div className="card border border-title/20 rounded-3xl overflow-hidden">
-                            <div className="flex flex-col gap-2 max-h-[20rem] overflow-y-auto p-4">
-                                {results.map((result) => (
-                                    <Link href={`/municipio/${result.cod_ine}`} key={result.cod_ine} className="flex justify-between gap-4 items-center w-full h-full hover:bg-scroll/20 px-4 py-2">
-                                        <p className="font-semibold text-title text-balance">{result.municipio}</p>
-                                        {result.distance != null && (
-                                            <span className="text-sm text-title opacity-70 flex items-center justify-end gap-1 shrink-0 whitespace-nowrap min-w-[5rem]">
-                                                <BsFillSignTurnRightFill className="shrink-0" />
-                                                {result.distance >= 1000
-                                                    ? `${(result.distance / 1000).toFixed(1)} km`
-                                                    : `${result.distance} m`}
-                                            </span>
-                                        )}
-                                    </Link>
-                                ))}
+                <div className="w-full">
+                    {results.length > 0 && !showPrefs && (
+                        <div className="mt-2 mb-2 flex flex-col" style={{ zIndex: 100 }}>
+                            <div className="card border border-title/30 rounded-2xl shadow-xl overflow-hidden">
+                                <div className="flex flex-col gap-2 max-h-[21rem] overflow-y-auto">
+                                    {results.map((result) => (
+                                        <Link href={`/municipio/${result.cod_ine}`} key={result.cod_ine} className={`flex justify-between gap-4 items-center w-full h-full hover:bg-white/30 px-4 py-2 first:pt-3 last:pb-3`}>
+                                            <p className="font-semibold text-title text-balance">{result.municipio}</p>
+                                            {result.distance != null && (
+                                                <span className="text-sm text-title opacity-70 flex items-center justify-end gap-1 shrink-0 whitespace-nowrap min-w-[5rem]">
+                                                    <BsFillSignTurnRightFill className="shrink-0" />
+                                                    {result.distance >= 1000
+                                                        ? `${(result.distance / 1000).toFixed(1)} km`
+                                                        : `${result.distance} m`}
+                                                </span>
+                                            )}
+                                        </Link>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );
