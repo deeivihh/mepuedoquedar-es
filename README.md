@@ -1,12 +1,10 @@
-# ¿Me puedo quedar? 🏠
-
-![¿Me puedo quedar?](https://img.shields.io/badge/Estado-En_Desarrollo-orange)
-![Next.js](https://img.shields.io/badge/Next.js-16.3-black?logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript)
+<div align="center">
+  <img src="./public/logos/banner.png" alt="Banner ¿Me puedo quedar?" style="border-radius: 32px;" width="100%" />
+</div>
 
 **¿Me puedo quedar?** es una herramienta web interactiva diseñada para evaluar y comparar la calidad de vida en los municipios de Castilla y León. Utilizando datos abiertos proporcionados por la Junta de Castilla y León, la aplicación genera una puntuación dinámica para cada municipio basada en el perfil y las preferencias únicas de cada usuario.
 
-## 🌟 Características Principales
+## Características Principales
 
 - **Datos Abiertos Actualizados Diariamente:** Los datos se obtienen y sincronizan de manera automatizada todas las madrugadas desde la API v2.1 del portal [datosabiertos.jcyl.es](https://datosabiertos.jcyl.es).
 - **Puntuación Personalizada:** Calcula un índice de habitabilidad basado en categorías clave.
@@ -14,7 +12,7 @@
 - **Buscador de Municipios:** Encuentra rápidamente cualquier municipio de Castilla y León y descubre su puntuación detallada.
 - **Metodología Transparente:** Todas las fórmulas de cálculo están documentadas y disponibles en la plataforma.
 
-## 🛠️ Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
 - **Frontend:** [Next.js](https://nextjs.org/), React 19, [TailwindCSS v4](https://tailwindcss.com/)
 - **Mapas y Geometría:** `pigeon-maps`, `geolib`
@@ -24,7 +22,7 @@
 - **Despliegue:** Cloudflare (via `@opennextjs/cloudflare`)
 - **Testing:** [Vitest](https://vitest.dev/)
 
-## 🚀 Instalación y Uso Local
+## Instalación y Uso Local
 
 Sigue estos pasos para levantar el entorno de desarrollo en tu máquina local:
 
@@ -47,7 +45,7 @@ Sigue estos pasos para levantar el entorno de desarrollo en tu máquina local:
 4. **Abre tu navegador:**
    Visita `http://localhost:3000` para ver la aplicación en funcionamiento.
 
-## 📊 Metodología de Puntuación
+## Metodología de Puntuación
 
 El sistema asigna una puntuación de 0 a 100 a cada municipio calculando la media ponderada de las diferentes categorías. Cada indicador se evalúa mediante una de las siguientes funciones:
 - **Umbral:** Cumplir o no cumplir un requisito mínimo (ej. tener centro de salud).
@@ -56,10 +54,10 @@ El sistema asigna una puntuación de 0 a 100 a cada municipio calculando la medi
 
 Los pesos base de cada categoría se multiplican según el perfil configurado, garantizando que el resultado refleje lo que realmente le importa a cada persona.
 
-## 🤝 Contribución
+## Contribución
 
 Las contribuciones son bienvenidas. Si tienes ideas para mejorar la fórmula de puntuación, el diseño, o agregar nuevos datasets, siéntete libre de abrir una *issue* o enviar un *pull request*.
 
-## 📄 Datos y Licencia
+## Datos y Licencia
 
 Los datos utilizados para calcular las puntuaciones son proporcionados bajo licencia abierta por el **Portal de Datos Abiertos de la Junta de Castilla y León**.
