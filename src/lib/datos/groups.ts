@@ -230,7 +230,7 @@ export function getGroups(): GroupConfig[] {
       datasets: {
         entidadesSociales: { id: "entidades-de-caracter-social", select: ["localidad"] },
         serviciosSociales: { id: "servicios-de-caracter-social", select: ["localidad"] },
-        centrosSocials: { id: "centros-de-caracter-social", select: ["localidad"] }
+        centrosSociales: { id: "centros-de-caracter-social", select: ["localidad"] }
       },
       indicators: {
         entidadesSociales: {
@@ -245,8 +245,8 @@ export function getGroups(): GroupConfig[] {
           operation: "count",
           details: false,
         },
-        centrosSocials: {
-          dataset: "centrosSocials",
+        centrosSociales: {
+          dataset: "centrosSociales",
           municipality: "localidad",
           operation: "count",
           details: false,
