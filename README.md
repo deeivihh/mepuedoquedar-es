@@ -1,59 +1,65 @@
-# ¿Me puedo quedar?
+# ¿Me puedo quedar? 🏠
 
-## Motor de Sincronización de Datos (API)
+![¿Me puedo quedar?](https://img.shields.io/badge/Estado-En_Desarrollo-orange)
+![Next.js](https://img.shields.io/badge/Next.js-16.3-black?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript)
 
-Este proyecto utiliza un motor avanzado de cruce de datos que puedes encontrar en `src/app/api/sync/sanidad/route.ts`. Su objetivo es conectarse a los datos abiertos de la Junta de Castilla y León, descargar distintos datasets (archivos de datos), cruzarlos, y agruparlos automáticamente por municipio.
+**¿Me puedo quedar?** es una herramienta web interactiva diseñada para evaluar y comparar la calidad de vida en los municipios de Castilla y León. Utilizando datos abiertos proporcionados por la Junta de Castilla y León, la aplicación genera una puntuación dinámica para cada municipio basada en el perfil y las preferencias únicas de cada usuario.
 
-### 1. Definición de Datasets (`datasets`)
-En la configuración, lo primero que haces es decirle al motor qué datos quieres descargar:
+## 🌟 Características Principales
 
-```typescript
-datasets: {
-  ocupacionCamasHospitales: {
-    id: "ocupacion-de-camas-en-hospitales", // Nombre del dataset en el portal de datos
-    where: `fecha >= date'2026-06-29'`, // Opcional: Filtro SQL para no descargar todo
-  }
-}
-```
+- **Datos Abiertos Actualizados Diariamente:** Los datos se obtienen y sincronizan de manera automatizada todas las madrugadas desde la API v2.1 del portal [datosabiertos.jcyl.es](https://datosabiertos.jcyl.es).
+- **Puntuación Personalizada:** Calcula un índice de habitabilidad basado en categorías clave.
+- **Perfil de Usuario Dinámico:** Las puntuaciones se ajustan automáticamente según las preferencias del usuario (edad, situación laboral, hijos a cargo, etc.), modificando el peso de cada categoría.
+- **Buscador de Municipios:** Encuentra rápidamente cualquier municipio de Castilla y León y descubre su puntuación detallada.
+- **Metodología Transparente:** Todas las fórmulas de cálculo están documentadas y disponibles en la plataforma.
 
-### 2. Creación de Indicadores (`indicators`)
-Una vez descargados los datos, creas **indicadores** que son los resultados matemáticos que quieres obtener por cada municipio. 
+## 🛠️ Tecnologías Utilizadas
 
-```typescript
-camasHospitales: {
-  dataset: "ocupacionCamasHospitales", // De qué dataset salen los datos
-  operation: "sum",                    // Operación matemática: "sum", "count", "average"
-  fields: ["camas_ocupadas_planta"],   // Qué columnas sumar
-  
-  // OPCIONES AVANZADAS:
-  // 1. Cruzar datos (Join)
-  // Si el dataset no tiene el municipio directamente, usamos joinVia para cruzarlo
-  // usando un dataset puente (ej. centrosSanitarios).
-  joinVia: {
-    dataset: "centrosSanitarios",
-    municipality: "localidad",
-    localKey: "nombre_del_centro",
-    foreignKey: "hospital",
-  },
-  
-  // 2. Dependencias (Requires)
-  // Si no hay hospitales en el municipio, no mostramos este indicador para ahorrar peso.
-  requires: "hospitales",
-  
-  // 3. Quedarse solo con lo último (Latest)
-  // Para capacidades (camas), agrupa por hospital y coge solo la fila con la fecha más nueva.
-  latestGroupBy: "hospital",
-  latestBy: "fecha",
-  
-  // 4. Mostrar la fecha del dato
-  // Incluye automáticamente la fecha (o rango de fechas) de los datos que ha sumado.
-  dateField: "fecha",
-}
-```
+- **Frontend:** [Next.js](https://nextjs.org/), React 19, [TailwindCSS v4](https://tailwindcss.com/)
+- **Mapas y Geometría:** `pigeon-maps`, `geolib`
+- **Animaciones:** `motion`
+- **Procesamiento de Datos:** `csv-parse`
+- **Base de Datos:** [Supabase](https://supabase.com/)
+- **Despliegue:** Cloudflare (via `@opennextjs/cloudflare`)
+- **Testing:** [Vitest](https://vitest.dev/)
 
-### 3. Filtros Personalizados
-Si un dataset tiene datos "basura" (por ejemplo, hospitales que reportan 0 camas por error de servidor), puedes añadir un `filter` en el indicador para limpiarlos en memoria antes de hacer la matemática:
+## 🚀 Instalación y Uso Local
 
-```typescript
-filter: (row: any) => Number(row.camas_habilitadas_planta) > 0
-```
+Sigue estos pasos para levantar el entorno de desarrollo en tu máquina local:
+
+1. **Clona el repositorio:**
+   ```bash
+   git clone https://github.com/deeivihh/mepuedoquedar.git
+   cd mepuedoquedar
+   ```
+
+2. **Instala las dependencias:**
+   ```bash
+   npm install
+   ```
+
+3. **Inicia el servidor de desarrollo:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Abre tu navegador:**
+   Visita `http://localhost:3000` para ver la aplicación en funcionamiento.
+
+## 📊 Metodología de Puntuación
+
+El sistema asigna una puntuación de 0 a 100 a cada municipio calculando la media ponderada de las diferentes categorías. Cada indicador se evalúa mediante una de las siguientes funciones:
+- **Umbral:** Cumplir o no cumplir un requisito mínimo (ej. tener centro de salud).
+- **Escala Logarítmica:** Valora positivamente disponer de un servicio, pero reduce el impacto de la acumulación (ej. número de bibliotecas).
+- **Interpolación Lineal:** Puntuación proporcional entre un valor mínimo y uno óptimo.
+
+Los pesos base de cada categoría se multiplican según el perfil configurado, garantizando que el resultado refleje lo que realmente le importa a cada persona.
+
+## 🤝 Contribución
+
+Las contribuciones son bienvenidas. Si tienes ideas para mejorar la fórmula de puntuación, el diseño, o agregar nuevos datasets, siéntete libre de abrir una *issue* o enviar un *pull request*.
+
+## 📄 Datos y Licencia
+
+Los datos utilizados para calcular las puntuaciones son proporcionados bajo licencia abierta por el **Portal de Datos Abiertos de la Junta de Castilla y León**.
