@@ -5,30 +5,32 @@ export function useTypewriter(words: string[], typingSpeed = 80, deletingSpeed =
     const [wordIndex, setWordIndex] = useState(0);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const currentWord = words[wordIndex] || "";
-
     useEffect(() => {
-        if (words.length === 0) return;
+        if (!words || words.length === 0) return;
 
-        const timeout = setTimeout(() => {
-            if (!isDeleting) {
-                if (displayed.length < currentWord.length) {
-                    setDisplayed(currentWord.slice(0, displayed.length + 1));
-                } else {
-                    setTimeout(() => setIsDeleting(true), pauseMs);
-                }
-            } else {
-                if (displayed.length > 0) {
-                    setDisplayed(currentWord.slice(0, displayed.length - 1));
-                } else {
-                    setIsDeleting(false);
-                    setWordIndex((prev) => (prev + 1) % words.length);
-                }
-            }
-        }, isDeleting ? deletingSpeed : typingSpeed);
+        const currentWord = words[wordIndex % words.length] || "";
+        let delay = isDeleting ? deletingSpeed : typingSpeed;
+        let action = () => { };
+
+        if (!isDeleting && displayed === currentWord) {
+            delay = pauseMs;
+            action = () => setIsDeleting(true);
+        } else if (isDeleting && displayed === "") {
+            delay = typingSpeed;
+            action = () => {
+                setIsDeleting(false);
+                setWordIndex((prev) => (prev + 1) % words.length);
+            };
+        } else if (isDeleting) {
+            action = () => setDisplayed(currentWord.slice(0, displayed.length - 1));
+        } else {
+            action = () => setDisplayed(currentWord.slice(0, displayed.length + 1));
+        }
+
+        const timeout = setTimeout(action, delay);
 
         return () => clearTimeout(timeout);
-    }, [displayed, isDeleting, currentWord, words, typingSpeed, deletingSpeed, pauseMs]);
+    }, [displayed, isDeleting, wordIndex, words, typingSpeed, deletingSpeed, pauseMs]);
 
     return displayed;
 }
