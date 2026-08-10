@@ -64,11 +64,26 @@
                 "field": "policiaLocal.total",
                 "type": "interpolated",
                 "points": [
-                    { "at": 0, "score": 0 },
-                    { "at": 1, "score": 25 },
-                    { "at": 5, "score": 50 },
-                    { "at": 15, "score": 75 },
-                    { "at": 50, "score": 100 }
+                    {
+                        "at": 0,
+                        "score": 0
+                    },
+                    {
+                        "at": 1,
+                        "score": 25
+                    },
+                    {
+                        "at": 5,
+                        "score": 50
+                    },
+                    {
+                        "at": 15,
+                        "score": 75
+                    },
+                    {
+                        "at": 50,
+                        "score": 100
+                    }
                 ]
             }
         ]
@@ -204,7 +219,7 @@
             },
             {
                 "label": "Centros sociales",
-                "field": "centrosSocials.cantidad",
+                "field": "centrosSociales.cantidad",
                 "type": "log_scale",
                 "base": 5,
                 "max": 30

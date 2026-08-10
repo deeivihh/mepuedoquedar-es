@@ -87,7 +87,7 @@ export default function MetodologiaPage() {
                     </p>
                     <div className="card rounded-xl border border-title/10 divide-y divide-title/10 text-sm mb-5">
                         <div className="px-5 py-4">
-                            <h4 className="font-semibold text-title mb-2">Umbral (Threshold)</h4>
+                            <h4 className="font-semibold text-title mb-2">Umbral</h4>
                             <p className="text-title/65 mb-2">Evalúa la existencia binaria de un servicio. Se otorgan los puntos máximos si el valor supera el mínimo exigido.</p>
                             <code className="block bg-title/5 p-3 rounded-lg text-title/80 font-mono text-xs">
                                 Si (Valor ≥ Mínimo) → 100 puntos<br />
