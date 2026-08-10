@@ -94,7 +94,7 @@ function PreferencesPanel({
         function handleClick(e: MouseEvent) {
             const target = e.target as Element;
             if (target.closest('#pref-button')) return;
-            
+
             if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
                 onClose();
             }
@@ -253,7 +253,7 @@ export default function SearchBar() {
                         id="pref-button"
                         onClick={() => setShowPrefs(v => !v)}
                         title="Personalizar búsqueda"
-                        className={`bg-white/50 rounded-full p-1.5 border border-title/20 hover:bg-white transition-all duration-150 shrink-0`}
+                        className={`rounded-full p-1.5 border border-title/20 hover:bg-white/90 ${showPrefs ? 'bg-white' : 'bg-white/50'} transition-all duration-150 shrink-0`}
                     >
                         <IoSettingsSharp size={15} />
                     </button>

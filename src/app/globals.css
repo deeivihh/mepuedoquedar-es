@@ -47,6 +47,10 @@ a {
     outline: none;
 }
 
+button {
+    outline: none;
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
