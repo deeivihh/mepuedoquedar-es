@@ -2,6 +2,7 @@
   <img src="./public/logos/banner.png" alt="Banner ¿Me puedo quedar?" style="border-radius: 32px;" width="100%" />
 </div>
 
+#
 **¿Me puedo quedar?** es una herramienta web interactiva diseñada para evaluar y comparar la calidad de vida en los municipios de Castilla y León. Utilizando datos abiertos proporcionados por la Junta de Castilla y León, la aplicación genera una puntuación dinámica para cada municipio basada en el perfil y las preferencias únicas de cada usuario.
 
 ## Características Principales
