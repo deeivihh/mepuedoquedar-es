@@ -17,12 +17,12 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://mepuedoquedar.es"),
 
 	title: {
-		default: "¿Me puedo quedar?",
+		default: "Dónde vivir en Castilla y León",
 		template: "%s | ¿Me puedo quedar?"
 	},
 
 	description:
-		"Descubre dónde vivir en Castilla y León. Encuentra municipios con oportunidades, servicios y calidad de vida para construir tu próximo hogar.",
+		"Descubre municipios con oportunidades, servicios y calidad de vida para construir tu próximo hogar.",
 
 	alternates: {
 		canonical: "/"
@@ -32,16 +32,16 @@ export const metadata: Metadata = {
 		type: "website",
 		locale: "es_ES",
 		siteName: "¿Me puedo quedar?",
-		title: "¿Me puedo quedar?",
+		title: "Dónde vivir en Castilla y León",
 		description:
-			"¿Y si tu próximo hogar estuviera en Castilla y León? Encuentra el municipio donde sí te puedes quedar.",
+			"Descubre municipios con oportunidades, servicios y calidad de vida para construir tu próximo hogar.",
 		url: "/",
 		images: [
 			{
 				url: "/og/og-image.jpg",
 				width: 1200,
 				height: 630,
-				alt: "¿Me puedo quedar? Descubre dónde vivir en Castilla y León."
+				alt: "¿El texto en español dice: «¿Me puedo quedar?», escrito en letra grande y negrita sobre un fondo claro, con parte de un signo de interrogación visible."
 			}
 		]
 	},
@@ -49,9 +49,9 @@ export const metadata: Metadata = {
 	twitter: {
 		card: "summary_large_image",
 		site: "@deeivihh",
-		title: "¿Me puedo quedar?",
+		title: "Dónde vivir en Castilla y León",
 		description:
-			"¿Y si tu próximo hogar estuviera en Castilla y León? Encuentra el municipio donde sí te puedes quedar.",
+			"Descubre municipios con oportunidades, servicios y calidad de vida para construir tu próximo hogar.",
 		images: ["/og/og-image.jpg"]
 	},
 
