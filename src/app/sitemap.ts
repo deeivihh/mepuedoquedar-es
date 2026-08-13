@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			municipioPages = data.map((m) => ({
 				url: `${BASE_URL}/municipio/${m.codigo}`,
 				lastModified: m.updated_at ? new Date(m.updated_at) : new Date(),
-				changeFrequency: "weekly" as const,
+				changeFrequency: "daily" as const,
 				priority: 0.8,
 			}));
 		}
