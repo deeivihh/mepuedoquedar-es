@@ -17,12 +17,12 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://mepuedoquedar.es"),
 
 	title: {
-		default: "Dónde vivir en Castilla y León",
+		default: "¿Me puedo quedar?",
 		template: "%s | ¿Me puedo quedar?"
 	},
 
 	description:
-		"Descubre municipios con oportunidades, servicios y calidad de vida para construir tu próximo hogar.",
+		"Descubre dónde vivir en Castilla y León. Encuentra municipios con oportunidades, servicios y calidad de vida para construir tu próximo hogar.",
 
 	alternates: {
 		canonical: "/"
