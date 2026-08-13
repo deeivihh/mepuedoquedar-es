@@ -20,12 +20,16 @@ export default function RootLayout({
 	return (
 		<html lang="es">
 			<head>
+				<meta httpEquiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*.tile.openstreetmap.org https://mepuedoquedar.es; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://analisis.datosabiertos.jcyl.es https://*.tile.openstreetmap.org; upgrade-insecure-requests;" />
+				<meta httpEquiv="X-Content-Type-Options" content="nosniff" />
 				<meta property="og:site_name" content="¿Me puedo quedar?" />
 				<meta property="og:title" content="¿Me puedo quedar?" />
 				<meta name="description" content="Descubre dónde vivir en Castilla y León. Encuentra municipios con oportunidades, servicios y calidad de vida para construir tu próximo hogar." />
 				<meta property="og:description" content="¿Y si tu próximo hogar estuviera en Castilla y León? Encuentra el municipio donde sí te puedes quedar." />
 				<meta property="og:image" content="https://mepuedoquedar.es/og/og-image.jpg" />
 				<meta property="og:image:alt" content="El texto en español dice: «¿Me puedo quedar?», escrito en letra grande y negrita sobre un fondo claro, con parte de un signo de interrogación visible." />
+				<meta property="og:image:width" content="1200" />
+				<meta property="og:image:height" content="630" />
 				<meta property="og:url" content="https://mepuedoquedar.es" />
 				<meta property="og:locale" content="es_ES" />
 				<meta name="twitter:card" content="summary_large_image" />
