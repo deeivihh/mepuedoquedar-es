@@ -15,7 +15,7 @@ const cspHeader = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
-	/* config options here */
+	poweredByHeader: false,
 	async headers() {
 		return [
 			{
