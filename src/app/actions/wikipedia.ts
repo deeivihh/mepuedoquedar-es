@@ -2,156 +2,76 @@
 
 import wiki from "wikipedia";
 
-export interface WikiSection {
-    title: string;
-    text: string;
-}
-
 export interface WikipediaData {
     title: string;
-    summary: string;
-    description?: string;
-    mainImage?: string;
-    allImages: string[];
-    sections: WikiSection[];
-    pageUrl?: string;
+    paragraphs: string[];
+    images: string[];
+    pageUrl: string;
 }
 
-function toTitleCase(text: string): string {
-    const lowerWords = new Set([
-        "de", "del", "la", "las", "los", "el", "en", "y", "e", "a", "al",
-    ]);
-    return text
-        .toLowerCase()
-        .split(" ")
-        .map((word, i) =>
-            i === 0 || !lowerWords.has(word)
-                ? word.charAt(0).toUpperCase() + word.slice(1)
-                : word
-        )
-        .join(" ");
+const FORBIDDEN = /svg|\.png\?|icon|symbol|flag|bandera|escudo|coat|shield|logo|mapa|plano|locator|situaci|termino|cartograf|timeline|grafic|diagrama|grabado|pintura|cuadro|oleo|retrato|dibujo|moneda|sello|marmol|godo|arqueol|lapida|ceramica|batalla|guerra/i;
+
+function clean(t = "") {
+    return t.replace(/\[(?:\d+|nota\s*\d+|editar)\]|<[^>]+>/gi, "").replace(/\s+/g, " ").trim();
 }
 
-function filterImages(images: any[]): string[] {
-    return (images || [])
-        .map((img: any) => img.url)
-        .filter((url: string) => {
-            if (!url) return false;
-            const lower = url.toLowerCase();
-            if (
-                lower.includes("icon") ||
-                lower.includes("symbol") ||
-                lower.includes("arrow") ||
-                lower.includes("aiga_") ||
-                lower.includes("flag") ||
-                lower.includes("coat") ||
-                lower.includes("escudo") ||
-                lower.includes("bandera") ||
-                lower.endsWith(".svg")
-            ) return false;
-            return /\.(jpe?g|png|webp)(\?|$)/i.test(url);
-        });
+function split(t = ""): string[] {
+    const c = clean(t);
+    const s = c.split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÑ"«])/).filter((x) => x.length > 15);
+    const p: string[] = [];
+    for (let i = 0; i < s.length; i += 2) p.push(s.slice(i, i + 2).join(" "));
+    return p.length ? p : [c];
 }
 
-const IGNORED_SECTIONS = new Set([
-    "referencias", "notas", "véase también", "ver también",
-    "enlaces externos", "bibliografía", "fuentes", "notas y referencias",
-    "notas al pie", "galería", "galería de imágenes",
-]);
-
-function parseContentSections(content: string): WikiSection[] {
-    const lines = content.split("\n");
-    const sections: WikiSection[] = [];
-
-    let currentTitle = "";
-    let currentLines: string[] = [];
-
-    const flush = () => {
-        if (!currentTitle) return;
-        const text = currentLines.join("\n").trim();
-        if (
-            text.length > 80 &&
-            !IGNORED_SECTIONS.has(currentTitle.toLowerCase())
-        ) {
-            sections.push({ title: currentTitle, text });
-        }
-    };
-
-    for (const line of lines) {
-        const match = line.match(/^={2,3}\s*(.+?)\s*={2,3}$/);
-        if (match) {
-            flush();
-            currentTitle = match[1].trim();
-            currentLines = [];
-        } else {
-            currentLines.push(line);
-        }
-    }
-    flush();
-
-    return sections.slice(0, 10);
+function hiRes(url = "") {
+    const u = (url.startsWith("//") ? "https:" + url : url).split("?")[0];
+    return u.replace(/\/thumb\/(.+)\/\d+px-([^/]+)$/i, "/thumb/$1/1280px-$2");
 }
 
-async function tryFetch(title: string): Promise<WikipediaData | null> {
+async function fetchPage(title: string): Promise<WikipediaData | null> {
     try {
         const page = await wiki.page(title, { autoSuggest: false });
-        const [summaryRes, imagesRes, contentRes] = await Promise.allSettled([
-            page.summary(),
-            page.images(),
-            page.content(),
-        ]);
+        const [intro, summary, media] = await Promise.allSettled([page.intro(), page.summary(), page.media()]);
+        const text = (intro.status === "fulfilled" && clean(intro.value)) || (summary.status === "fulfilled" && clean(summary.value?.extract)) || "";
+        if (!text) return null;
 
-        if (summaryRes.status === "rejected" || !summaryRes.value?.extract) return null;
+        const items = media.status === "fulfilled" ? media.value?.items || [] : [];
+        const seen = new Set<string>();
+        const images: string[] = [];
 
-        const summary = summaryRes.value;
-        const images = imagesRes.status === "fulfilled" ? imagesRes.value : [];
-        const content = contentRes.status === "fulfilled" ? contentRes.value : "";
-
-        const allImages = filterImages(images).slice(0, 12);
-        const sections = parseContentSections(content);
+        for (const item of items) {
+            if (item.type !== "image") continue;
+            const src = item.srcset?.[item.srcset.length - 1]?.src || item.srcset?.[0]?.src;
+            if (!src || !/\.(jpe?g|webp)(\?|$)/i.test(src) || FORBIDDEN.test(`${src} ${item.title}`)) continue;
+            const url = hiRes(src);
+            if (seen.has(url)) continue;
+            seen.add(url);
+            images.push(url);
+        }
 
         return {
-            title: summary.title,
-            summary: summary.extract,
-            description: summary.description || "",
-            mainImage:
-                summary.originalimage?.source ||
-                summary.thumbnail?.source ||
-                allImages[0],
-            allImages,
-            sections,
-            pageUrl: summary.content_urls?.desktop?.page,
+            title: page.title || title,
+            paragraphs: split(text),
+            images: images.slice(0, 20),
+            pageUrl: page.fullurl || `https://es.wikipedia.org/wiki/${encodeURIComponent(title)}`,
         };
     } catch {
         return null;
     }
 }
 
-export async function getMunicipioWikipedia(
-    lat: number,
-    lon: number,
-    name: string,
-    provincia?: string,
-): Promise<WikipediaData | null> {
-    if (!name) return null;
+function titleCase(t: string) {
+    const skip = new Set(["de", "del", "la", "las", "los", "el", "en", "y", "e", "a", "al"]);
+    return t.toLowerCase().split(" ").map((w, i) => (i === 0 || !skip.has(w) ? w[0].toUpperCase() + w.slice(1) : w)).join(" ");
+}
 
+export async function getMunicipioWikipedia(lat: number, lon: number, name: string, provincia?: string): Promise<WikipediaData | null> {
+    if (!name) return null;
     try {
         wiki.setLang("es");
-
-        const normalName = toTitleCase(name.trim());
-        const prov = provincia ? toTitleCase(provincia.trim()) : "";
-
-        const direct = await tryFetch(normalName);
-        if (direct) return direct;
-
-        if (prov) {
-            const disambig = await tryFetch(`${normalName} (${prov})`);
-            if (disambig) return disambig;
-        }
-
-        return null;
-    } catch (err) {
-        console.error("[Wikipedia] Error:", err);
+        const n = titleCase(name.trim());
+        return (await fetchPage(n)) || (provincia ? await fetchPage(`${n} (${titleCase(provincia.trim())})`) : null);
+    } catch {
         return null;
     }
 }

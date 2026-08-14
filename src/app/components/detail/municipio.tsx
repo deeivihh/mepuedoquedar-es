@@ -84,7 +84,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         <div className="flex flex-col gap-2 justify-center items-center min-md:mx-auto w-full h-full">
             <div className="flex flex-col bg-bg-card rounded-[32px] w-full h-full overflow-hidden border border-title/20">
                 <section className="flex flex-col justify-end items-start overflow-hidden relative w-full h-fit min-h-[20svh]">
-                    <div className="flex flex-col gap-4 max-md:py-6 p-8 pb-6 h-full w-full">
+                    <div className="flex flex-col gap-4 max-md:py-6 p-8 h-full w-full">
                         <div className="flex flex-col items-start justify-center h-full w-full max-w-2xl">
                             <h1 className="text-6xl max-md:text-4xl max-md:w-full min-md:max-w-[17ch] font-bold text-pretty max-md:text-center z-10">{data.municipio}</h1>
                         </div>
