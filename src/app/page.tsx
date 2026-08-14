@@ -8,7 +8,7 @@ export default function Home() {
     return (
         <main className="flex flex-col justify-start h-screen w-full max-md:p-6">
             <footer className="absolute left-1/2 -translate-x-1/2 bottom-4 max-lg:top-8">
-                <div className="flex max-[18rem]:flex-col gap-6 max-md:gap-4 items-start justify-center">
+                <div className="flex max-[17rem]:flex-col gap-6 max-md:gap-4 items-start justify-center">
                     <Link
                         href="/metodologia"
                         className="text-title/75 hover:text-title leading-relaxed text-sm max-[21rem]:text-xs flex items-center justify-center gap-2"
@@ -34,7 +34,7 @@ export default function Home() {
                     </Link>
                 </div>
             </footer>
-            <section className="h-full flex flex-col justify-center items-center mb-28">
+            <section className="h-full flex flex-col justify-center items-center mb-32 z-50">
                 <DynamicHeading />
                 <SearchBar />
             </section>

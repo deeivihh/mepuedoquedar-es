@@ -25,7 +25,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const [mapWidth, setMapWidth] = useState(400);
-    const [mapHeight, setMapHeight] = useState(305);
+    const [mapHeight, setMapHeight] = useState(200);
 
     const [scores, setScores] = useState<ScoreResult | null>(null);
 
@@ -81,7 +81,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     return (
         <div className="flex flex-col gap-2 justify-center items-center min-md:mx-auto w-full h-full">
-            <div className="flex flex-col bg-bg-card rounded-[32px] my-2 pb-8 w-full min-h-[90svh] overflow-hidden border border-title/20">
+            <div className="flex flex-col bg-bg-card rounded-[32px] pb-8 w-full min-h-[90svh] overflow-hidden border border-title/20">
                 <section className="flex flex-col justify-end items-start overflow-hidden relative w-full h-fit min-h-[20svh]">
                     <div className="flex flex-col gap-4 max-md:py-6 p-8 pb-6 h-full w-full">
                         <div className="flex flex-col items-start justify-center h-full w-full max-w-2xl">

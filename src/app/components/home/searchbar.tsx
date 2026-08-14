@@ -112,50 +112,52 @@ function PreferencesPanel({
     return (
         <motion.div
             ref={panelRef}
-            className="flex w-full mt-2 mb-4 card border border-title/20 rounded-2xl shadow-xl p-4 flex flex-col gap-5"
+            className="flex w-full mt-2 px-0.5"
             style={{ zIndex: 100 }}
         >
-            <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-title text-base">Personaliza tu búsqueda</h2>
-                <button
-                    onClick={onClose}
-                    className="rounded-full p-1 hover:bg-title/10 transition-colors"
-                    aria-label="Cerrar"
-                >
-                    <IoMdClose size={16} className="text-title" />
-                </button>
-            </div>
+            <div className="p-4 flex flex-col gap-5 w-full card border border-title/20 rounded-2xl">
+                <div className="flex items-center justify-between">
+                    <h2 className="font-semibold text-title text-base">Personaliza tu búsqueda</h2>
+                    <button
+                        onClick={onClose}
+                        className="rounded-full p-1 hover:bg-title/10 transition-colors"
+                        aria-label="Cerrar"
+                    >
+                        <IoMdClose size={16} className="text-title" />
+                    </button>
+                </div>
 
-            <p className="text-xs text-title/60 -mt-3">
-                Ajustamos la puntuación de cada municipio según tu situación.
-            </p>
+                <p className="text-xs text-title/60 -mt-3">
+                    Ajustamos la puntuación de cada municipio según tu situación.
+                </p>
 
-            {PREFERENCES_SCHEMA.map((config) => {
-                if (config.type === "boolean") {
-                    return (
-                        <div key={config.id} className="flex items-center justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-medium text-title">{config.label}</p>
-                                <p className="text-xs text-title/50">{config.description}</p>
+                {PREFERENCES_SCHEMA.map((config) => {
+                    if (config.type === "boolean") {
+                        return (
+                            <div key={config.id} className="flex items-center justify-between gap-4">
+                                <div>
+                                    <p className="text-sm font-medium text-title">{config.label}</p>
+                                    <p className="text-xs text-title/50">{config.description}</p>
+                                </div>
+                                <Toggle
+                                    id={`pref-${config.id}`}
+                                    checked={preferences[config.id] as boolean}
+                                    onChange={(v) => update(config.id, v)}
+                                />
                             </div>
-                            <Toggle
-                                id={`pref-${config.id}`}
-                                checked={preferences[config.id] as boolean}
+                        );
+                    } else if (config.type === "range" && config.id === "age") {
+                        return (
+                            <AgeSlider
+                                key={config.id}
+                                value={preferences[config.id] as number}
                                 onChange={(v) => update(config.id, v)}
                             />
-                        </div>
-                    );
-                } else if (config.type === "range" && config.id === "age") {
-                    return (
-                        <AgeSlider
-                            key={config.id}
-                            value={preferences[config.id] as number}
-                            onChange={(v) => update(config.id, v)}
-                        />
-                    );
-                }
-                return null;
-            })}
+                        );
+                    }
+                    return null;
+                })}
+            </div>
         </motion.div>
     );
 }
@@ -218,7 +220,7 @@ export default function SearchBar() {
                 <div className={`w-full card border border-title/30 rounded-[32px] transition-all duration-300 overflow-hidden flex gap-2 items-center px-4 h-12`}>
                     <input
                         placeholder="Busca tu municipio..."
-                        autoFocus
+                        {...(pathname === "/" && { autoFocus: true })}
                         onChange={(e) => { if (e.target.value.length < 3) setResults([]); setQuery(e.target.value); }}
                         value={query}
                         className={`w-full h-full outline-none text-title font-medium`}
@@ -248,10 +250,10 @@ export default function SearchBar() {
                         />
                     )}
                 </AnimatePresence>
-                <div className="w-full">
+                <div className={`${pathname === "/" ? "px-2" : ""} w-full flex flex-col`}>
                     {results.length > 0 && !showPrefs && (
-                        <div className="mt-2 mb-2 flex flex-col" style={{ zIndex: 100 }}>
-                            <div className="card border border-title/30 rounded-2xl shadow-xl overflow-hidden">
+                        <div className="mt-2 flex flex-col" style={{ zIndex: 100 }}>
+                            <div className="card border border-title/30 rounded-2xl overflow-hidden">
                                 <div className="flex flex-col gap-2 max-h-[21rem] overflow-y-auto">
                                     {results.map((result) => (
                                         <Link href={`/municipio/${result.cod_ine}`} key={result.cod_ine} className={`flex justify-between gap-4 items-center w-full h-full hover:bg-white/30 px-4 py-2 first:pt-3 last:pb-3`}>
