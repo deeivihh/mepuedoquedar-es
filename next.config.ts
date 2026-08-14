@@ -4,13 +4,13 @@ const cspHeader = [
 	"default-src 'self'",
 	"script-src 'self' 'unsafe-inline' 'unsafe-eval'",
 	"style-src 'self' 'unsafe-inline'",
-	"img-src 'self' blob: data: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.openstreetmap.org https://mepuedoquedar.es",
+	"img-src 'self' blob: data: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.openstreetmap.org https://mepuedoquedar.es https://*.wikipedia.org https://wikipedia.org https://*.wikimedia.org https://upload.wikimedia.org",
 	"font-src 'self' data:",
 	"object-src 'none'",
 	"base-uri 'self'",
 	"form-action 'self'",
 	"frame-ancestors 'none'",
-	"connect-src 'self' https://analisis.datosabiertos.jcyl.es https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.openstreetmap.org",
+	"connect-src 'self' https://analisis.datosabiertos.jcyl.es https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.openstreetmap.org https://*.wikipedia.org https://wikipedia.org https://*.wikimedia.org",
 	"upgrade-insecure-requests",
 ].join("; ");
 

@@ -9,6 +9,7 @@ import { calculateScores, ScoreResult } from "@/lib/scores/calculateScores";
 import GeneralScore, { ScoreItem } from "@/app/components/detail/scores";
 import { usePreferences } from "@/app/contexts/PreferencesContext";
 import { computeWeightMultipliers } from "@/lib/scores/userPreferences";
+import Wikipedia from "./wikipedia";
 
 function capitalize(value: string) {
     const firstLetter = value.charAt(0);
@@ -81,7 +82,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     return (
         <div className="flex flex-col gap-2 justify-center items-center min-md:mx-auto w-full h-full">
-            <div className="flex flex-col bg-bg-card rounded-[32px] pb-8 w-full min-h-[90svh] overflow-hidden border border-title/20">
+            <div className="flex flex-col bg-bg-card rounded-[32px] w-full h-full overflow-hidden border border-title/20">
                 <section className="flex flex-col justify-end items-start overflow-hidden relative w-full h-fit min-h-[20svh]">
                     <div className="flex flex-col gap-4 max-md:py-6 p-8 pb-6 h-full w-full">
                         <div className="flex flex-col items-start justify-center h-full w-full max-w-2xl">
@@ -119,17 +120,22 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                         />
                     </div>
                 </section>
-                <section className="flex flex-col gap-4 overflow-hidden relative w-full border-t border-title/20">
-                    <GeneralScore number={scores?.global ?? 0} />
-                    <div className="min-xl:flex min-xl:justify-center min-xl:items-center w-full px-8">
-                        <div className="grid min-xl:grid-cols-6 min-md:grid-cols-3 max-md:grid-cols-2 max-[25rem]:grid-cols-1 gap-12">
-                            {Object.entries(scores?.departments ?? {}).map(([key, value]) => (
-                                <ScoreItem key={key} name={key} number={value} />
-                            ))}
+                <div className="gap-12 flex flex-col">
+                    <section className="flex flex-col gap-4 overflow-hidden relative w-full border-t border-title/20">
+                        <GeneralScore number={scores?.global ?? 0} />
+                        <div className="min-xl:flex min-xl:justify-center min-xl:items-center w-full px-8">
+                            <div className="grid min-xl:grid-cols-6 min-md:grid-cols-3 max-md:grid-cols-2 max-[25rem]:grid-cols-1 gap-12">
+                                {Object.entries(scores?.departments ?? {}).map(([key, value]) => (
+                                    <ScoreItem key={key} name={key} number={value} />
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                    <section className="flex flex-col gap-4 overflow-hidden relative w-full border-t border-title/20">
+                        <Wikipedia lat={data.latitud} lon={data.longitud} name={data.municipio} provincia={data.provincia} />
+                    </section>
+                </div>
             </div>
         </div>
     );
-}   
+}
