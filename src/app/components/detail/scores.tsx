@@ -60,13 +60,13 @@ export default function GeneralScore({ number }: { number: number }) {
     const stars = generateStars(starRating);
 
     return (
-        <div className="flex flex-col items-start justify-center gap-4 w-full p-8">
+        <div className="flex flex-col items-start justify-center gap-4 w-full">
             <div className="flex max-[73rem]:flex-col gap-2 w-full justify-between items-center">
-                <div className="flex gap-1 text-6xl max-[23rem]:text-5xl">
+                <div className="flex gap-1 text-5xl max-[23rem]:text-5xl">
                     {stars}
                 </div>
                 <span
-                    className="text-5xl max-[51rem]:text-3xl max-md:text-center font-semibold pt-0.5 text-title"
+                    className="text-4xl max-[51rem]:text-3xl max-md:text-center font-semibold pt-0.5 text-title"
                 >
                     {labelText()}
                 </span>

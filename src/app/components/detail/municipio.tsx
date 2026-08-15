@@ -82,28 +82,30 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     return (
         <div className="flex flex-col gap-2 justify-center items-center min-md:mx-auto w-full h-full">
-            <div className="flex flex-col bg-bg-card rounded-[32px] w-full h-full overflow-hidden border border-title/20">
-                <section className="flex flex-col justify-end items-start overflow-hidden relative w-full h-fit min-h-[20svh]">
-                    <div className="flex flex-col gap-4 max-md:py-6 p-8 h-full w-full">
+            <div className="flex flex-col w-full h-full overflow-hidden">
+                <section className="flex flex-col justify-center border border-title/20 items-start overflow-hidden relative w-full h-fit min-h-[20svh]">
+                    <div className="flex flex-col max-md:py-6 p-8 h-full w-full">
                         <div className="flex flex-col items-start justify-center h-full w-full max-w-2xl">
                             <h1 className="text-6xl max-md:text-4xl max-md:w-full min-md:max-w-[17ch] font-bold text-pretty max-md:text-center z-10">{data.municipio}</h1>
                         </div>
-                        <div className="flex max-md:items-center max-md:justify-center z-50">
-                            <div className="flex flex-col max-md:w-full gap-4 max-md:items-center max-md:justify-center px-0.5">
-                                <div className="flex max-[23.5rem]:flex-col gap-2">
-                                    {data.provincia && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><FaMapMarkedAlt /> {capitalize(data?.provincia)}</span>}
-                                    {data.poblacion > 0 && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><IoPeopleSharp /> {data?.poblacion.toLocaleString('es-ES', { useGrouping: true })}</span>}
-                                    {data.distance > 0 && (
-                                        <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><FaCarSide /> {data.distance >= 1000
-                                            ? `${(data.distance / 1000).toFixed(0)}km`
-                                            : `${data.distance}m`}
-                                        </span>
-                                    )}
+                        <div className="flex justify-between items-end w-full mt-8">
+                            <div className="flex max-md:items-center max-md:justify-center z-50">
+                                <div className="flex flex-col max-md:w-full gap-4 max-md:items-center max-md:justify-center px-0.5">
+                                    <div className="flex max-[23.5rem]:flex-col gap-2">
+                                        {data.provincia && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><FaMapMarkedAlt /> {capitalize(data?.provincia)}</span>}
+                                        {data.poblacion > 0 && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><IoPeopleSharp /> {data?.poblacion.toLocaleString('es-ES', { useGrouping: true })}</span>}
+                                        {data.distance > 0 && (
+                                            <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><FaCarSide /> {data.distance >= 1000
+                                                ? `${(data.distance / 1000).toFixed(0)}km`
+                                                : `${data.distance}m`}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="min-md:absolute min-md:right-7 min-md:bottom-5.5 max-md:flex max-[23.5rem]:flex-col max-[23.5rem]:w-full max-md:justify-center max-md:items-center gap-2 z-50">
-                            <a href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`} target="_blank" rel="noopener noreferrer" className="w-fit flex backdrop-blur-xs items-center gap-2 py-1 max-md:justify-center rounded-full hover:shadow-inner hover:bg-text-2 bg-text-2/90 font-semibold border border-title/20 min-md:px-4 max-md:w-80 max-[23.5rem]:w-90"><span className="text-white flex gap-2 items-center">Cómo llegar <MdArrowOutward /></span></a>
+                            <div className="flex gap-2 z-50">
+                                <a href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`} target="_blank" rel="noopener noreferrer" className="w-fit flex backdrop-blur-xs items-center gap-2 py-1 max-md:justify-center rounded-full hover:shadow-inner hover:bg-text-2 bg-text-2/90 font-semibold border border-title/20 min-md:px-4 max-md:w-80 max-[23.5rem]:w-90"><span className="text-white flex gap-2 items-center">Cómo llegar <MdArrowOutward /></span></a>
+                            </div>
                         </div>
                     </div>
                     <div
@@ -120,10 +122,10 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                         />
                     </div>
                 </section>
-                <div className="gap-12 flex flex-col">
-                    <section className="flex flex-col gap-4 overflow-hidden relative w-full border-t border-title/20">
+                <div className="flex flex-col">
+                    <section className="flex flex-col gap-6 overflow-hidden relative w-full border border-title/20 p-6 py-8">
                         <GeneralScore number={scores?.global ?? 0} />
-                        <div className="min-xl:flex min-xl:justify-center min-xl:items-center w-full px-8">
+                        <div className="min-xl:flex min-xl:justify-center min-xl:items-center w-full p-4">
                             <div className="grid min-xl:grid-cols-6 min-md:grid-cols-3 max-md:grid-cols-2 max-[25rem]:grid-cols-1 gap-12">
                                 {Object.entries(scores?.departments ?? {}).map(([key, value]) => (
                                     <ScoreItem key={key} name={key} number={value} />
@@ -131,7 +133,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                             </div>
                         </div>
                     </section>
-                    <section className="flex flex-col gap-4 overflow-hidden relative w-full border-t border-title/20">
+                    <section className="flex flex-col gap-4 overflow-hidden relative w-full border border-title/20">
                         <Wikipedia lat={data.latitud} lon={data.longitud} name={data.municipio} provincia={data.provincia} />
                     </section>
                 </div>

@@ -9,7 +9,7 @@ export default async function DetailPage({
     const { cod } = await params;
 
     return (
-        <main className="flex flex-col justify-start mx-auto items-center min-h-screen w-full max-md:p-4 p-4 max-w-6xl">
+        <main className="flex flex-col justify-start mx-auto items-center min-h-screen w-full p-6 max-w-5xl bg-bg-card">
             <section className="w-full">
                 <SearchBar />
             </section>

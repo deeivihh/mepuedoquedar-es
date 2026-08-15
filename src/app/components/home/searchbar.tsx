@@ -112,10 +112,10 @@ function PreferencesPanel({
     return (
         <motion.div
             ref={panelRef}
-            className="flex w-full mt-2 px-0.5"
+            className="flex w-full mt-2"
             style={{ zIndex: 100 }}
         >
-            <div className="p-4 flex flex-col gap-5 w-full card border border-title/20 rounded-2xl">
+            <div className="p-4 flex flex-col gap-5 w-full card border border-title/20">
                 <div className="flex items-center justify-between">
                     <h2 className="font-semibold text-title text-base">Personaliza tu búsqueda</h2>
                     <button
@@ -212,12 +212,12 @@ export default function SearchBar() {
                     <Link
                         href="/"
                         title="Volver"
-                        className="inline-flex items-center gap-2 text-sm text-title/80 hover:text-title transition-colors w-fit px-4 bg-bg-card hover:bg-white border border-title/30 rounded-full"
+                        className="inline-flex items-center gap-2 text-sm text-title/80 hover:text-title transition-colors w-fit px-4 bg-bg-card hover:bg-white border border-title/30"
                     >
                         <FaArrowLeft size={15} />
                     </Link>
                 )}
-                <div className={`w-full card border border-title/30 rounded-[32px] transition-all duration-300 overflow-hidden flex gap-2 items-center px-4 h-12`}>
+                <div className={`w-full card border border-title/30 transition-all duration-300 overflow-hidden flex gap-2 items-center h-12 ${pathname === "/" ? "px-4" : "px-2"}`}>
                     <input
                         placeholder="Busca tu municipio..."
                         {...(pathname === "/" && { autoFocus: true })}
@@ -226,7 +226,7 @@ export default function SearchBar() {
                         className={`w-full h-full outline-none text-title font-medium`}
                     />
                     {query.length > 0 && (
-                        <button onClick={() => { setQuery(''); setResults([]); }} className="bg-white/30 rounded-full p-1.5 border border-title/20 hover:bg-white/50 transition-all duration-150 shrink-0 ">
+                        <button onClick={() => { setQuery(''); setResults([]); }} className="bg-white/0 p-1.5 border border-title/20 hover:bg-white/90 transition-all duration-150 shrink-0 ">
                             <IoMdClose size={15} strokeWidth="10" />
                         </button>
                     )}
@@ -234,7 +234,7 @@ export default function SearchBar() {
                         id="pref-button"
                         onClick={() => setShowPrefs(v => !v)}
                         title="Personalizar búsqueda"
-                        className={`rounded-full p-1.5 border border-title/20 hover:bg-white/90 ${showPrefs ? 'bg-white' : 'bg-white/50'} transition-all duration-150 shrink-0`}
+                        className={`p-1.5 border border-title/20 hover:bg-white/90 ${showPrefs ? 'bg-white/90' : 'bg-white/0'} transition-all duration-150 shrink-0`}
                     >
                         <IoSettingsSharp size={15} />
                     </button>
@@ -250,13 +250,13 @@ export default function SearchBar() {
                         />
                     )}
                 </AnimatePresence>
-                <div className={`${pathname === "/" ? "px-2" : ""} w-full flex flex-col`}>
+                <div className={`w-full flex flex-col`}>
                     {results.length > 0 && !showPrefs && (
                         <div className="mt-2 flex flex-col" style={{ zIndex: 100 }}>
-                            <div className="card border border-title/30 rounded-2xl overflow-hidden">
+                            <div className="overflow-hidden">
                                 <div className="flex flex-col gap-2 max-h-[21rem] overflow-y-auto">
                                     {results.map((result) => (
-                                        <Link href={`/municipio/${result.cod_ine}`} key={result.cod_ine} className={`flex justify-between gap-4 items-center w-full h-full hover:bg-white/30 px-4 py-2 first:pt-3 last:pb-3`}>
+                                        <Link href={`/municipio/${result.cod_ine}`} key={result.cod_ine} className={`flex justify-between gap-4 items-center w-full h-full hover:bg-white/30 border border-title/20 p-2 px-4`}>
                                             <p className="font-semibold text-title text-balance">{result.municipio}</p>
                                             {result.distance != null && (
                                                 <span className="text-sm text-title opacity-70 flex items-center justify-end gap-1 shrink-0 whitespace-nowrap min-w-[5rem]">
