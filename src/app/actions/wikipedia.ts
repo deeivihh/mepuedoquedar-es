@@ -2,10 +2,15 @@
 
 import wiki from "wikipedia";
 
+export interface WikipediaImage {
+    url: string;
+    description: string;
+}
+
 export interface WikipediaData {
     title: string;
     paragraphs: string[];
-    images: string[];
+    images: WikipediaImage[];
     pageUrl: string;
 }
 
@@ -13,6 +18,38 @@ const FORBIDDEN = /svg|\.png\?|icon|symbol|flag|bandera|escudo|coat|shield|logo|
 
 function clean(t = "") {
     return t.replace(/\[(?:\d+|nota\s*\d+|editar)\]|<[^>]+>/gi, "").replace(/\s+/g, " ").trim();
+}
+
+function parseHtmlCaptions(html = "") {
+    const map = new Map<string, string>();
+    if (!html) return map;
+    const norm = (t: string) => decodeURIComponent(t || "").toLowerCase().replace(/^(?:archivo|file):/i, "").replace(/_/g, " ").trim();
+
+    for (const m of html.matchAll(/href=["'][^"']*\/(?:Archivo|File):([^"']+)["'][^>]*title=["']([^"']+)["']/gi)) {
+        const file = norm(m[1]);
+        const titleAttr = clean(m[2]);
+        if (file && titleAttr && !titleAttr.startsWith("Archivo:") && !titleAttr.startsWith("File:") && !map.has(file)) {
+            map.set(file, titleAttr);
+        }
+    }
+
+    for (const m of html.matchAll(/title=["']([^"']+)["'][^>]*href=["'][^"']*\/(?:Archivo|File):([^"']+)["']/gi)) {
+        const file = norm(m[2]);
+        const titleAttr = clean(m[1]);
+        if (file && titleAttr && !titleAttr.startsWith("Archivo:") && !titleAttr.startsWith("File:") && !map.has(file)) {
+            map.set(file, titleAttr);
+        }
+    }
+
+    for (const m of html.matchAll(/(?:Archivo|File):([^"'>\s]+)[\s\S]*?<(?:figcaption|div class=["']gallerytext["'])>([\s\S]*?)<\/(?:figcaption|div)>/gi)) {
+        const file = norm(m[1]);
+        const caption = clean(m[2]);
+        if (file && caption && !map.has(file)) {
+            map.set(file, caption);
+        }
+    }
+
+    return map;
 }
 
 function split(t = ""): string[] {
@@ -31,13 +68,25 @@ function hiRes(url = "") {
 async function fetchPage(title: string): Promise<WikipediaData | null> {
     try {
         const page = await wiki.page(title, { autoSuggest: false });
-        const [intro, summary, media] = await Promise.allSettled([page.intro(), page.summary(), page.media()]);
-        const text = (intro.status === "fulfilled" && clean(intro.value)) || (summary.status === "fulfilled" && clean(summary.value?.extract)) || "";
+        const [intro, summary, media, htmlRes] = await Promise.allSettled([
+            page.intro(),
+            page.summary(),
+            page.media(),
+            page.html(),
+        ]);
+        const sum = summary.status === "fulfilled" ? summary.value : null;
+        const raw = `${sum?.description || ""} ${sum?.extract || ""} ${intro.status === "fulfilled" ? intro.value : ""}`;
+        if (sum?.type === "disambiguation" || /puede referirse a|desambiguaci[oó]n/i.test(raw) || !/\b(municipio|concejo|t[eé]rmino municipal|ayuntamiento)\b/i.test(raw)) return null;
+
+        const text = (intro.status === "fulfilled" && clean(intro.value)) || (sum?.extract && clean(sum.extract)) || "";
         if (!text) return null;
+
+        const html = htmlRes.status === "fulfilled" ? htmlRes.value : "";
+        const htmlCaptions = parseHtmlCaptions(html);
 
         const items = media.status === "fulfilled" ? media.value?.items || [] : [];
         const seen = new Set<string>();
-        const images: string[] = [];
+        const images: WikipediaImage[] = [];
 
         for (const item of items) {
             if (item.type !== "image") continue;
@@ -46,7 +95,16 @@ async function fetchPage(title: string): Promise<WikipediaData | null> {
             const url = hiRes(src);
             if (seen.has(url)) continue;
             seen.add(url);
-            images.push(url);
+
+            const key = (item.title || "").toLowerCase().replace(/^(?:archivo|file):/i, "").replace(/_/g, " ").trim();
+            const mediaCaption = clean(item.caption?.text || item.caption?.html);
+            const htmlCaption = htmlCaptions.get(key);
+            const fileTitle = (item.title || "").replace(/^(?:archivo|file):/i, "").replace(/\.[^.]+$/i, "").replace(/_/g, " ").trim();
+
+            images.push({
+                url,
+                description: mediaCaption || htmlCaption || fileTitle,
+            });
         }
 
         return {
@@ -70,7 +128,22 @@ export async function getMunicipioWikipedia(lat: number, lon: number, name: stri
     try {
         wiki.setLang("es");
         const n = titleCase(name.trim());
-        return (await fetchPage(n)) || (provincia ? await fetchPage(`${n} (${titleCase(provincia.trim())})`) : null);
+        const prov = provincia ? titleCase(provincia.trim()) : "";
+        const candidates = [n, prov && `${n} (${prov})`, `${n} (España)`, `${n} (municipio)`].filter(Boolean) as string[];
+
+        for (const title of candidates) {
+            const data = await fetchPage(title);
+            if (data) return data;
+        }
+
+        const searchRes = await wiki.search(`${n} ${prov} municipio`, { limit: 3 });
+        for (const item of searchRes.results || []) {
+            if (item.title && !candidates.includes(item.title)) {
+                const data = await fetchPage(item.title);
+                if (data) return data;
+            }
+        }
+        return null;
     } catch {
         return null;
     }

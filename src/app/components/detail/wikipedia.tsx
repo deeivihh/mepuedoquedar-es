@@ -23,9 +23,27 @@ export default function Wikipedia({ lat, lon, name, provincia }: { lat: number; 
 
     if (loading) return (
         <div className="flex flex-col gap-6 p-6 md:p-8 animate-pulse">
-            <div className="h-4 w-1/4 bg-black/5 rounded" />
             <div className="h-4 w-full bg-black/5 rounded" />
-            <div className="h-[400px] bg-black/5 rounded-2xl mt-4" />
+            <div className="h-4 w-full bg-black/5 rounded" />
+            <div className="h-4 w-full bg-black/5 rounded" />
+            <div className="h-4 w-full bg-black/5 rounded" />
+            <div className="h-4 w-full bg-black/5 rounded" />
+            <div className="h-4 w-full bg-black/5 rounded" />
+            <div className="grid grid-cols-5 gap-4 w-full h-[420px]">
+                <div className="col-span-3 h-full w-full bg-black/5 mt-4" />
+                <div className="col-span-2 h-full w-full mt-4">
+                    <div className="grid grid-cols-4 gap-4">
+                        <div className="h-20 w-20 bg-black/5" />
+                        <div className="h-20 w-20 bg-black/5" />
+                        <div className="h-20 w-20 bg-black/5" />
+                        <div className="h-20 w-20 bg-black/5" />
+                        <div className="h-20 w-20 bg-black/5" />
+                        <div className="h-20 w-20 bg-black/5" />
+                        <div className="h-20 w-20 bg-black/5" />
+                        <div className="h-20 w-20 bg-black/5" />
+                    </div>
+                </div>
+            </div>
         </div>
     );
 
@@ -41,11 +59,11 @@ export default function Wikipedia({ lat, lon, name, provincia }: { lat: number; 
     return (
         <article className="flex flex-col gap-8 p-6 md:p-8">
             <section className="flex flex-col gap-4">
-                <header className="flex justify-between border-b pb-2 text-xs uppercase">
+                <header className="flex justify-between border-b pb-2 text-sm uppercase">
                     <FaWikipediaW size={20} />
                     {data.pageUrl && (
-                        <a href={data.pageUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2">
-                            Leer más <FaExternalLinkAlt size={10} />
+                        <a href={data.pageUrl} target="_blank" rel="noreferrer" title="Abrir en Wikipedia" className="flex items-center gap-2 font-semibold hover:text-black text-black/80">
+                            <FaExternalLinkAlt size={15} className="mb-0.5" />
                         </a>
                     )}
                 </header>
@@ -55,33 +73,35 @@ export default function Wikipedia({ lat, lon, name, provincia }: { lat: number; 
                 </div>
 
                 {paras.length > 2 && (
-                    <button onClick={() => setExpanded(!expanded)} className="text-xs uppercase tracking-widest text-black/40 hover:text-black flex items-center gap-2 self-start transition">
-                        {expanded ? <>Menos <FaChevronUp size={10} /></> : <>Más <FaChevronDown size={10} /></>}
+                    <button onClick={() => setExpanded(!expanded)} className="text-xs flex gap-2 items-center justify-start uppercase text-black/60 hover:text-black">
+                        {expanded ? <>Menos <FaChevronUp size={10} className="mb-0.5" /></> : <>Más <FaChevronDown size={10} className="mb-0.5" /></>}
                     </button>
                 )}
             </section>
 
             {img && (
-                <section className="flex flex-col gap-4">
-                    <div className="relative h-[400px] rounded-xl overflow-hidden bg-black/5 group">
-                        <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-50 scale-105" />
-                        <img src={img} alt={data.title} className="relative z-10 w-full h-full object-contain" loading="lazy" />
+                <section className="flex flex-col gap-4 mt-6">
+                    <div className="flex gap-4 max-md:flex-col">
+                        <div className="h-[440px] flex-1 flex flex-col items-center justify-center">
+                            <div className="relative h-full w-full flex items-center justify-center group bg-bg-card/20">
+                                <img src={img.url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50 blur-xl" />
+                                <img src={img.url} alt={img.description || data.title} className="relative z-10 h-full w-full object-contain" loading="lazy" />
+                            </div>
+                        </div>
 
                         {images.length > 1 && (
-                            <>
-                                <button onClick={() => nav(-1)} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20 shadow-sm"><FaChevronLeft size={12} /></button>
-                                <button onClick={() => nav(1)} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20 shadow-sm"><FaChevronRight size={12} /></button>
-                            </>
+                            <div className="grid grid-cols-4 gap-2 overflow-x-auto">
+                                {images.map((item, i) => (
+                                    <button key={i} onClick={() => setIdx(i)} title={item.description} className={`w-20 h-20 overflow-hidden border-2 transition-all ${i === idx ? 'border-title opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`}>
+                                        <img src={item.url} alt={item.description || ""} className="w-full h-full object-cover" loading="lazy" />
+                                    </button>
+                                ))}
+                            </div>
                         )}
                     </div>
-
-                    {images.length > 1 && (
-                        <div className="flex gap-2 overflow-x-auto no-scrollbar py-2">
-                            {images.map((url, i) => (
-                                <button key={i} onClick={() => setIdx(i)} className={`w-20 h-20 shrink-0 rounded-xl overflow-hidden border-2 transition-all ${i === idx ? 'border-black opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`}>
-                                    <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
-                                </button>
-                            ))}
+                    {img.description && (
+                        <div className="w-full flex justify-center items-center max-w-xl mt-2">
+                            <p className="text-xs text-black/60 w-full text-balance">{img.description}</p>
                         </div>
                     )}
                 </section>
