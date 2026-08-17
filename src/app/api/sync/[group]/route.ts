@@ -1,5 +1,6 @@
 import { processDatasets } from "@/lib/datos/processor";
 import { getGroupByName, MUNICIPALITIES_CONFIG } from "@/lib/datos/groups";
+import { fetchIneCodes } from "@/lib/datos/ine";
 import { createLog } from "@/lib/logger";
 import { saveGroup } from "@/lib/supabase/municipalities";
 import { NextResponse } from "next/server";
@@ -40,6 +41,12 @@ export async function POST(
 
     const totalDatasets = Object.keys(groupConfig.datasets).length;
     log.info(`Procesados ${data.length} municipios para grupo "${groupName}" (${totalDatasets} datasets)`);
+
+    const ineCodes = await fetchIneCodes();
+    for (const m of data) {
+      (m as any).cod_int = ineCodes.get(String(m.codigo)) ?? null;
+    }
+    log.info(`Enriquecidos ${data.length} municipios con cod_int del INE`);
 
     let total = 0;
     if (process.env.NODE_ENV !== "development") {
