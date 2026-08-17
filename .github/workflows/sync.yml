@@ -1,4 +1,4 @@
-name: Sincronizar datos de la Junta de Castilla y León diariamente
+name: Sincronizar datos de la Junta de Castilla y León
 
 on:
   schedule:
