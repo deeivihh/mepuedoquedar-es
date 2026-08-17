@@ -32,7 +32,6 @@ function toDatabase(
 ) {
     const {
         codigo,
-        cod_int,
         municipio,
         provincia,
 
@@ -58,8 +57,6 @@ function toDatabase(
 
     return {
         codigo,
-
-        cod_int: cod_int ?? null,
 
         municipio,
 
