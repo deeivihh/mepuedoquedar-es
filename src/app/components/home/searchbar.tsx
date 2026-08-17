@@ -118,13 +118,6 @@ function PreferencesPanel({
             <div className="p-4 flex flex-col gap-5 w-full card border border-title/20">
                 <div className="flex items-center justify-between">
                     <h2 className="font-semibold text-title text-base">Personaliza tu búsqueda</h2>
-                    <button
-                        onClick={onClose}
-                        className="rounded-full p-1 hover:bg-title/10 transition-colors"
-                        aria-label="Cerrar"
-                    >
-                        <IoMdClose size={16} className="text-title" />
-                    </button>
                 </div>
 
                 <p className="text-xs text-title/60 -mt-3">
@@ -167,9 +160,9 @@ export default function SearchBar() {
     const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<Site[]>([]);
-    const [showPrefs, setShowPrefs] = useState(false);
-    const { preferences, setPreferences, isDefault } = usePreferences();
     const pathname = usePathname();
+    const [showPrefs, setShowPrefs] = useState(pathname === "/" ? true : false);
+    const { preferences, setPreferences, isDefault } = usePreferences();
 
     const abortRef = useRef<AbortController | null>(null);
 
@@ -206,7 +199,7 @@ export default function SearchBar() {
 
 
     return (
-        <div className={`relative flex flex-col justify-center items-center w-full ${pathname === "/" ? "max-w-xl" : ""}`} style={{ zIndex: 100 }}>
+        <div className={`relative flex flex-col justify-center items-center w-full ${pathname === "/" ? "max-w-lg" : ""}`} style={{ zIndex: 100 }}>
             <div className="flex gap-1 w-full mx-auto relative">
                 {pathname !== "/" && (
                     <Link
@@ -221,7 +214,7 @@ export default function SearchBar() {
                     <input
                         placeholder="Busca tu municipio..."
                         {...(pathname === "/" && { autoFocus: true })}
-                        onChange={(e) => { if (e.target.value.length < 3) setResults([]); setQuery(e.target.value); }}
+                        onChange={(e) => { if (e.target.value.length < 3) setShowPrefs(false); setResults([]); setQuery(e.target.value); }}
                         value={query}
                         className={`w-full h-full outline-none text-title font-medium`}
                     />

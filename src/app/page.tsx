@@ -34,7 +34,7 @@ export default function Home() {
                     </Link>
                 </div>
             </footer>
-            <section className="h-full flex flex-col justify-center items-center mb-32 z-50">
+            <section className="h-[calc(100svh-15rem)] flex flex-col justify-center items-center z-50">
                 <DynamicHeading />
                 <SearchBar />
             </section>
