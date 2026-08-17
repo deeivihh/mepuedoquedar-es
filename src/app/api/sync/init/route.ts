@@ -14,35 +14,16 @@ export async function POST(req: Request) {
   try {
     const ineCodes = await fetchIneCodes();
 
-    const { data: municipios, error } = await getSupabase()
+    const updates = Array.from(ineCodes, ([codigo, cod_int]) => ({ codigo, cod_int }));
+
+    const { error } = await getSupabase()
       .from("municipios")
-      .select("codigo")
-      .is("cod_int", null);
+      .upsert(updates, { onConflict: "codigo", ignoreDuplicates: false });
 
     if (error) throw error;
-    if (!municipios?.length) {
-      return NextResponse.json(
-        { ok: true, updated: 0, message: "Todos los municipios ya tienen cod_int" },
-        { headers: { "Cache-Control": "no-store" } }
-      );
-    }
-
-    let updated = 0;
-    for (const m of municipios) {
-      const codInt = ineCodes.get(m.codigo);
-      if (codInt === undefined) continue;
-
-      const { error } = await getSupabase()
-        .from("municipios")
-        .update({ cod_int: codInt })
-        .eq("codigo", m.codigo);
-
-      if (error) throw error;
-      updated++;
-    }
 
     return NextResponse.json(
-      { ok: true, updated, total: municipios.length },
+      { ok: true, updated: updates.length },
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch (error) {
