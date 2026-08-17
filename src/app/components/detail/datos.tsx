@@ -1,8 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
 import { fetchINE } from "@/app/actions/ine";
 import { useData } from "@/app/utils/getData";
 import { TABLES, type TableConfig } from "@/app/utils/getTables";
+import BaseChart from "@/app/components/charts/BaseChart";
 
 function filterData(data: any[], filter?: TableConfig["filter"]) {
     if (!filter || !Array.isArray(data)) return data;
@@ -18,7 +20,7 @@ function filterData(data: any[], filter?: TableConfig["filter"]) {
             const cod = (s.COD || "").toLowerCase();
             return (filter as any[]).some((f) => {
                 if (Array.isArray(f)) {
-                    return f.every((word) => name.includes(String(word).toLowerCase()) || cod.includes(String(word).toLowerCase()));
+                    return f.every((w) => name.includes(String(w).toLowerCase()) || cod.includes(String(w).toLowerCase()));
                 }
                 return name.includes(String(f).toLowerCase()) || cod.includes(String(f).toLowerCase());
             });
@@ -27,10 +29,9 @@ function filterData(data: any[], filter?: TableConfig["filter"]) {
     return data;
 }
 
-function Tabla({ table, cod_int, nult, title, chart: Chart, filter }: TableConfig & { cod_int: string | number }) {
+function Tabla({ table, cod_int, nult, title, type = "line", filter }: TableConfig & { cod_int: string | number }) {
     const { data, loading } = useData(() => fetchINE(table, cod_int, nult), [table, cod_int, nult]);
-
-    const filteredData = filterData(data, filter);
+    const filteredData = useMemo(() => filterData(data, filter), [data, filter]);
 
     if (!loading && (!filteredData || filteredData.length === 0)) return null;
 
@@ -41,7 +42,7 @@ function Tabla({ table, cod_int, nult, title, chart: Chart, filter }: TableConfi
                     Cargando {title || table}...
                 </div>
             ) : (
-                <Chart data={filteredData} title={title} />
+                <BaseChart type={type} data={filteredData} title={title} />
             )}
         </div>
     );

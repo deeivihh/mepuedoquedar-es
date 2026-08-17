@@ -8,99 +8,83 @@ import { scaleLinear } from "@tanstack/charts/scales/linear";
 import { polar, pie, radialArc } from "@tanstack/charts/polar";
 import { Chart } from "@tanstack/charts/react/tooltip";
 import { tooltip } from "@tanstack/charts/tooltip";
+import type { ChartType } from "@/app/utils/getTables";
 
-interface BaseChartProps {
-    type?: "line" | "bar" | "area" | "pie" | "donut";
+export interface BaseChartProps {
+    type?: ChartType;
     data: any;
     title?: string;
     height?: number;
 }
 
 const BRAND_PALETTE = ["#C46A4A", "#1F3A2E", "#6B7F4D", "#D48B6E", "#3A5C4C"];
+const IGNORED_SEGMENTS = new Set(["dato base", "personas", "todas las edades"]);
 
 export function formatSeriesName(name?: string): string {
     if (!name) return "";
-    const parts = name
-        .split(".")
-        .map((p) => p.trim())
-        .filter(Boolean);
-
+    const parts = name.split(".").map((p) => p.trim()).filter(Boolean);
     if (parts.length <= 1) return name.trim();
 
-    const segments = parts.slice(1).filter((p) => {
-        const lower = p.toLowerCase();
-        return (
-            lower !== "dato base" &&
-            lower !== "personas" &&
-            lower !== "todas las edades"
-        );
-    });
+    const segments = parts.slice(1).filter((p) => !IGNORED_SEGMENTS.has(p.toLowerCase()));
+    if (!segments.length) return parts[1] || parts[0] || name;
 
-    if (segments.length === 0) {
-        return parts[1] || parts[0] || name;
-    }
-
-    if (segments.length > 1) {
-        const nonTotal = segments.filter((p) => p.toLowerCase() !== "total");
-        if (nonTotal.length > 0) {
-            return nonTotal.join(" - ");
-        }
-    }
-
-    return segments.join(" - ");
+    const nonTotal = segments.filter((p) => p.toLowerCase() !== "total");
+    return (nonTotal.length ? nonTotal : segments).join(" - ");
 }
 
+const getPeriod = (d: any) => String(d?.Anyo ?? d?.T3_Periodo ?? d?.Periodo ?? d?.Fecha ?? d?.period ?? "");
+const getVal = (v: any) => (typeof v === "number" ? v : Number(v) || 0);
+
 export default function BaseChart({ type = "line", data, title, height = 260 }: BaseChartProps) {
-    const isSeriesArray = Array.isArray(data) && data.length > 0 && Array.isArray(data[0]?.Data);
     const isPolar = type === "pie" || type === "donut";
+    const isSeriesArray = Array.isArray(data) && data.length > 0 && Array.isArray(data[0]?.Data);
 
-    const flatData = useMemo(() => {
-        if (isSeriesArray) {
-            return data.flatMap((s: any) =>
-                [...(s.Data || [])].reverse().map((d: any) => ({
-                    period: String(d.Anyo ?? d.T3_Periodo ?? d.Fecha ?? ""),
-                    value: typeof d.Valor === "number" ? d.Valor : Number(d.Valor) || 0,
-                    series: formatSeriesName(s.Nombre) || "Dato",
-                }))
-            );
+    const { flatData, pieData, latestYear } = useMemo(() => {
+        if (!Array.isArray(data) || !data.length) {
+            return { flatData: [], pieData: [], latestYear: "" };
         }
-        if (Array.isArray(data)) {
-            return [...data].reverse().map((d: any) => ({
-                period: String(d.Anyo ?? d.T3_Periodo ?? d.Fecha ?? ""),
-                value: typeof d.Valor === "number" ? d.Valor : Number(d.Valor) || 0,
-                series: title || "Valor",
-            }));
-        }
-        return [];
-    }, [data, isSeriesArray, title]);
 
-    const pieData = useMemo(() => {
-        if (!isPolar) return [];
+        if (isPolar) {
+            const pieData = isSeriesArray
+                ? data.map((s: any) => ({
+                      label: formatSeriesName(s.Nombre) || "Dato",
+                      value: getVal(s.Data?.[0]?.Valor),
+                  })).filter((d) => !isNaN(d.value))
+                : data.map((d: any) => ({
+                      label: formatSeriesName(String(d.Nombre ?? getPeriod(d) ?? "Dato")),
+                      value: getVal(d.Valor),
+                  }));
+
+            const latest = isSeriesArray ? getPeriod(data[0]?.Data?.[0]) : getPeriod(data[0]);
+            return { flatData: [], pieData, latestYear: latest };
+        }
+
         if (isSeriesArray) {
-            return data.map((s: any) => {
-                const latest = s.Data?.[0];
-                const val = typeof latest?.Valor === "number" ? latest.Valor : Number(latest?.Valor) || 0;
-                return {
-                    label: formatSeriesName(s.Nombre) || "Dato",
-                    value: val,
-                };
-            }).filter((d: any) => typeof d.value === "number" && !isNaN(d.value));
+            const flatData = data.flatMap((s: any) => {
+                const sName = formatSeriesName(s.Nombre) || "Dato";
+                const seriesData = s.Data || [];
+                const res = new Array(seriesData.length);
+                for (let i = 0; i < seriesData.length; i++) {
+                    const item = seriesData[seriesData.length - 1 - i];
+                    res[i] = { period: getPeriod(item), value: getVal(item.Valor), series: sName };
+                }
+                return res;
+            });
+            return { flatData, pieData: [], latestYear: getPeriod(data[0]?.Data?.[0]) };
         }
-        if (Array.isArray(data)) {
-            return data.map((d: any) => ({
-                label: formatSeriesName(String(d.Anyo ?? d.T3_Periodo ?? d.Fecha ?? d.Nombre ?? "Dato")),
-                value: typeof d.Valor === "number" ? d.Valor : Number(d.Valor) || 0,
-            }));
+
+        const res = new Array(data.length);
+        for (let i = 0; i < data.length; i++) {
+            const item = data[data.length - 1 - i];
+            res[i] = { period: getPeriod(item), value: getVal(item.Valor), series: title || "Valor" };
         }
-        return [];
-    }, [isPolar, isSeriesArray, data]);
+        return { flatData: res, pieData: [], latestYear: getPeriod(data[0]) };
+    }, [data, isPolar, isSeriesArray, title]);
 
     const definition = useMemo(() => {
-        if (type === "pie" || type === "donut") {
+        if (isPolar) {
             if (!pieData.length) return null;
-            const slices = pie(pieData, {
-                value: (d: any) => d.value,
-            });
+            const slices = pie(pieData, { value: (d: any) => d.value });
 
             return defineChart({
                 marks: [
@@ -117,108 +101,50 @@ export default function BaseChart({ type = "line", data, title, height = 260 }: 
                         ],
                     }),
                 ],
-                color: {
-                    range: BRAND_PALETTE,
-                },
-                tooltip: {
-                    use: tooltip,
-                    anchor: "pointer",
-                },
+                color: { range: BRAND_PALETTE },
+                tooltip: { use: tooltip, anchor: "pointer" },
             });
         }
 
         if (!flatData.length) return null;
 
-        const isSingleSeries = !isSeriesArray || data.length === 1;
-        const mainColor = "#C46A4A";
+        const isSingle = !isSeriesArray || data.length === 1;
+        const color = isSingle ? "#C46A4A" : undefined;
+        const seriesColor = isSingle ? undefined : (d: any) => d.series;
 
         const marks: any[] = [];
         if (type === "line") {
             marks.push(
-                lineY(flatData, {
-                    x: (d: any) => d.period,
-                    y: (d: any) => d.value,
-                    z: (d: any) => d.series,
-                    stroke: isSingleSeries ? mainColor : undefined,
-                    color: isSingleSeries ? undefined : (d: any) => d.series,
-                    strokeWidth: 2.5,
-                }),
-                dot(flatData, {
-                    x: (d: any) => d.period,
-                    y: (d: any) => d.value,
-                    z: (d: any) => d.series,
-                    fill: isSingleSeries ? mainColor : undefined,
-                    color: isSingleSeries ? undefined : (d: any) => d.series,
-                    stroke: "#f4ebe2",
-                    strokeWidth: 1.5,
-                    r: 4,
-                })
+                lineY(flatData, { x: (d: any) => d.period, y: (d: any) => d.value, z: (d: any) => d.series, stroke: color, color: seriesColor, strokeWidth: 2.5 }),
+                dot(flatData, { x: (d: any) => d.period, y: (d: any) => d.value, z: (d: any) => d.series, fill: color, color: seriesColor, stroke: "#f4ebe2", strokeWidth: 1.5, r: 4 })
             );
         } else if (type === "bar") {
             marks.push(
-                barY(flatData, {
-                    x: (d: any) => d.period,
-                    y: (d: any) => d.value,
-                    z: (d: any) => d.series,
-                    fill: isSingleSeries ? mainColor : undefined,
-                    color: isSingleSeries ? undefined : (d: any) => d.series,
-                })
+                barY(flatData, { x: (d: any) => d.period, y: (d: any) => d.value, z: (d: any) => d.series, fill: color, color: seriesColor })
             );
         } else if (type === "area") {
             marks.push(
-                areaY(flatData, {
-                    x: (d: any) => d.period,
-                    y: (d: any) => d.value,
-                    z: (d: any) => d.series,
-                    fill: isSingleSeries ? mainColor : undefined,
-                    color: isSingleSeries ? undefined : (d: any) => d.series,
-                    fillOpacity: 0.25,
-                }),
-                lineY(flatData, {
-                    x: (d: any) => d.period,
-                    y: (d: any) => d.value,
-                    z: (d: any) => d.series,
-                    stroke: isSingleSeries ? mainColor : undefined,
-                    color: isSingleSeries ? undefined : (d: any) => d.series,
-                    strokeWidth: 2,
-                })
+                areaY(flatData, { x: (d: any) => d.period, y: (d: any) => d.value, z: (d: any) => d.series, fill: color, color: seriesColor, fillOpacity: 0.25 }),
+                lineY(flatData, { x: (d: any) => d.period, y: (d: any) => d.value, z: (d: any) => d.series, stroke: color, color: seriesColor, strokeWidth: 2 })
             );
         }
 
         return defineChart({
             marks,
-            x: {
-                scale: type === "bar" ? scaleBand : scalePoint,
-                grid: false,
-            },
-            y: {
-                scale: scaleLinear,
-                grid: true,
-                nice: true,
-            },
-            color: {
-                range: BRAND_PALETTE,
-            },
-            tooltip: {
-                use: tooltip,
-                anchor: "pointer",
-            },
+            x: { scale: type === "bar" ? scaleBand : scalePoint, grid: false },
+            y: { scale: scaleLinear, grid: true, nice: true },
+            color: { range: BRAND_PALETTE },
+            tooltip: { use: tooltip, anchor: "pointer" },
         });
-    }, [flatData, pieData, type, data, isSeriesArray]);
-
-    const latestYear = useMemo(() => {
-        if (isSeriesArray && data[0]?.Data?.length) {
-            const item = data[0].Data[0];
-            return item.Anyo ?? item.T3_Periodo ?? item.Periodo ?? item.Fecha ?? "";
-        }
-        if (Array.isArray(data) && data.length > 0) {
-            const item = data[0]?.Data ? data[0].Data[0] : data[0];
-            return item?.Anyo ?? item?.T3_Periodo ?? item?.Periodo ?? item?.Fecha ?? item?.period ?? "";
-        }
-        return "";
-    }, [data, isSeriesArray]);
+    }, [isPolar, pieData, flatData, isSeriesArray, data, type]);
 
     if (!definition) return null;
+
+    const legends: { label: string; extra?: string }[] | null = isPolar
+        ? pieData.map((d: any) => ({ label: d.label, extra: d.value.toLocaleString("es-ES") }))
+        : isSeriesArray && data.length > 1
+          ? data.map((s: any, idx: number) => ({ label: formatSeriesName(s.Nombre) || `Serie ${idx + 1}` }))
+          : null;
 
     return (
         <div className="flex flex-col gap-4 w-full text-title relative">
@@ -230,6 +156,7 @@ export default function BaseChart({ type = "line", data, title, height = 260 }: 
                     </h4>
                 )}
             </div>
+
             <div className="w-full relative">
                 <Chart
                     ariaLabel={title || "Gráfico"}
@@ -237,41 +164,24 @@ export default function BaseChart({ type = "line", data, title, height = 260 }: 
                     height={height}
                     className="w-full"
                     renderTooltipBody={({ points }) => {
-                        if (!points || !points.length) return null;
-
+                        if (!points?.length) return null;
                         if (isPolar) {
                             return (
                                 <div className="flex flex-col gap-1 text-xs">
                                     {points.map((p, idx) => {
-                                        const datum = p.datum as any;
-                                        const label = datum?.label ?? datum?.data?.label ?? datum?.key ?? "";
-                                        const val =
-                                            typeof datum?.value === "number"
-                                                ? datum.value
-                                                : typeof datum?.data?.value === "number"
-                                                    ? datum.data.value
-                                                    : typeof p.yValue === "number"
-                                                        ? p.yValue
-                                                        : 0;
-                                        const fraction =
-                                            typeof datum?.fraction === "number"
-                                                ? datum.fraction
-                                                : typeof datum?.data?.fraction === "number"
-                                                    ? datum.data.fraction
-                                                    : undefined;
-
+                                        const d = (p.datum || {}) as any;
+                                        const label = d.label ?? d.data?.label ?? d.key ?? "";
+                                        const val = typeof d.value === "number" ? d.value : d.data?.value ?? p.yValue ?? 0;
+                                        const frac = typeof d.fraction === "number" ? d.fraction : d.data?.fraction;
                                         return (
                                             <div key={idx} className="flex items-center gap-2">
                                                 {label && <span className="text-title/80 font-medium">{label}:</span>}
                                                 <span className="font-bold text-title tabular-nums">
                                                     {val.toLocaleString("es-ES")}
                                                 </span>
-                                                {fraction !== undefined && (
+                                                {frac !== undefined && (
                                                     <span className="text-title/60 tabular-nums">
-                                                        ({(fraction * 100).toLocaleString("es-ES", {
-                                                            minimumFractionDigits: 1,
-                                                            maximumFractionDigits: 1,
-                                                        })}%)
+                                                        ({(frac * 100).toLocaleString("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)
                                                     </span>
                                                 )}
                                             </div>
@@ -281,54 +191,32 @@ export default function BaseChart({ type = "line", data, title, height = 260 }: 
                             );
                         }
 
-                        const first = points[0];
                         return (
                             <div className="flex items-center gap-1.5 text-xs">
-                                {first.xValue !== undefined && <span className="text-title/80">{String(first.xValue)}:</span>}
-                                {points.map((p, idx) => (
-                                    <div key={idx} className="flex items-center justify-between gap-3">
-                                        <span className="font-bold text-title tabular-nums">
-                                            {typeof p.yValue === "number"
-                                                ? p.yValue.toLocaleString("es-ES")
-                                                : typeof (p.datum as any)?.value === "number"
-                                                    ? (p.datum as any).value.toLocaleString("es-ES")
-                                                    : p.yValue instanceof Date
-                                                        ? p.yValue.toLocaleDateString("es-ES")
-                                                        : String(p.yValue ?? "")}
+                                {points[0].xValue !== undefined && <span className="text-title/80">{String(points[0].xValue)}:</span>}
+                                {points.map((p, idx) => {
+                                    const val = typeof p.yValue === "number" ? p.yValue : (p.datum as any)?.value ?? 0;
+                                    return (
+                                        <span key={idx} className="font-bold text-title tabular-nums">
+                                            {typeof val === "number" ? val.toLocaleString("es-ES") : String(val)}
                                         </span>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         );
                     }}
                 />
             </div>
-            {isPolar && pieData.length > 0 && (
+
+            {legends && legends.length > 0 && (
                 <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 mt-1 text-xs">
-                    {pieData.map((d: any, idx: number) => {
-                        const color = BRAND_PALETTE[idx % BRAND_PALETTE.length];
-                        return (
-                            <div key={idx} className="flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                                <span className="font-medium text-title/90">{d.label}</span>
-                                <span className="text-title/60 tabular-nums">({d.value.toLocaleString("es-ES")})</span>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
-            {!isPolar && isSeriesArray && data.length > 1 && (
-                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 mt-1 text-xs">
-                    {data.map((s: any, idx: number) => {
-                        const color = BRAND_PALETTE[idx % BRAND_PALETTE.length];
-                        const name = formatSeriesName(s.Nombre) || `Serie ${idx + 1}`;
-                        return (
-                            <div key={idx} className="flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                                <span className="font-medium text-title/90">{name}</span>
-                            </div>
-                        );
-                    })}
+                    {legends.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-1.5">
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: BRAND_PALETTE[idx % BRAND_PALETTE.length] }} />
+                            <span className="font-medium text-title/90">{item.label}</span>
+                            {item.extra && <span className="text-title/60 tabular-nums">({item.extra})</span>}
+                        </div>
+                    ))}
                 </div>
             )}
         </div>
