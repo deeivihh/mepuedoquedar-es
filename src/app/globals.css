@@ -18,6 +18,15 @@
     --text-color-2: #C46A4A;
     --text-color-3: #f7f8f2;
     --scroll-color: #6b7f4dbb;
+
+    --ts-chart-1: #C46A4A;
+    --ts-chart-2: #1F3A2E;
+    --ts-chart-3: #6B7F4D;
+    --ts-chart-4: #D48B6E;
+    --ts-chart-5: #3A5C4C;
+    --ts-chart-tooltip-background: var(--bg-card);
+    --ts-chart-tooltip-color: var(--text-color);
+    --ts-chart-tooltip-border: 1px solid color-mix(in srgb, var(--title-color) 20%, transparent);
 }
 
 .card {

@@ -83,13 +83,14 @@ function toDatabase(
 export async function getData(cod_ine: string) {
     const { data, error } = await getSupabase()
         .from("municipios")
-        .select(`codigo, municipio, poblacion, provincia, latitud, longitud, ${datosSelect}`)
+        .select(`codigo, cod_int, municipio, poblacion, provincia, latitud, longitud, ${datosSelect}`)
         .eq("codigo", cod_ine)
         .single();
     if (error) throw error;
     const row = data as Record<string, any>;
     return {
         codigo: row.codigo,
+        cod_int: row.cod_int,
         municipio: row.municipio,
         poblacion: row.poblacion,
         provincia: row.provincia,

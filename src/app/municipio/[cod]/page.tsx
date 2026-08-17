@@ -9,12 +9,12 @@ export default async function DetailPage({
     const { cod } = await params;
 
     return (
-        <main className="flex flex-col justify-start mx-auto items-center min-h-screen w-full p-6 max-w-5xl bg-bg-card">
-            <section className="w-full">
+        <main className="flex flex-col justify-start mx-auto items-center min-h-screen w-full p-8 pt-4 max-w-5xl bg-bg-card">
+            <section className="w-full pb-4">
                 <SearchBar />
             </section>
 
-            <section className="flex w-full h-full mt-2">
+            <section className="flex w-full h-full">
                 <MunicipioDetail cod={cod} />
             </section>
         </main>
