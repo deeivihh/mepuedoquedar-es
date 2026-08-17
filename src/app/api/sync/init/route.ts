@@ -14,16 +14,14 @@ export async function POST(req: Request) {
   try {
     const ineCodes = await fetchIneCodes();
 
-    const updates = Array.from(ineCodes, ([codigo, cod_int]) => ({ codigo, cod_int }));
+    const rows = Array.from(ineCodes, ([codigo, cod_int]) => ({ codigo, cod_int }));
 
-    const { error } = await getSupabase()
-      .from("municipios")
-      .upsert(updates, { onConflict: "codigo", ignoreDuplicates: false });
+    const { error } = await getSupabase().rpc("init_cod_int", { rows });
 
     if (error) throw error;
 
     return NextResponse.json(
-      { ok: true, updated: updates.length },
+      { ok: true, updated: rows.length },
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch (error) {
