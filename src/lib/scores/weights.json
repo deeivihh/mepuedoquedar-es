@@ -1,63 +1,63 @@
 {
     "sanidad": {
-        "weight": 20,
+        "weight": 18,
         "rules": [
             {
                 "label": "Hospitales",
                 "field": "hospitales.cantidad",
                 "type": "threshold",
                 "min": 1,
-                "points": 40
+                "points": 30
             },
             {
                 "label": "Centros de salud",
                 "field": "centrosSalud.cantidad",
                 "type": "log_scale",
-                "base": 3,
-                "max": 60
+                "base": 2,
+                "max": 70
             }
         ]
     },
     "educacion": {
-        "weight": 14,
+        "weight": 12,
         "rules": [
             {
                 "label": "Centros docentes",
                 "field": "centrosDocentes.cantidad",
                 "type": "log_scale",
-                "base": 5,
+                "base": 3,
                 "max": 60
             },
             {
                 "label": "Oferta de FP",
                 "field": "ofertaFP.cantidad",
                 "type": "log_scale",
-                "base": 10,
+                "base": 5,
                 "max": 40
             }
         ]
     },
     "empleo": {
-        "weight": 14,
+        "weight": 12,
         "rules": [
             {
                 "label": "Oficina ECYL",
                 "field": "oficinasECYL.cantidad",
                 "type": "threshold",
                 "min": 1,
-                "points": 40
+                "points": 30
             },
             {
                 "label": "Ofertas de empleo recientes",
                 "field": "ofertasEMPLEO.cantidad",
                 "type": "log_scale",
-                "base": 20,
-                "max": 60
+                "base": 8,
+                "max": 70
             }
         ]
     },
     "seguridad": {
-        "weight": 8,
+        "weight": 5,
         "rules": [
             {
                 "label": "Policía local",
@@ -89,39 +89,39 @@
         ]
     },
     "economia": {
-        "weight": 9,
+        "weight": 8,
         "rules": [
             {
                 "label": "Cooperativas",
                 "field": "cooperativas.cantidad",
                 "type": "log_scale",
-                "base": 5,
+                "base": 3,
                 "max": 40
             },
             {
                 "label": "Establecimientos comerciales",
                 "field": "establecimientosComerciales.cantidad",
                 "type": "log_scale",
-                "base": 15,
+                "base": 5,
                 "max": 60
             }
         ]
     },
     "comercio": {
-        "weight": 8,
+        "weight": 12,
         "rules": [
             {
                 "label": "Servicios de proximidad",
                 "field": "serviciosProximidad.cantidad",
                 "type": "log_scale",
-                "base": 5,
+                "base": 2,
                 "max": 60
             },
             {
                 "label": "Empresas Tierra de Sabor",
                 "field": "empresasTIERRADESABOR.cantidad",
                 "type": "log_scale",
-                "base": 3,
+                "base": 2,
                 "max": 40
             }
         ]
@@ -133,57 +133,57 @@
                 "label": "Establecimientos turísticos",
                 "field": "establecimientosTuristicos.cantidad",
                 "type": "log_scale",
-                "base": 8,
+                "base": 4,
                 "max": 100
             }
         ]
     },
     "cultura": {
-        "weight": 5,
+        "weight": 6,
         "rules": [
             {
                 "label": "Monumentos",
                 "field": "monumentos.cantidad",
                 "type": "log_scale",
-                "base": 8,
+                "base": 4,
                 "max": 100
             }
         ]
     },
     "ocio": {
-        "weight": 5,
+        "weight": 6,
         "rules": [
             {
                 "label": "Museos",
                 "field": "museos.cantidad",
                 "type": "log_scale",
-                "base": 3,
-                "max": 40
+                "base": 2,
+                "max": 35
             },
             {
                 "label": "Teatros",
                 "field": "teatros.cantidad",
                 "type": "threshold",
                 "min": 1,
-                "points": 30
+                "points": 25
             },
             {
                 "label": "Bibliotecas",
                 "field": "bibiliotecas.cantidad",
                 "type": "threshold",
                 "min": 1,
-                "points": 30
+                "points": 40
             }
         ]
     },
     "juventud": {
-        "weight": 4,
+        "weight": 3,
         "rules": [
             {
                 "label": "Asociaciones juveniles",
                 "field": "asociacionesJuveniles.cantidad",
                 "type": "log_scale",
-                "base": 5,
+                "base": 3,
                 "max": 100
             }
         ]
@@ -195,33 +195,33 @@
                 "label": "Clubes deportivos",
                 "field": "clubesDeportivos.cantidad",
                 "type": "log_scale",
-                "base": 8,
+                "base": 4,
                 "max": 100
             }
         ]
     },
     "sociedad": {
-        "weight": 5,
+        "weight": 10,
         "rules": [
             {
                 "label": "Entidades sociales",
                 "field": "entidadesSociales.cantidad",
                 "type": "log_scale",
-                "base": 5,
+                "base": 3,
                 "max": 40
             },
             {
                 "label": "Servicios sociales",
                 "field": "serviciosSociales.cantidad",
                 "type": "log_scale",
-                "base": 5,
+                "base": 3,
                 "max": 30
             },
             {
                 "label": "Centros sociales",
                 "field": "centrosSociales.cantidad",
                 "type": "log_scale",
-                "base": 5,
+                "base": 3,
                 "max": 30
             }
         ]
