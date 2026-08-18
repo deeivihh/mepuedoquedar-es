@@ -9,12 +9,14 @@ import { polar, pie, radialArc } from "@tanstack/charts/polar";
 import { Chart } from "@tanstack/charts/react/tooltip";
 import { tooltip } from "@tanstack/charts/tooltip";
 import type { ChartType } from "@/app/utils/getTables";
+import { IoTimeSharp } from "react-icons/io5";
 
 export interface BaseChartProps {
     type?: ChartType;
     data: any;
     title?: string;
     height?: number;
+    formatName?: (name: string) => string;
 }
 
 const BRAND_PALETTE = ["#C46A4A", "#1F3A2E", "#6B7F4D", "#D48B6E", "#3A5C4C"];
@@ -35,8 +37,9 @@ export function formatSeriesName(name?: string): string {
 const getPeriod = (d: any) => String(d?.Anyo ?? d?.T3_Periodo ?? d?.Periodo ?? d?.Fecha ?? d?.period ?? "");
 const getVal = (v: any) => (typeof v === "number" ? v : Number(v) || 0);
 
-export default function BaseChart({ type = "line", data, title, height = 260 }: BaseChartProps) {
+export default function BaseChart({ type = "line", data, title, height = 260, formatName }: BaseChartProps) {
     const isPolar = type === "pie" || type === "donut";
+    const isCategorical = isPolar || type === "column";
     const isSeriesArray = Array.isArray(data) && data.length > 0 && Array.isArray(data[0]?.Data);
 
     const { flatData, pieData, latestYear } = useMemo(() => {
@@ -44,16 +47,16 @@ export default function BaseChart({ type = "line", data, title, height = 260 }: 
             return { flatData: [], pieData: [], latestYear: "" };
         }
 
-        if (isPolar) {
+        if (isCategorical) {
             const pieData = isSeriesArray
                 ? data.map((s: any) => ({
-                      label: formatSeriesName(s.Nombre) || "Dato",
-                      value: getVal(s.Data?.[0]?.Valor),
-                  })).filter((d) => !isNaN(d.value))
+                    label: (formatName ? formatName(s.Nombre) : formatSeriesName(s.Nombre)) || "Dato",
+                    value: getVal(s.Data?.[0]?.Valor),
+                })).filter((d: any) => !isNaN(d.value))
                 : data.map((d: any) => ({
-                      label: formatSeriesName(String(d.Nombre ?? getPeriod(d) ?? "Dato")),
-                      value: getVal(d.Valor),
-                  }));
+                    label: (formatName ? formatName(String(d.Nombre ?? getPeriod(d) ?? "Dato")) : formatSeriesName(String(d.Nombre ?? getPeriod(d) ?? "Dato"))),
+                    value: getVal(d.Valor),
+                }));
 
             const latest = isSeriesArray ? getPeriod(data[0]?.Data?.[0]) : getPeriod(data[0]);
             return { flatData: [], pieData, latestYear: latest };
@@ -61,7 +64,7 @@ export default function BaseChart({ type = "line", data, title, height = 260 }: 
 
         if (isSeriesArray) {
             const flatData = data.flatMap((s: any) => {
-                const sName = formatSeriesName(s.Nombre) || "Dato";
+                const sName = (formatName ? formatName(s.Nombre) : formatSeriesName(s.Nombre)) || "Dato";
                 const seriesData = s.Data || [];
                 const res = new Array(seriesData.length);
                 for (let i = 0; i < seriesData.length; i++) {
@@ -79,7 +82,7 @@ export default function BaseChart({ type = "line", data, title, height = 260 }: 
             res[i] = { period: getPeriod(item), value: getVal(item.Valor), series: title || "Valor" };
         }
         return { flatData: res, pieData: [], latestYear: getPeriod(data[0]) };
-    }, [data, isPolar, isSeriesArray, title]);
+    }, [data, isCategorical, isSeriesArray, title, formatName]);
 
     const definition = useMemo(() => {
         if (isPolar) {
@@ -101,6 +104,23 @@ export default function BaseChart({ type = "line", data, title, height = 260 }: 
                         ],
                     }),
                 ],
+                color: { range: BRAND_PALETTE },
+                tooltip: { use: tooltip, anchor: "pointer" },
+            });
+        }
+
+        if (type === "column") {
+            if (!pieData.length) return null;
+            return defineChart({
+                marks: [
+                    barY(pieData, {
+                        x: (d: any) => d.label,
+                        y: (d: any) => d.value,
+                        color: (d: any) => d.label,
+                    }),
+                ],
+                x: { scale: scaleBand, grid: false },
+                y: { scale: scaleLinear, grid: true, nice: true },
                 color: { range: BRAND_PALETTE },
                 tooltip: { use: tooltip, anchor: "pointer" },
             });
@@ -140,18 +160,19 @@ export default function BaseChart({ type = "line", data, title, height = 260 }: 
 
     if (!definition) return null;
 
-    const legends: { label: string; extra?: string }[] | null = isPolar
+    const legends: { label: string; extra?: string }[] | null = isCategorical
         ? pieData.map((d: any) => ({ label: d.label, extra: d.value.toLocaleString("es-ES") }))
         : isSeriesArray && data.length > 1
-          ? data.map((s: any, idx: number) => ({ label: formatSeriesName(s.Nombre) || `Serie ${idx + 1}` }))
-          : null;
+            ? data.map((s: any, idx: number) => ({ label: (formatName ? formatName(s.Nombre) : formatSeriesName(s.Nombre)) || `Serie ${idx + 1}` }))
+            : null;
 
     return (
         <div className="flex flex-col gap-4 w-full text-title relative">
             <div className="flex justify-between w-full items-center">
                 {title && <h3 className="font-semibold text-title">{title}</h3>}
                 {latestYear && (
-                    <h4 className="mb-1 font-semibold text-title/80 text-sm px-2 bg-white/20 shadow-sm rounded-full border border-title/20">
+                    <h4 title={`Última actualización: ${latestYear}`} className="mb-1 flex gap-1   items-center justify-center font-semibold text-title/80 text-sm">
+                        <IoTimeSharp size={15} />
                         {latestYear}
                     </h4>
                 )}
@@ -208,17 +229,19 @@ export default function BaseChart({ type = "line", data, title, height = 260 }: 
                 />
             </div>
 
-            {legends && legends.length > 0 && (
-                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 mt-1 text-xs">
-                    {legends.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-1.5">
-                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: BRAND_PALETTE[idx % BRAND_PALETTE.length] }} />
-                            <span className="font-medium text-title/90">{item.label}</span>
-                            {item.extra && <span className="text-title/60 tabular-nums">({item.extra})</span>}
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
+            {
+                legends && legends.length > 0 && (
+                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 mt-1 text-xs">
+                        {legends.map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: BRAND_PALETTE[idx % BRAND_PALETTE.length] }} />
+                                <span className="font-medium text-title/90">{item.label}</span>
+                                {item.extra && <span className="text-title/60 tabular-nums">({item.extra})</span>}
+                            </div>
+                        ))}
+                    </div>
+                )
+            }
+        </div >
     );
 }
