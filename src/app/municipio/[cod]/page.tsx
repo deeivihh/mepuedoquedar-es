@@ -9,8 +9,8 @@ export default async function DetailPage({
     const { cod } = await params;
 
     return (
-        <main className="flex flex-col justify-start mx-auto items-center min-h-screen w-full p-8 pt-4 max-w-5xl bg-bg-card">
-            <section className="w-full pb-4">
+        <main className="flex flex-col justify-start mx-auto items-center min-h-screen w-full px-8 py-4 max-w-5xl">
+            <section className="w-full pb-2">
                 <SearchBar />
             </section>
 

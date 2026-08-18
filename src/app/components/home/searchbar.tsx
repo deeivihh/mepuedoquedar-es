@@ -1,14 +1,12 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { IoMdClose } from "react-icons/io";
 import { BsFillSignTurnRightFill } from "react-icons/bs";
-import { IoCloseSharp, IoSettingsSharp } from "react-icons/io5";
 import { Site } from "@/app/utils/types";
 import { useLocation } from "@/app/utils/useLocation";
-import { useTypewriter } from "@/app/utils/useTypewriter";
 import { usePreferences } from "@/app/contexts/PreferencesContext";
 import { UserPreferences } from "@/lib/scores/userPreferences";
 import { PREFERENCES_SCHEMA } from "@/lib/scores/preferencesSchema";
@@ -84,74 +82,56 @@ function AgeSlider({
 function PreferencesPanel({
     preferences,
     onChange,
-    onClose,
 }: {
     preferences: UserPreferences;
     onChange: (prefs: UserPreferences) => void;
-    onClose: () => void;
 }) {
-    const panelRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        function handleClick(e: MouseEvent) {
-            const target = e.target as Element;
-            if (target.closest('#pref-button')) return;
-
-            if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-                onClose();
-            }
-        }
-        document.addEventListener("mousedown", handleClick);
-        return () => document.removeEventListener("mousedown", handleClick);
-    }, [onClose]);
-
     function update(key: string, value: any) {
         onChange({ ...preferences, [key]: value });
     }
 
     return (
-        <motion.div
-            ref={panelRef}
-            className="flex w-full mt-2"
-            style={{ zIndex: 100 }}
-        >
-            <div className="p-4 flex flex-col gap-5 w-full card border border-title/20">
-                <div className="flex items-center justify-between">
-                    <h2 className="font-semibold text-title text-base">Personaliza tu búsqueda</h2>
-                </div>
-
-                <p className="text-xs text-title/60 -mt-3">
-                    Ajustamos la puntuación de cada municipio según tu situación.
-                </p>
-
-                {PREFERENCES_SCHEMA.map((config) => {
-                    if (config.type === "boolean") {
-                        return (
-                            <div key={config.id} className="flex items-center justify-between gap-4">
-                                <div>
-                                    <p className="text-sm font-medium text-title">{config.label}</p>
-                                    <p className="text-xs text-title/50">{config.description}</p>
-                                </div>
-                                <Toggle
-                                    id={`pref-${config.id}`}
-                                    checked={preferences[config.id] as boolean}
-                                    onChange={(v) => update(config.id, v)}
-                                />
+        <div className="p-4 flex flex-col gap-5 w-full card border border-title/20">
+            {PREFERENCES_SCHEMA.map((config) => {
+                if (config.type === "boolean") {
+                    return (
+                        <div key={config.id} className="flex items-center justify-between gap-4">
+                            <div>
+                                <p className="text-sm font-medium text-title">{config.label}</p>
+                                <p className="text-xs text-title/50">{config.description}</p>
                             </div>
-                        );
-                    } else if (config.type === "range" && config.id === "age") {
-                        return (
-                            <AgeSlider
-                                key={config.id}
-                                value={preferences[config.id] as number}
+                            <Toggle
+                                id={`pref-${config.id}`}
+                                checked={preferences[config.id] as boolean}
                                 onChange={(v) => update(config.id, v)}
                             />
-                        );
-                    }
-                    return null;
-                })}
-            </div>
-        </motion.div>
+                        </div>
+                    );
+                } else if (config.type === "range" && config.id === "age") {
+                    return (
+                        <AgeSlider
+                            key={config.id}
+                            value={preferences[config.id] as number}
+                            onChange={(v) => update(config.id, v)}
+                        />
+                    );
+                }
+                return null;
+            })}
+        </div>
+    );
+}
+
+function SearchSkeleton() {
+    return (
+        <div className="flex flex-col gap-2 w-full animate-pulse">
+            {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex justify-between items-center w-full h-12 p-2.5 px-4 card border border-title/10 bg-title/5 shrink-0">
+                    <div className="h-4 bg-title/15 rounded w-1/3" />
+                    <div className="h-3 bg-title/10 rounded w-16" />
+                </div>
+            ))}
+        </div>
     );
 }
 
@@ -161,20 +141,25 @@ export default function SearchBar() {
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<Site[]>([]);
     const pathname = usePathname();
-    const [showPrefs, setShowPrefs] = useState(pathname === "/" ? true : false);
-    const { preferences, setPreferences, isDefault } = usePreferences();
+    const isHome = pathname === "/";
+    const { preferences, setPreferences } = usePreferences();
 
     const abortRef = useRef<AbortController | null>(null);
 
-    async function search(query: string) {
+    const isSearching = query.trim().length > 0;
+
+    async function search(q: string) {
         abortRef.current?.abort();
-        if (query.trim() === "" || query.length < 3) return;
+        if (q.trim() === "" || q.length < 3) {
+            setResults([]);
+            return;
+        }
         const controller = new AbortController();
         abortRef.current = controller;
         setIsLoading(true);
         try {
             const response = await fetch(
-                `/api/jcyl/municipios?search=${encodeURIComponent(query)}&limit=10${locationParams}`,
+                `/api/jcyl/municipios?search=${encodeURIComponent(q)}&limit=10${locationParams}`,
                 { signal: controller.signal }
             );
             if (!response.ok) throw new Error("Error al buscar");
@@ -190,83 +175,135 @@ export default function SearchBar() {
 
     useEffect(() => {
         if (!ready) return;
-        if (query.trim() !== "" || query.length >= 3) {
+        if (query.trim().length >= 3) {
             search(query);
         } else {
             setResults([]);
         }
     }, [query, ready]);
 
-
     return (
-        <div className={`relative flex flex-col justify-center items-center w-full ${pathname === "/" ? "max-w-lg" : ""}`} style={{ zIndex: 100 }}>
-            <div className="flex gap-1 w-full mx-auto relative">
-                {pathname !== "/" && (
-                    <Link
-                        href="/"
-                        title="Volver"
-                        className="inline-flex items-center gap-2 text-sm text-title/80 hover:text-title transition-colors w-fit px-4 bg-bg-card hover:bg-white border border-title/30"
-                    >
-                        <FaArrowLeft size={15} />
-                    </Link>
-                )}
-                <div className={`w-full card border border-title/30 transition-all duration-300 overflow-hidden flex gap-2 items-center h-12 ${pathname === "/" ? "px-4" : "px-2"}`}>
-                    <input
-                        placeholder="Busca tu municipio..."
-                        {...(pathname === "/" && { autoFocus: true })}
-                        onChange={(e) => { if (e.target.value.length < 3) setShowPrefs(false); setResults([]); setQuery(e.target.value); }}
-                        value={query}
-                        className={`w-full h-full outline-none text-title font-medium`}
-                    />
-                    {query.length > 0 && (
-                        <button onClick={() => { setQuery(''); setResults([]); }} className="bg-white/0 p-1.5 border border-title/20 hover:bg-white/90 transition-all duration-150 shrink-0 ">
-                            <IoMdClose size={15} strokeWidth="10" />
-                        </button>
+        <div className={`relative flex flex-col w-full mx-auto ${isHome ? "max-w-lg" : ""}`} style={{ zIndex: 100 }}>
+            <div className="flex flex-col gap-1 w-full mx-auto">
+                <div className="flex gap-2">
+                    {!isHome && (
+                        <Link
+                            href="/"
+                            title="Volver"
+                            className="inline-flex items-center gap-2 text-sm text-title/80 hover:text-title transition-colors w-fit px-4 bg-bg-card hover:bg-white border border-title/30"
+                        >
+                            <FaArrowLeft size={15} />
+                        </Link>
                     )}
-                    <button
-                        id="pref-button"
-                        onClick={() => setShowPrefs(v => !v)}
-                        title="Personalizar búsqueda"
-                        className={`p-1.5 border border-title/20 hover:bg-white/90 ${showPrefs ? 'bg-white/90' : 'bg-white/0'} transition-all duration-150 shrink-0`}
-                    >
-                        <IoSettingsSharp size={15} />
-                    </button>
+                    <div className={`w-full card border border-title/30 transition-all duration-300 overflow-hidden flex gap-2 items-center h-12 px-4`}>
+                        <input
+                            placeholder="Busca tu municipio..."
+                            {...(isHome && { autoFocus: true })}
+                            onChange={(e) => { setResults([]); setQuery(e.target.value); }}
+                            value={query}
+                            className="w-full h-full outline-none text-title font-medium bg-transparent"
+                        />
+                        {isLoading && (
+                            <div className="w-3.5 h-3.5 border-2 border-title/30 border-t-title rounded-full animate-spin shrink-0" />
+                        )}
+                        {query.length > 0 && !isLoading && (
+                            <button
+                                type="button"
+                                onClick={() => { setQuery(''); setResults([]); }}
+                                className="bg-white/0 p-1.5 border border-title/20 hover:bg-white/90 transition-all duration-150 shrink-0"
+                            >
+                                <IoMdClose size={15} strokeWidth="10" />
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
-            <div className={`w-full flex flex-col ${pathname === "/" ? "absolute top-full left-0" : ""}`}>
-                <AnimatePresence>
-                    {showPrefs && (
+
+            {isHome ? (
+                <div className="grid grid-cols-1 grid-rows-1 w-full mt-2 items-start">
+                    <div
+                        className="col-start-1 row-start-1 w-full transition-opacity duration-150"
+                        style={{ opacity: isSearching ? 0 : 1, pointerEvents: isSearching ? "none" : "auto" }}
+                    >
                         <PreferencesPanel
                             preferences={preferences}
                             onChange={setPreferences}
-                            onClose={() => setShowPrefs(false)}
                         />
-                    )}
-                </AnimatePresence>
-                <div className={`w-full flex flex-col`}>
-                    {results.length > 0 && !showPrefs && (
-                        <div className="mt-2 flex flex-col" style={{ zIndex: 100 }}>
-                            <div className="overflow-hidden">
-                                <div className="flex flex-col gap-2 max-h-[21rem] overflow-y-auto">
-                                    {results.map((result) => (
-                                        <Link href={`/municipio/${result.cod_ine}`} key={result.cod_ine} className={`flex justify-between gap-4 items-center w-full h-full hover:bg-white/30 border border-title/20 p-2 px-4`}>
-                                            <p className="font-semibold text-title text-balance">{result.municipio}</p>
-                                            {result.distance != null && (
-                                                <span className="text-sm text-title opacity-70 flex items-center justify-end gap-1 shrink-0 whitespace-nowrap min-w-[5rem]">
-                                                    <BsFillSignTurnRightFill className="shrink-0" />
-                                                    {result.distance >= 1000
-                                                        ? `${(result.distance / 1000).toFixed(1)} km`
-                                                        : `${result.distance} m`}
-                                                </span>
-                                            )}
-                                        </Link>
-                                    ))}
+                    </div>
+
+                    {isSearching && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -4 }}
+                            transition={{ duration: 0.15, ease: "easeOut" }}
+                            className="col-start-1 row-start-1 w-full flex flex-col gap-2 max-h-[390px] overflow-y-auto z-10 self-start"
+                        >
+                            {isLoading ? (
+                                <SearchSkeleton />
+                            ) : results.length > 0 ? (
+                                results.map((result) => (
+                                    <Link
+                                        href={`/municipio/${result.cod_ine}`}
+                                        key={result.cod_ine}
+                                        className="flex justify-between gap-4 items-center w-full h-12 hover:bg-white/30 border border-title/20 p-2.5 px-4 card shrink-0"
+                                    >
+                                        <p className="font-semibold text-title text-balance">{result.municipio}</p>
+                                        {result.distance != null && (
+                                            <span className="text-sm text-title opacity-70 flex items-center justify-end gap-1 shrink-0 whitespace-nowrap min-w-[5rem]">
+                                                <BsFillSignTurnRightFill className="shrink-0" />
+                                                {result.distance >= 1000
+                                                    ? `${(result.distance / 1000).toFixed(1)} km`
+                                                    : `${result.distance} m`}
+                                            </span>
+                                        )}
+                                    </Link>
+                                ))
+                            ) : query.trim().length >= 3 ? (
+                                <div className="flex items-center justify-center h-48 text-sm text-title/60 font-medium">
+                                    No se encontraron municipios
                                 </div>
-                            </div>
-                        </div>
+                            ) : null}
+                        </motion.div>
                     )}
                 </div>
-            </div>
+            ) : (
+                isSearching && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
+                        className="w-full mt-2 flex flex-col gap-2 h-[14.5rem] overflow-y-auto p-2 bg-bg-card card border border-title/20 shadow-sm"
+                    >
+                        {isLoading ? (
+                            <SearchSkeleton />
+                        ) : results.length > 0 ? (
+                            results.map((result) => (
+                                <Link
+                                    href={`/municipio/${result.cod_ine}`}
+                                    key={result.cod_ine}
+                                    className="flex justify-between gap-4 items-center w-full h-12 hover:bg-white/40 border border-title/15 p-2.5 px-4 card shrink-0"
+                                >
+                                    <p className="font-semibold text-title text-balance">{result.municipio}</p>
+                                    {result.distance != null && (
+                                        <span className="text-sm text-title opacity-70 flex items-center justify-end gap-1 shrink-0 whitespace-nowrap min-w-[5rem]">
+                                            <BsFillSignTurnRightFill className="shrink-0" />
+                                            {result.distance >= 1000
+                                                ? `${(result.distance / 1000).toFixed(1)} km`
+                                                : `${result.distance} m`}
+                                        </span>
+                                    )}
+                                </Link>
+                            ))
+                        ) : query.trim().length >= 3 ? (
+                            <div className="flex items-center justify-center h-full text-sm text-title/60 font-medium">
+                                No se encontraron municipios
+                            </div>
+                        ) : null}
+                    </motion.div>
+                )
+            )}
         </div>
     );
 }

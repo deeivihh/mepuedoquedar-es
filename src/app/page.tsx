@@ -6,8 +6,8 @@ import { MdEmail } from "react-icons/md";
 
 export default function Home() {
     return (
-        <main className="flex flex-col justify-start h-screen w-full max-md:p-6">
-            <footer className="absolute left-1/2 -translate-x-1/2 bottom-4 max-lg:top-8">
+        <main className="relative flex flex-col justify-center items-center h-screen w-full max-md:p-6">
+            <footer className="absolute left-1/2 -translate-x-1/2 bottom-4 max-lg:top-8 z-20 pointer-events-auto">
                 <div className="flex max-[17rem]:flex-col gap-6 max-md:gap-4 items-start justify-center">
                     <Link
                         href="/metodologia"
@@ -34,9 +34,11 @@ export default function Home() {
                     </Link>
                 </div>
             </footer>
-            <section className="h-[calc(100svh-15rem)] flex flex-col justify-center items-center z-50">
-                <DynamicHeading />
-                <SearchBar />
+            <section className="w-full h-full flex flex-col justify-center items-center relative z-30 pointer-events-none">
+                <div className="w-full flex flex-col items-center justify-center pointer-events-auto">
+                    <DynamicHeading />
+                    <SearchBar />
+                </div>
             </section>
         </main>
     );

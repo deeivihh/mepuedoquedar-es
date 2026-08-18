@@ -29,9 +29,9 @@ export default function Wikipedia({ lat, lon, name, provincia }: { lat: number; 
             <div className="h-4 w-full bg-black/5 rounded" />
             <div className="h-4 w-full bg-black/5 rounded" />
             <div className="h-4 w-full bg-black/5 rounded" />
-            <div className="grid grid-cols-5 gap-4 w-full h-[420px]">
-                <div className="col-span-3 h-full w-full bg-black/5 mt-4" />
-                <div className="col-span-2 h-full w-full mt-4">
+            <div className="grid grid-cols-5 max-md:flex max-md:flex-col gap-4 w-full h-[420px]">
+                <div className="min-md:col-span-3 h-full w-full bg-black/5 mt-4" />
+                <div className="min-md:col-span-2 h-full w-full mt-4">
                     <div className="grid grid-cols-4 gap-4">
                         <div className="h-20 w-20 bg-black/5" />
                         <div className="h-20 w-20 bg-black/5" />
@@ -62,7 +62,7 @@ export default function Wikipedia({ lat, lon, name, provincia }: { lat: number; 
                 <header className="flex justify-between border-b pb-2 text-sm uppercase">
                     <FaWikipediaW size={20} />
                     {data.pageUrl && (
-                        <a href={data.pageUrl} target="_blank" rel="noreferrer" title="Abrir en Wikipedia" className="flex items-center gap-2 font-semibold hover:text-black text-black/80">
+                        <a href={data.pageUrl} target="_blank" rel="noreferrer" title="Abrir en Wikipedia" className="flex items-center gap-2 font-semibold hover:text-black text-black/70">
                             <FaExternalLinkAlt size={15} className="mb-0.5" />
                         </a>
                     )}
@@ -81,18 +81,18 @@ export default function Wikipedia({ lat, lon, name, provincia }: { lat: number; 
 
             {img && (
                 <section className="flex flex-col gap-4 mt-6">
-                    <div className="flex gap-4 max-md:flex-col">
-                        <div className="h-[440px] flex-1 flex flex-col items-center justify-center">
-                            <div className="relative h-full w-full flex items-center justify-center group bg-bg-card/20">
-                                <img src={img.url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50 blur-xl" />
-                                <img src={img.url} alt={img.description || data.title} className="relative z-10 h-full w-full object-contain" loading="lazy" />
+                    <div className="flex max-md:flex-col min-md:grid min-md:grid-cols-5 gap-4 items-start w-full">
+                        <div className="min-md:col-span-3 h-full w-full flex flex-col items-start justify-start">
+                            <div className="relative h-full w-full flex items-start justify-center group">
+                                <img src={img.url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50 blur-2xl max-md:scale-110" />
+                                <img src={img.url} alt={data.title} className="relative z-10 max-h-full max-w-full object-contain object-top border border-title/20" loading="lazy" />
                             </div>
                         </div>
 
                         {images.length > 1 && (
-                            <div className="grid grid-cols-4 gap-2 overflow-x-auto">
+                            <div className="min-md:col-span-2 grid grid-cols-4 max-md:grid-cols-5 content-start self-start w-full max-h-[440px] overflow-y-auto gap-2">
                                 {images.map((item, i) => (
-                                    <button key={i} onClick={() => setIdx(i)} title={item.description} className={`w-20 h-20 overflow-hidden border-2 transition-all ${i === idx ? 'border-title opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`}>
+                                    <button key={i} onClick={() => setIdx(i)} title={item.description} className={`w-full aspect-square overflow-hidden border transition-all ${i === idx ? 'border-title opacity-100' : 'border-title/20 opacity-50 hover:opacity-100'}`}>
                                         <img src={item.url} alt={item.description || ""} className="w-full h-full object-cover" loading="lazy" />
                                     </button>
                                 ))}
@@ -100,8 +100,8 @@ export default function Wikipedia({ lat, lon, name, provincia }: { lat: number; 
                         )}
                     </div>
                     {img.description && (
-                        <div className="w-full flex justify-center items-center max-w-xl mt-2">
-                            <p className="text-xs text-black/60 w-full text-balance">{img.description}</p>
+                        <div className="w-full flex max-w-2xl ml-auto">
+                            <p className="text-xs text-black/70 w-full text-balance text-right">{img.description}</p>
                         </div>
                     )}
                 </section>
