@@ -13,7 +13,8 @@ export async function safeFetch(url: string, headers?: HeadersInit) {
     const response = await fetch(url, headers ? { headers } : undefined);
     if (!response.ok) {
         const text = await response.text();
-        throw new Error(`Fetch failed (${response.status}): ${text.slice(0, 200)}`);
+        console.warn(url, response.status, text);
+        return [];
     }
     return response.json();
 }
@@ -23,6 +24,5 @@ export async function fetchINE(table: string, cod_int: number | string, nult: nu
         throw new Error("Table and cod_int are required");
     }
     const url = `${INE_API}/${table}?nult=${nult}&tv=19:${cod_int}`;
-    console.log(url);
     return safeFetch(url, INE_HEADERS);
 }
