@@ -7,12 +7,15 @@ import {
     FaLandmark,
     FaShieldAlt,
     FaLayerGroup,
+    FaChevronUp,
+    FaChevronDown,
 } from "react-icons/fa";
 import { IconType } from "react-icons";
 import { IoIosStar, IoIosStarHalf, IoIosStarOutline } from "react-icons/io";
 import { MdLocalHospital, MdOutlineSportsMartialArts, MdOutlineTravelExplore, MdPublic } from "react-icons/md";
 import { GiBowlingPin } from "react-icons/gi";
 import { FaPeopleGroup } from "react-icons/fa6";
+import { useState } from "react";
 
 const DEPARTMENT_ICONS: Record<string, IconType> = {
     sanidad: MdLocalHospital,
@@ -46,7 +49,9 @@ function generateStars(number: number) {
     return stars;
 }
 
-export default function GeneralScore({ number }: { number: number }) {
+export default function GeneralScore({ number, scoresDepartments }: { number: number, scoresDepartments: Record<string, DepartmentScore> }) {
+    const [expandedScores, setExpandedScores] = useState(false);
+
     const starRating = (number / 100) * 5;
 
     function labelText() {
@@ -60,9 +65,9 @@ export default function GeneralScore({ number }: { number: number }) {
     const stars = generateStars(starRating);
 
     return (
-        <div className="flex flex-col items-start justify-center gap-4 w-full">
-            <div className="flex max-[73rem]:flex-col gap-2 w-full justify-between items-center">
-                <div className="flex gap-1 text-5xl max-[23rem]:text-5xl">
+        <div className="flex flex-col items-center justify-center gap-4 w-full h-full">
+            <div className="flex max-[73rem]:flex-col gap-2 w-full h-full justify-between items-center">
+                <div className="flex gap-1 text-6xl flex justify-center items-center max-[23rem]:text-5xl">
                     {stars}
                 </div>
                 <span
@@ -71,6 +76,18 @@ export default function GeneralScore({ number }: { number: number }) {
                     {labelText()}
                 </span>
             </div>
+            <button onClick={() => setExpandedScores(!expandedScores)} className="w-fit min-md:ml-auto text-xs flex gap-2 items-center max-md:justify-center justify-end uppercase text-black/60 hover:text-black">
+                Ver puntuaciones por departamento {expandedScores ? <FaChevronUp size={10} className="mb-0.5" /> : <FaChevronDown size={10} className="mb-0.5" />}
+            </button>
+            {expandedScores && (
+                <div className="min-xl:flex min-xl:justify-center min-xl:items-center w-full p-4">
+                    <div className="grid min-xl:grid-cols-6 min-md:grid-cols-3 max-md:grid-cols-2 max-[25rem]:grid-cols-1 gap-14">
+                        {Object.entries(scoresDepartments).map(([key, value]) => (
+                            <ScoreItem key={key} name={key} number={value} />
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -83,10 +100,10 @@ export function ScoreItem({ name, number }: { name: string; number: DepartmentSc
     return (
         <div className="flex flex-col items-center justify-center gap-2">
             <div className="flex gap-2 items-center justify-center">
-                <Icon className="text-title text-2xl" />
-                <span className="text-title text-2xl font-medium capitalize">{name}</span>
+                <Icon className="text-title text-xl" />
+                <span className="text-title text-xl font-medium capitalize">{name}</span>
             </div>
-            <div className="flex gap-1 text-2xl">
+            <div className="flex gap-1 text-xl">
                 {stars}
             </div>
         </div>

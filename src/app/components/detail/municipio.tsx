@@ -125,14 +125,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                 </section>
 
                 <section className="flex flex-col gap-6 overflow-hidden relative w-full p-6 py-8">
-                    <GeneralScore number={scores?.global ?? 0} />
-                    <div className="min-xl:flex min-xl:justify-center min-xl:items-center w-full p-4">
-                        <div className="grid min-xl:grid-cols-6 min-md:grid-cols-3 max-md:grid-cols-2 max-[25rem]:grid-cols-1 gap-12">
-                            {Object.entries(scores?.departments ?? {}).map(([key, value]) => (
-                                <ScoreItem key={key} name={key} number={value} />
-                            ))}
-                        </div>
-                    </div>
+                    <GeneralScore number={scores?.global ?? 0} scoresDepartments={scores?.departments ?? {}} />
                 </section>
 
                 {data.cod_int && (
