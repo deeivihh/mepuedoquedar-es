@@ -65,7 +65,7 @@ function hiRes(url = "") {
     return u.replace(/\/thumb\/(.+)\/\d+px-([^/]+)$/i, "/thumb/$1/1280px-$2");
 }
 
-async function fetchPage(title: string): Promise<WikipediaData | null> {
+async function fetchPage(title: string, provincia?: string): Promise<WikipediaData | null> {
     try {
         const page = await wiki.page(title, { autoSuggest: false });
         const [intro, summary, media, htmlRes] = await Promise.allSettled([
@@ -77,6 +77,14 @@ async function fetchPage(title: string): Promise<WikipediaData | null> {
         const sum = summary.status === "fulfilled" ? summary.value : null;
         const raw = `${sum?.description || ""} ${sum?.extract || ""} ${intro.status === "fulfilled" ? intro.value : ""}`;
         if (sum?.type === "disambiguation" || /puede referirse a|desambiguaci[oó]n/i.test(raw) || !/\b(municipio|concejo|t[eé]rmino municipal|ayuntamiento)\b/i.test(raw)) return null;
+
+        if (provincia) {
+            const normalizedRaw = raw.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const normalizedProv = provincia.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (!normalizedRaw.includes(normalizedProv) && !normalizedRaw.includes("castilla y leon")) {
+                return null;
+            }
+        }
 
         const text = (intro.status === "fulfilled" && clean(intro.value)) || (sum?.extract && clean(sum.extract)) || "";
         if (!text) return null;
@@ -129,17 +137,19 @@ export async function getMunicipioWikipedia(lat: number, lon: number, name: stri
         wiki.setLang("es");
         const n = titleCase(name.trim());
         const prov = provincia ? titleCase(provincia.trim()) : "";
-        const candidates = [n, prov && `${n} (${prov})`, `${n} (España)`, `${n} (municipio)`].filter(Boolean) as string[];
+        const candidates = prov 
+            ? [`${n} (${prov})`, n, `${n} (España)`, `${n} (municipio)`]
+            : [n, `${n} (España)`, `${n} (municipio)`];
 
         for (const title of candidates) {
-            const data = await fetchPage(title);
+            const data = await fetchPage(title, prov);
             if (data) return data;
         }
 
         const searchRes = await wiki.search(`${n} ${prov} municipio`, { limit: 3 });
         for (const item of searchRes.results || []) {
             if (item.title && !candidates.includes(item.title)) {
-                const data = await fetchPage(item.title);
+                const data = await fetchPage(item.title, prov);
                 if (data) return data;
             }
         }
