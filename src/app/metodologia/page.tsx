@@ -81,13 +81,13 @@ export default function MetodologiaPage() {
                     <p className="text-title/75 leading-relaxed mb-4">
                         Cada municipio recibe una puntuación global de <strong className="text-title">0 a 100</strong>.
                         Esta puntuación es la media ponderada de las categorías temáticas en las que el municipio
-                        dispone de datos. Las categorías sin datos no penalizan la puntuación global,
-                        sino que se excluyen del cálculo.
+                        dispone de datos. Las categorías sin datos tienen un valor de 0 puntos, pero su peso en la media final se reduce en función de la población del municipio.
                     </p>
                     <p className="text-title/75 leading-relaxed mb-4">
-                        Este enfoque evita que municipios pequeños sean penalizados por carecer de servicios
-                        que solo existen en núcleos urbanos grandes (hospitales, oficinas ECYL, policía local, etc.),
-                        evaluando cada municipio únicamente por los servicios de los que sí dispone.
+                        Este <strong>factor de reducción de peso</strong> evita que municipios muy pequeños sean penalizados excesivamente por carecer de servicios
+                        que solo existen en núcleos urbanos (como hospitales). Un municipio de menos de 100
+                        habitantes solo sufre un 10% de penalización por las categorías que le faltan, mientras que a uno de
+                        más de 5.000 habitantes se le aplica el 100% de la penalización (todo el peso original), resultando en puntuaciones realistas para ambos casos.
                     </p>
                     <p className="text-title/75 leading-relaxed mb-4">
                         Los indicadores de cada categoría se evalúan mediante tres tipos de funciones matemáticas para normalizar sus valores a una escala común de 0 a 100 puntos:

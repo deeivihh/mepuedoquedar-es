@@ -229,6 +229,28 @@ function evaluateRule(
     };
 }
 
+function missingWeightFactor(poblacion: number): number {
+    const tiers = [
+        { pop: 100, factor: 0.1 },
+        { pop: 500, factor: 0.4 },
+        { pop: 2000, factor: 0.8 },
+        { pop: 5000, factor: 1.0 },
+    ];
+
+    if (poblacion <= tiers[0].pop) return tiers[0].factor;
+    if (poblacion >= tiers[tiers.length - 1].pop) return tiers[tiers.length - 1].factor;
+
+    for (let i = 0; i < tiers.length - 1; i++) {
+        if (poblacion <= tiers[i + 1].pop) {
+            const t =
+                (poblacion - tiers[i].pop) /
+                (tiers[i + 1].pop - tiers[i].pop);
+            return tiers[i].factor + t * (tiers[i + 1].factor - tiers[i].factor);
+        }
+    }
+    return 1.0;
+}
+
 export function calculateScores(
     municipio: Record<string, unknown>,
     weightMultipliers?: Record<string, number>
@@ -238,7 +260,7 @@ export function calculateScores(
     const typedConfig =
         config as unknown as Record<string, DepartmentConfig>;
 
-    const poblacion = toNumber(municipio.poblacion);
+    const poblacion = Math.max(0, toNumber(municipio.poblacion));
 
     const datos = (municipio.datos ?? municipio) as Record<
         string,
@@ -247,6 +269,8 @@ export function calculateScores(
 
     let weightedSum = 0;
     let totalWeight = 0;
+
+    const penaltyFactor = missingWeightFactor(poblacion);
 
     for (const [departmentKey, departmentConfig] of Object.entries(
         typedConfig
@@ -281,16 +305,14 @@ export function calculateScores(
             ...(hasData ? {} : { noData: true })
         };
 
-        if (hasData) {
-            const normalized =
-                maxScore > 0 ? score / maxScore : 0;
+        const baseWeight =
+            departmentConfig.weight * (weightMultipliers?.[departmentKey] ?? 1.0);
 
-            const effectiveWeight =
-                departmentConfig.weight * (weightMultipliers?.[departmentKey] ?? 1.0);
+        const finalWeight = hasData ? baseWeight : baseWeight * penaltyFactor;
+        const normalized = hasData && maxScore > 0 ? score / maxScore : 0;
 
-            weightedSum += normalized * effectiveWeight;
-            totalWeight += effectiveWeight;
-        }
+        weightedSum += normalized * finalWeight;
+        totalWeight += finalWeight;
     }
 
     const global =
