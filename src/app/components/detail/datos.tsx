@@ -29,7 +29,7 @@ function filterData(data: any[], filter?: TableConfig["filter"]) {
     return data;
 }
 
-function Tabla({ table, cod_int, nult, title, type = "line", filter }: TableConfig & { cod_int: string | number }) {
+function Tabla({ table, cod_int, nult, title, type = "line", filter, formatName }: TableConfig & { cod_int: string | number }) {
     const { data, loading } = useData(() => fetchINE(table, cod_int, nult), [table, cod_int, nult]);
     const filteredData = useMemo(() => filterData(data, filter), [data, filter]);
 
@@ -42,7 +42,7 @@ function Tabla({ table, cod_int, nult, title, type = "line", filter }: TableConf
                     Cargando {title || table}...
                 </div>
             ) : (
-                <BaseChart type={type} data={filteredData} title={title} />
+                <BaseChart type={type} data={filteredData} title={title} formatName={formatName} />
             )}
         </div>
     );
