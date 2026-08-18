@@ -40,7 +40,7 @@ export const PREFERENCES_SCHEMA: PreferenceConfig[] = [
     {
         id: "hasSchoolChildren",
         type: "boolean",
-        label: "¿Tienes hijos en edad escolar?",
+        label: "¿Tienes hijos?",
         description: "Da más peso a educación y seguridad",
         defaultValue: false,
         effects: {
@@ -58,6 +58,36 @@ export const PREFERENCES_SCHEMA: PreferenceConfig[] = [
         }
     },
     {
+        id: "remotework",
+        type: "boolean",
+        label: "¿Teletrabajas?",
+        description: "Reduce la importancia del empleo local",
+        defaultValue: false,
+        effects: {
+            onTrue: { empleo: -0.5, economia: -0.2, turismo: 0.3, cultura: 0.2, ocio: 0.3 }
+        }
+    },
+    {
+        id: "isRetired",
+        type: "boolean",
+        label: "¿Estás jubilado/a?",
+        description: "Prioriza sanidad, servicios sociales y tranquilidad",
+        defaultValue: false,
+        effects: {
+            onTrue: { sanidad: 0.8, sociedad: 0.6, comercio: 0.4, cultura: 0.3, empleo: -0.6, juventud: -0.3 }
+        }
+    },
+    {
+        id: "hasPet",
+        type: "boolean",
+        label: "¿Tienes mascota?",
+        description: "Valora espacios abiertos y servicios cercanos",
+        defaultValue: false,
+        effects: {
+            onTrue: { deportes: 0.3, turismo: 0.2, sociedad: 0.2, comercio: 0.2 }
+        }
+    },
+    {
         id: "age",
         type: "range",
         label: "¿Cuántos años tienes?",
@@ -72,3 +102,4 @@ export const PREFERENCES_SCHEMA: PreferenceConfig[] = [
         ]
     }
 ];
+
