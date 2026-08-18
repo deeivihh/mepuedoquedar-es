@@ -34,7 +34,7 @@ export default function Home() {
                     </Link>
                 </div>
             </footer>
-            <section className="w-full h-full flex flex-col justify-center items-center relative z-30 pointer-events-none">
+            <section className="w-full h-screen flex flex-col justify-center items-center relative z-30 pointer-events-none max-md:mt-12">
                 <div className="w-full flex flex-col items-center justify-center pointer-events-auto">
                     <DynamicHeading />
                     <SearchBar />
