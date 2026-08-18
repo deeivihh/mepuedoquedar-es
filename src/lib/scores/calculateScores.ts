@@ -281,14 +281,16 @@ export function calculateScores(
             ...(hasData ? {} : { noData: true })
         };
 
-        const normalized =
-            maxScore > 0 ? score / maxScore : 0;
+        if (hasData) {
+            const normalized =
+                maxScore > 0 ? score / maxScore : 0;
 
-        const effectiveWeight =
-            departmentConfig.weight * (weightMultipliers?.[departmentKey] ?? 1.0);
+            const effectiveWeight =
+                departmentConfig.weight * (weightMultipliers?.[departmentKey] ?? 1.0);
 
-        weightedSum += normalized * effectiveWeight;
-        totalWeight += effectiveWeight;
+            weightedSum += normalized * effectiveWeight;
+            totalWeight += effectiveWeight;
+        }
     }
 
     const global =
