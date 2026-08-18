@@ -80,7 +80,14 @@ export default function MetodologiaPage() {
                     <h2 className="title-font text-xl font-semibold text-title mb-3">2. Sistema de puntuación</h2>
                     <p className="text-title/75 leading-relaxed mb-4">
                         Cada municipio recibe una puntuación global de <strong className="text-title">0 a 100</strong>.
-                        Esta puntuación es la media ponderada de {groups.length} categorías temáticas.
+                        Esta puntuación es la media ponderada de las categorías temáticas en las que el municipio
+                        dispone de datos. Las categorías sin datos no penalizan la puntuación global,
+                        sino que se excluyen del cálculo.
+                    </p>
+                    <p className="text-title/75 leading-relaxed mb-4">
+                        Este enfoque evita que municipios pequeños sean penalizados por carecer de servicios
+                        que solo existen en núcleos urbanos grandes (hospitales, oficinas ECYL, policía local, etc.),
+                        evaluando cada municipio únicamente por los servicios de los que sí dispone.
                     </p>
                     <p className="text-title/75 leading-relaxed mb-4">
                         Los indicadores de cada categoría se evalúan mediante tres tipos de funciones matemáticas para normalizar sus valores a una escala común de 0 a 100 puntos:
@@ -96,7 +103,7 @@ export default function MetodologiaPage() {
                         </div>
                         <div className="px-5 py-4">
                             <h4 className="font-semibold text-title mb-2">Escala Logarítmica</h4>
-                            <p className="text-title/65 mb-2">Penaliza la acumulación para evitar que los municipios muy grandes acaparen toda la puntuación. Valora positivamente disponer de un servicio, pero tener el doble de cantidad no otorga el doble de puntos.</p>
+                            <p className="text-title/65 mb-2">Valora positivamente disponer de un servicio con rendimientos decrecientes: tener uno ya otorga una puntuación significativa, pero acumular más no multiplica los puntos proporcionalmente. Las bases están ajustadas para que incluso 1-2 servicios den puntuaciones relevantes.</p>
                             <code className="block bg-title/5 p-3 rounded-lg text-title/80 font-mono text-xs">
                                 Puntuación = min( 100, ( log(Valor) / log(Objetivo) ) × 100 )
                             </code>
