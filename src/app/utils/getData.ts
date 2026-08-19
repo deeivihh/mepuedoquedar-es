@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useData<T>(action: () => Promise<any>, deps: any[] = []) {
     const [data, setData] = useState<T[]>([]);
     const [loading, setLoading] = useState(true);
@@ -21,7 +20,6 @@ export function useData<T>(action: () => Promise<any>, deps: any[] = []) {
         };
 
         fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, deps);
 
     return { data, loading };

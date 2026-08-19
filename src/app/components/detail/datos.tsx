@@ -1,10 +1,29 @@
 "use client";
 
 import { useMemo } from "react";
-import { fetchINE } from "@/app/actions/ine";
-import { useData } from "@/app/utils/getData";
 import { TABLES, type TableConfig } from "@/app/utils/getTables";
 import BaseChart from "@/app/components/charts/BaseChart";
+
+function getTableKey(t: TableConfig): string {
+    return `${t.table}:${t.nult ?? 15}:${t.title || ""}`;
+}
+
+export async function fetchAllTables(tables: TableConfig[], cod_int: string | number): Promise<Record<string, any[]>> {
+    const queries = tables.map((t) => ({
+        table: t.table,
+        nult: t.nult ?? 15,
+        key: getTableKey(t),
+    }));
+
+    const res = await fetch(`/api/ine/batch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ queries, cod_int }),
+    });
+
+    if (!res.ok) return {};
+    return res.json();
+}
 
 function filterData(data: any[], filter?: TableConfig["filter"]) {
     if (!filter || !Array.isArray(data)) return data;
@@ -29,9 +48,8 @@ function filterData(data: any[], filter?: TableConfig["filter"]) {
     return data;
 }
 
-function Tabla({ table, cod_int, nult, title, type = "line", filter, formatName }: TableConfig & { cod_int: string | number }) {
-    const { data, loading } = useData(() => fetchINE(table, cod_int, nult), [table, cod_int, nult]);
-    const filteredData = useMemo(() => filterData(data, filter), [data, filter]);
+function Tabla({ table, data }: { table: TableConfig; data: any[] }) {
+    const filteredData = useMemo(() => filterData(data, table.filter), [data, table.filter]);
 
     const hasData = useMemo(() => {
         if (!filteredData || !Array.isArray(filteredData) || filteredData.length === 0) return false;
@@ -42,26 +60,20 @@ function Tabla({ table, cod_int, nult, title, type = "line", filter, formatName 
         return true;
     }, [filteredData]);
 
-    if (!loading && !hasData) return null;
+    if (!hasData) return null;
 
     return (
         <div className="p-4 md:p-6 md:col-span-1 md:odd:last:col-span-2 md:odd:border-r md:odd:last:border-r-0 md:border-b md:last:border-b-0 md:[&:nth-last-child(2):nth-child(odd)]:border-b-0 border-title/20">
-            {loading ? (
-                <div className="animate-pulse text-sm py-8 text-center text-title/60">
-                    Cargando {title || table}...
-                </div>
-            ) : (
-                <BaseChart type={type} data={filteredData} title={title} formatName={formatName} />
-            )}
+            <BaseChart type={table.type} data={filteredData} title={table.title} formatName={table.formatName} />
         </div>
     );
 }
 
-export default function Datos({ cod_int, tables = TABLES }: { cod_int: string | number; tables?: TableConfig[] }) {
+export default function Datos({ datosData, tables = TABLES }: { datosData: Record<string, any[]>; tables?: TableConfig[] }) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 divide-title/20 w-full">
             {tables.map((t) => (
-                <Tabla key={t.table + (t.title || "")} {...t} cod_int={cod_int} />
+                <Tabla key={getTableKey(t)} table={t} data={datosData?.[getTableKey(t)] ?? []} />
             ))}
         </div>
     );

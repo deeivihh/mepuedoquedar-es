@@ -1,4 +1,4 @@
-"use server";
+import { NextRequest, NextResponse } from "next/server";
 
 const INE_API = "https://servicios.ine.es/wstempus/js/ES/DATOS_TABLA";
 
@@ -8,23 +8,21 @@ const INE_HEADERS = {
     Accept: "application/json",
 };
 
-const CACHE_TTL = 6 * 60 * 60 * 1000;
+const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 horas
 const cache = new Map<string, { data: any[]; ts: number }>();
 const inflight = new Map<string, Promise<any[]>>();
 
 async function cachedFetch(url: string): Promise<any[]> {
     const hit = cache.get(url);
-    if (hit && Date.now() - hit.ts < CACHE_TTL) {
-        return hit.data;
-    }
+    if (hit && Date.now() - hit.ts < CACHE_TTL) return hit.data;
 
     const existing = inflight.get(url);
     if (existing) return existing;
+
     const promise = (async () => {
         const response = await fetch(url, { headers: INE_HEADERS });
         if (!response.ok) {
-            const text = await response.text();
-            console.warn(url, response.status, text);
+            console.warn(`INE API error: ${url} → ${response.status}`);
             return [];
         }
         const data: any[] = await response.json();
@@ -40,20 +38,22 @@ async function cachedFetch(url: string): Promise<any[]> {
     }
 }
 
-export async function safeFetch(url: string, headers?: HeadersInit): Promise<any[]> {
-    const response = await fetch(url, headers ? { headers } : undefined);
-    if (!response.ok) {
-        const text = await response.text();
-        console.warn(url, response.status, text);
-        return [];
-    }
-    return response.json();
-}
+export async function GET(request: NextRequest) {
+    const { searchParams } = request.nextUrl;
+    const table = searchParams.get("table");
+    const cod_int = searchParams.get("cod_int");
+    const nult = searchParams.get("nult") || "15";
 
-export async function fetchINE(table: string, cod_int: number | string, nult: number | string = 15) {
     if (!table || !cod_int) {
-        throw new Error("Table and cod_int are required");
+        return NextResponse.json({ error: "table and cod_int are required" }, { status: 400 });
     }
+
     const url = `${INE_API}/${table}?nult=${nult}&tv=19:${cod_int}`;
-    return cachedFetch(url);
+    const data = await cachedFetch(url);
+
+    return NextResponse.json(data, {
+        headers: {
+            "Cache-Control": "public, s-maxage=21600, stale-while-revalidate=86400",
+        },
+    });
 }

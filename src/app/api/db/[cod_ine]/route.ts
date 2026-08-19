@@ -28,8 +28,14 @@ export async function GET(req: NextRequest,
         }
 
         return NextResponse.json({ ...municipio, distance });
-    } catch (error) {
+    } catch (error: any) {
+        if (error?.code === "PGRST116") {
+            return NextResponse.json({ error: "Municipio no encontrado" }, { status: 404 });
+        }
         if (error instanceof Error) {
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+        if (error?.message) {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
         return NextResponse.json({ error: "Unknown error" }, { status: 500 });

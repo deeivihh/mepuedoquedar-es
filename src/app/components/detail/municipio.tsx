@@ -3,14 +3,16 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "@/app/utils/useLocation";
 import { Map } from "pigeon-maps";
 import { IoPeopleSharp } from "react-icons/io5";
-import { FaCarSide, FaMapMarkedAlt, FaRoute } from "react-icons/fa";
+import { FaCarSide, FaMapMarkedAlt } from "react-icons/fa";
 import { MdArrowOutward } from "react-icons/md";
 import { calculateScores, ScoreResult } from "@/lib/scores/calculateScores";
-import GeneralScore, { ScoreItem } from "@/app/components/detail/scores";
+import GeneralScore from "@/app/components/detail/scores";
 import { usePreferences } from "@/app/contexts/PreferencesContext";
 import { computeWeightMultipliers } from "@/lib/scores/userPreferences";
-import Wikipedia from "./wikipedia";
-import Datos from "./datos";
+import Wikipedia, { getMunicipioWikipedia } from "./wikipedia";
+import { WikipediaData } from "@/app/actions/wikipedia";
+import Datos, { fetchAllTables } from "./datos";
+import { TABLES } from "@/app/utils/getTables";
 
 function capitalize(value: string) {
     const firstLetter = value.charAt(0);
@@ -22,7 +24,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     const { locationParams, ready } = useLocation(false);
     const { preferences, isDefault } = usePreferences();
     const [data, setData] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -30,6 +32,8 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     const [mapHeight, setMapHeight] = useState(200);
 
     const [scores, setScores] = useState<ScoreResult | null>(null);
+    const [wikiData, setWikiData] = useState<WikipediaData | null>(null);
+    const [datosData, setDatosData] = useState<Record<string, any[]> | null>(null);
 
     // Cambia el tamaño del mapa en base al contenedor
     useEffect(() => {
@@ -51,22 +55,47 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     useEffect(() => {
         if (!ready) return;
 
-        async function fetchData() {
+        async function fetchAllData() {
             setIsLoading(true);
             setError(null);
+            const t0 = performance.now();
             try {
                 const res = await fetch(`/api/db/${cod}${locationParams}`);
                 if (!res.ok) throw new Error("Error al cargar el municipio");
-                const data = await res.json();
-                console.log(data)
-                setData(data);
+                const dbData: any = await res.json();
+                const t1 = performance.now();
+                console.log(`[DB] ${(t1 - t0).toFixed(0)}ms`);
+
+                const wikiPromise = (async () => {
+                    const start = performance.now();
+                    const res = await getMunicipioWikipedia(dbData.latitud, dbData.longitud, dbData.municipio, dbData.provincia).catch(() => null);
+                    console.log(`[Wiki] ${(performance.now() - start).toFixed(0)}ms`);
+                    return res;
+                })();
+
+                const inePromise = (async () => {
+                    const start = performance.now();
+                    const res = dbData.cod_int
+                        ? await fetchAllTables(TABLES, dbData.cod_int).catch(() => ({}))
+                        : null;
+                    console.log(`[INE] ${(performance.now() - start).toFixed(0)}ms`);
+                    return res;
+                })();
+
+                const [wiki, datos] = await Promise.all([wikiPromise, inePromise]);
+                const t2 = performance.now();
+                console.log(`[Total] ${(t2 - t0).toFixed(0)}ms`);
+
+                setData(dbData);
+                setWikiData(wiki);
+                setDatosData(datos);
             } catch (e) {
                 setError(e instanceof Error ? e.message : "Error desconocido");
             } finally {
                 setIsLoading(false);
             }
         }
-        fetchData();
+        fetchAllData();
     }, [cod, locationParams, ready]);
 
     useEffect(() => {
@@ -77,7 +106,32 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         setScores(scores);
     }, [data, preferences])
 
-    if (isLoading) return <div>Cargando municipio...</div>;
+    const loadingMessages = [
+        "Consultando registros del municipio...",
+        "Buscando en Wikipedia y recopilando imágenes...",
+        "Recibiendo estadísticas del INE...",
+        "Analizando servicios, sanidad y educación...",
+        "Calculando tu puntuación personalizada...",
+        "Preparando el informe final...",
+    ];
+
+    const [loadingIndex, setLoadingIndex] = useState(0);
+
+    useEffect(() => {
+        if (!isLoading) return;
+        const interval = setInterval(() => {
+            setLoadingIndex((prev) => (prev + 1) % loadingMessages.length);
+        }, 1400);
+        return () => clearInterval(interval);
+    }, [isLoading, loadingMessages.length]);
+
+    if (isLoading) return (
+        <div className="flex flex-col items-center justify-center gap-3 w-full min-h-[50svh] px-4">
+            <p className="text-sm md:text-base font-medium text-black/70 animate-pulse text-center">
+                {loadingMessages[loadingIndex]}
+            </p>
+        </div>
+    );
     if (error) return <div>Error: {error}</div>;
     if (!data) return <div>Municipio no encontrado.</div>;
 
@@ -128,14 +182,14 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     <GeneralScore number={scores?.global ?? 0} scoresDepartments={scores?.departments ?? {}} />
                 </section>
 
-                {data.cod_int && (
+                {data.cod_int && datosData && (
                     <section className="flex flex-col gap-4 overflow-hidden relative w-full">
-                        <Datos cod_int={data.cod_int} />
+                        <Datos datosData={datosData} />
                     </section>
                 )}
 
                 <section className="flex flex-col gap-4 overflow-hidden relative w-full">
-                    <Wikipedia lat={data.latitud} lon={data.longitud} name={data.municipio} provincia={data.provincia} />
+                    <Wikipedia data={wikiData} />
                 </section>
             </div>
         </div>

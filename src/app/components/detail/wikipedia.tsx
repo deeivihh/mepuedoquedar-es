@@ -1,51 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getMunicipioWikipedia, WikipediaData } from "@/app/actions/wikipedia";
-import { FaExternalLinkAlt, FaChevronLeft, FaChevronRight, FaChevronDown, FaChevronUp, FaWikipediaW } from "react-icons/fa";
+import { useState } from "react";
+import { WikipediaData } from "@/app/actions/wikipedia";
+import { FaExternalLinkAlt, FaChevronDown, FaChevronUp, FaWikipediaW } from "react-icons/fa";
 
-export default function Wikipedia({ lat, lon, name, provincia }: { lat: number; lon: number; name: string; provincia?: string }) {
-    const [data, setData] = useState<WikipediaData | null>(null);
-    const [loading, setLoading] = useState(true);
+export { getMunicipioWikipedia } from "@/app/actions/wikipedia";
+
+export default function Wikipedia({ data }: { data: WikipediaData | null }) {
     const [idx, setIdx] = useState(0);
     const [expanded, setExpanded] = useState(false);
-
-    useEffect(() => {
-        if (!name) return;
-        setLoading(true);
-        getMunicipioWikipedia(lat, lon, name, provincia).then((d) => {
-            setData(d);
-            setIdx(0);
-            setExpanded(false);
-            setLoading(false);
-        });
-    }, [lat, lon, name, provincia]);
-
-    if (loading) return (
-        <div className="flex flex-col gap-6 p-6 md:p-8 animate-pulse">
-            <div className="h-4 w-full bg-black/5 rounded" />
-            <div className="h-4 w-full bg-black/5 rounded" />
-            <div className="h-4 w-full bg-black/5 rounded" />
-            <div className="h-4 w-full bg-black/5 rounded" />
-            <div className="h-4 w-full bg-black/5 rounded" />
-            <div className="h-4 w-full bg-black/5 rounded" />
-            <div className="grid grid-cols-5 max-md:flex max-md:flex-col gap-4 w-full h-[420px]">
-                <div className="min-md:col-span-3 h-full w-full bg-black/5 mt-4" />
-                <div className="min-md:col-span-2 h-full w-full mt-4">
-                    <div className="grid grid-cols-4 gap-4">
-                        <div className="h-20 w-20 bg-black/5" />
-                        <div className="h-20 w-20 bg-black/5" />
-                        <div className="h-20 w-20 bg-black/5" />
-                        <div className="h-20 w-20 bg-black/5" />
-                        <div className="h-20 w-20 bg-black/5" />
-                        <div className="h-20 w-20 bg-black/5" />
-                        <div className="h-20 w-20 bg-black/5" />
-                        <div className="h-20 w-20 bg-black/5" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
 
     if (!data) return null;
 
@@ -53,8 +16,6 @@ export default function Wikipedia({ lat, lon, name, provincia }: { lat: number; 
     const img = images[idx] || images[0];
     const paras = data.paragraphs || [];
     const visibleParas = expanded ? paras : paras.slice(0, 2);
-
-    const nav = (d: number) => setIdx((p) => (p + d + images.length) % images.length);
 
     return (
         <article className="flex flex-col gap-8 p-6 md:p-8">

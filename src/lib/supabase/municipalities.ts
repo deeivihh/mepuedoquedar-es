@@ -80,17 +80,28 @@ function toDatabase(
     };
 }
 
+import { getIneCodInt } from "../datos/ine";
+
 export async function getData(cod_ine: string) {
+    const raw = cod_ine.trim();
+    const candidates = Array.from(new Set([raw, raw.padStart(5, "0"), raw.replace(/^0+/, "")]));
+
     const { data, error } = await getSupabase()
         .from("municipios")
         .select(`codigo, cod_int, municipio, poblacion, provincia, latitud, longitud, ${datosSelect}`)
-        .eq("codigo", cod_ine)
-        .single();
+        .in("codigo", candidates)
+        .limit(1)
+        .maybeSingle();
+
     if (error) throw error;
+    if (!data) return null;
+
     const row = data as Record<string, any>;
+    const codInt = row.cod_int ?? (await getIneCodInt(row.codigo));
+
     return {
         codigo: row.codigo,
-        cod_int: row.cod_int,
+        cod_int: codInt,
         municipio: row.municipio,
         poblacion: row.poblacion,
         provincia: row.provincia,

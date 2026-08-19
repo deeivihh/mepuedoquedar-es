@@ -68,11 +68,10 @@ function hiRes(url = "") {
 async function fetchPage(title: string, provincia?: string): Promise<WikipediaData | null> {
     try {
         const page = await wiki.page(title, { autoSuggest: false });
-        const [intro, summary, media, htmlRes] = await Promise.allSettled([
+        const [intro, summary, media] = await Promise.allSettled([
             page.intro(),
             page.summary(),
             page.media(),
-            page.html(),
         ]);
         const sum = summary.status === "fulfilled" ? summary.value : null;
         const raw = `${sum?.description || ""} ${sum?.extract || ""} ${intro.status === "fulfilled" ? intro.value : ""}`;
@@ -89,9 +88,6 @@ async function fetchPage(title: string, provincia?: string): Promise<WikipediaDa
         const text = (intro.status === "fulfilled" && clean(intro.value)) || (sum?.extract && clean(sum.extract)) || "";
         if (!text) return null;
 
-        const html = htmlRes.status === "fulfilled" ? htmlRes.value : "";
-        const htmlCaptions = parseHtmlCaptions(html);
-
         const items = media.status === "fulfilled" ? media.value?.items || [] : [];
         const seen = new Set<string>();
         const images: WikipediaImage[] = [];
@@ -104,14 +100,12 @@ async function fetchPage(title: string, provincia?: string): Promise<WikipediaDa
             if (seen.has(url)) continue;
             seen.add(url);
 
-            const key = (item.title || "").toLowerCase().replace(/^(?:archivo|file):/i, "").replace(/_/g, " ").trim();
             const mediaCaption = clean(item.caption?.text || item.caption?.html);
-            const htmlCaption = htmlCaptions.get(key);
             const fileTitle = (item.title || "").replace(/^(?:archivo|file):/i, "").replace(/\.[^.]+$/i, "").replace(/_/g, " ").trim();
 
             images.push({
                 url,
-                description: mediaCaption || htmlCaption || fileTitle,
+                description: mediaCaption || fileTitle,
             });
         }
 
@@ -131,28 +125,49 @@ function titleCase(t: string) {
     return t.toLowerCase().split(" ").map((w, i) => (i === 0 || !skip.has(w) ? w[0].toUpperCase() + w.slice(1) : w)).join(" ");
 }
 
+const WIKI_CACHE_TTL = 6 * 60 * 60 * 1000;
+const wikiCache = new Map<string, { data: WikipediaData | null; ts: number }>();
+
 export async function getMunicipioWikipedia(lat: number, lon: number, name: string, provincia?: string): Promise<WikipediaData | null> {
     if (!name) return null;
+
+    const cacheKey = `${name}|${provincia || ""}`;
+    const hit = wikiCache.get(cacheKey);
+    if (hit && Date.now() - hit.ts < WIKI_CACHE_TTL) return hit.data;
+
     try {
         wiki.setLang("es");
         const n = titleCase(name.trim());
         const prov = provincia ? titleCase(provincia.trim()) : "";
-        const candidates = prov 
+        const candidates = prov
             ? [`${n} (${prov})`, n, `${n} (España)`, `${n} (municipio)`]
             : [n, `${n} (España)`, `${n} (municipio)`];
 
-        for (const title of candidates) {
-            const data = await fetchPage(title, prov);
-            if (data) return data;
+        const results = await Promise.all(
+            candidates.map((title) => fetchPage(title, prov).catch(() => null))
+        );
+
+        const found = results.find((r) => r !== null) ?? null;
+        if (found) {
+            wikiCache.set(cacheKey, { data: found, ts: Date.now() });
+            return found;
         }
 
         const searchRes = await wiki.search(`${n} ${prov} municipio`, { limit: 3 });
-        for (const item of searchRes.results || []) {
-            if (item.title && !candidates.includes(item.title)) {
-                const data = await fetchPage(item.title, prov);
-                if (data) return data;
-            }
+        const searchCandidates = (searchRes.results || [])
+            .filter((item) => item.title && !candidates.includes(item.title))
+            .map((item) => item.title);
+
+        if (searchCandidates.length > 0) {
+            const searchResults = await Promise.all(
+                searchCandidates.map((title) => fetchPage(title, prov).catch(() => null))
+            );
+            const searchFound = searchResults.find((r) => r !== null) ?? null;
+            wikiCache.set(cacheKey, { data: searchFound, ts: Date.now() });
+            return searchFound;
         }
+
+        wikiCache.set(cacheKey, { data: null, ts: Date.now() });
         return null;
     } catch {
         return null;

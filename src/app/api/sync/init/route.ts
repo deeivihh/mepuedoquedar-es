@@ -13,9 +13,7 @@ export async function POST(req: Request) {
 
   try {
     const ineCodes = await fetchIneCodes();
-
     const rows = Array.from(ineCodes, ([codigo, cod_int]) => ({ codigo, cod_int }));
-
     const { error } = await getSupabase().rpc("init_cod_int", { rows });
 
     if (error) throw error;
