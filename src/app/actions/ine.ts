@@ -50,10 +50,20 @@ export async function safeFetch(url: string, headers?: HeadersInit): Promise<any
     return response.json();
 }
 
-export async function fetchINE(table: string, cod_int: number | string, nult: number | string = 15) {
+export async function fetchINE(table: string, cod_int: number | string, nult: number | string = 15, tv?: string | string[]) {
     if (!table || !cod_int) {
         throw new Error("Table and cod_int are required");
     }
-    const url = `${INE_API}/${table}?nult=${nult}&tv=19:${cod_int}`;
+    let tvParams = `&tv=19:${cod_int}`;
+    if (tv) {
+        const tvList = Array.isArray(tv) ? tv : [tv];
+        for (const item of tvList) {
+            const cleanTv = String(item).replace(/^&?tv=/, "").trim();
+            if (cleanTv) {
+                tvParams += `&tv=${cleanTv}`;
+            }
+        }
+    }
+    const url = `${INE_API}/${table}?nult=${nult}${tvParams}`;
     return cachedFetch(url);
 }
