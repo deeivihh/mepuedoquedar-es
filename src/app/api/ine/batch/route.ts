@@ -50,7 +50,17 @@ export async function POST(request: NextRequest) {
         const urlMap = new Map<string, { url: string; keys: string[] }>();
         for (const q of queries) {
             const nult = q.nult ?? 15;
-            const url = `${INE_API}/${q.table}?nult=${nult}&tv=19:${cod_int}`;
+            let tvParams = `&tv=19:${cod_int}`;
+            if (q.tv) {
+                const tvList = Array.isArray(q.tv) ? q.tv : [q.tv];
+                for (const item of tvList) {
+                    const cleanTv = String(item).replace(/^&?tv=/, "").trim();
+                    if (cleanTv) {
+                        tvParams += `&tv=${cleanTv}`;
+                    }
+                }
+            }
+            const url = `${INE_API}/${q.table}?nult=${nult}${tvParams}`;
             const existing = urlMap.get(url);
             if (existing) {
                 existing.keys.push(q.key);

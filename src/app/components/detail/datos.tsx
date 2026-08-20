@@ -5,7 +5,8 @@ import { TABLES, type TableConfig } from "@/app/utils/getTables";
 import BaseChart from "@/app/components/charts/BaseChart";
 
 function getTableKey(t: TableConfig): string {
-    return `${t.table}:${t.nult ?? 15}:${t.title || ""}`;
+    const tvStr = t.tv ? (Array.isArray(t.tv) ? t.tv.join("&") : t.tv) : "";
+    return `${t.table}:${t.nult ?? 15}:${t.title || ""}:${tvStr}`;
 }
 
 export async function fetchAllTables(tables: TableConfig[], cod_int: string | number): Promise<Record<string, any[]>> {
@@ -13,6 +14,7 @@ export async function fetchAllTables(tables: TableConfig[], cod_int: string | nu
         table: t.table,
         nult: t.nult ?? 15,
         key: getTableKey(t),
+        tv: t.tv,
     }));
 
     const res = await fetch(`/api/ine/batch`, {
@@ -70,6 +72,27 @@ function Tabla({ table, data }: { table: TableConfig; data: any[] }) {
 }
 
 export default function Datos({ datosData, tables = TABLES }: { datosData: Record<string, any[]>; tables?: TableConfig[] }) {
+    const hasAnyData = useMemo(() => {
+        return tables.some((t) => {
+            const d = datosData?.[getTableKey(t)];
+            const f = filterData(d ?? [], t.filter);
+            if (!f || !Array.isArray(f) || f.length === 0) return false;
+            const isSeriesArray = f.some((s: any) => s.Data !== undefined);
+            if (isSeriesArray) {
+                return f.some((s: any) => Array.isArray(s.Data) && s.Data.length > 0);
+            }
+            return true;
+        });
+    }, [datosData, tables]);
+
+    if (!hasAnyData) {
+        return (
+            <div className="flex flex-col items-center justify-center p-8 text-center text-black/60 text-sm">
+                <p>No se encontraron series estadísticas históricas adicionales en el INE para este municipio.</p>
+            </div>
+        );
+    }
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 divide-title/20 w-full">
             {tables.map((t) => (

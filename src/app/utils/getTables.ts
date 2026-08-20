@@ -5,17 +5,19 @@ export interface TableConfig {
     nult?: number;
     title?: string;
     type?: ChartType;
+    tv?: string | string[];
     filter?: string | (string | string[])[] | number[] | ((series: any) => boolean);
     formatName?: (name: string) => string;
 }
 
 export const TABLES: TableConfig[] = [
-    { table: "29005", nult: 11, title: "Población total", type: "line", filter: "Total." },
+    { table: "29005", nult: 11, title: "Población total", type: "line", tv: ["18:451"], filter: "Total." },
     {
         table: "68535",
         nult: 1,
         title: "Población por nacionalidad",
         type: "pie",
+        tv: ["356:15668", "141:21386", "141:274512"],
         filter: [
             ["Total.", "Española", "Todas las edades"],
             ["Total.", "Extranjera", "Todas las edades"],
@@ -55,6 +57,7 @@ export const TABLES: TableConfig[] = [
         nult: 11,
         title: "Empresas activas",
         type: "line",
+        tv: ["393:23092"],
         filter: [
             ["Total de empresas", "Total CNAE"]
         ],
@@ -65,6 +68,7 @@ export const TABLES: TableConfig[] = [
         nult: 1,
         title: "Situación profesional",
         type: "column",
+        tv: ["18:451"],
         filter: [
             ["Total.", "Empresario con asalariados"],
             ["Total.", "Empresario sin asalariados"],
@@ -84,6 +88,7 @@ export const TABLES: TableConfig[] = [
         nult: 1,
         title: "Ocupación profesional",
         type: "pie",
+        tv: ["18:451"],
         filter: [
             ["Total.", "Directores y gerentes"],
             ["Total.", "científicos e intelectuales"],
@@ -113,6 +118,15 @@ export const TABLES: TableConfig[] = [
         nult: 1,
         title: "Personas que cursan estudios",
         type: "donut",
+        tv: [
+            "18:451",
+            "141:16420",
+            "138:405113",
+            "138:291031",
+            "138:291038",
+            "138:291126",
+            "138:291050",
+        ],
         filter: [
             ["Total. 15 y más años. Total.", "primaria e inferior"],
             ["Total. 15 y más años. Total.", "Primera etapa"],
@@ -134,6 +148,16 @@ export const TABLES: TableConfig[] = [
         nult: 1,
         title: "Nivel de estudios",
         type: "column",
+        tv: [
+            "18:451",
+            "141:16420",
+            "137:291085",
+            "137:291086",
+            "137:291106",
+            "137:291110",
+            "137:291115",
+            "137:291123",
+        ],
         filter: [
             ["Total. 15 y más años. Total.", "Sin estudios"],
             ["Total. 15 y más años. Total.", "Educación primaria"],
@@ -155,21 +179,4 @@ export const TABLES: TableConfig[] = [
             return name;
         }
     },
-    // {
-    //     table: "3456",
-    //     nult: 1,
-    //     title: "Viviendas por tipo",
-    //     type: "donut",
-    //     filter: [
-    //         ["Vivienda principal", "Total habitantes", "Vivienda"],
-    //         ["Vivienda secundaria", "Total habitantes", "Vivienda"],
-    //         ["Vivienda vacía", "Total habitantes", "Vivienda"],
-    //     ],
-    //     formatName: (name) => {
-    //         if (name.includes("Vivienda principal")) return "Vivienda principal";
-    //         if (name.includes("Vivienda secundaria")) return "Vivienda secundaria";
-    //         if (name.includes("Vivienda vacía")) return "Vivienda vacía";
-    //         return name;
-    //     }
-    // },
 ];
