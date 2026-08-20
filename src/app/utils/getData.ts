@@ -5,22 +5,34 @@ export function useData<T>(action: () => Promise<any>, deps: any[] = []) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let isMounted = true;
+
         const fetchData = async () => {
             setLoading(true);
 
             try {
                 const json = await action();
-                setData(json?.Data ?? (Array.isArray(json) ? json : []));
+                if (isMounted) {
+                    setData(json?.Data ?? (Array.isArray(json) ? json : []));
+                }
             } catch (err) {
                 console.error("Error fetching data", err);
-                setData([]);
+                if (isMounted) {
+                    setData([]);
+                }
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
         fetchData();
-    }, deps);
+
+        return () => {
+            isMounted = false;
+        };
+    }, [action, ...deps]);
 
     return { data, loading };
 }

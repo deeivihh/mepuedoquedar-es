@@ -104,7 +104,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         const multipliers = isDefault ? undefined : computeWeightMultipliers(preferences);
         const scores = calculateScores(data, multipliers);
         setScores(scores);
-    }, [data, preferences])
+    }, [data, preferences, isDefault]);
 
     const loadingMessages = [
         "Consultando registros del municipio...",

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { IoMdClose } from "react-icons/io";
@@ -148,7 +148,7 @@ export default function SearchBar() {
 
     const isSearching = query.trim().length > 0;
 
-    async function search(q: string) {
+    const search = useCallback(async (q: string) => {
         abortRef.current?.abort();
         if (q.trim() === "" || q.length < 3) {
             setResults([]);
@@ -171,7 +171,7 @@ export default function SearchBar() {
         } finally {
             setIsLoading(false);
         }
-    }
+    }, [locationParams]);
 
     useEffect(() => {
         if (!ready) return;
@@ -180,7 +180,7 @@ export default function SearchBar() {
         } else {
             setResults([]);
         }
-    }, [query, ready]);
+    }, [query, ready, search]);
 
     return (
         <div className={`relative flex flex-col w-full mx-auto ${isHome ? "max-w-lg" : ""}`} style={{ zIndex: 100 }}>
