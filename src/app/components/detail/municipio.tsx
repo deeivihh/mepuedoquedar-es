@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "@/app/utils/useLocation";
 import { Map } from "pigeon-maps";
 import { IoPeopleSharp } from "react-icons/io5";
@@ -35,7 +35,6 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     const [wikiData, setWikiData] = useState<WikipediaData | null>(null);
     const [datosData, setDatosData] = useState<Record<string, any[]> | null>(null);
 
-    // Cambia el tamaño del mapa en base al contenedor
     useEffect(() => {
         const el = mapContainerRef.current;
         if (!el) return;
@@ -52,51 +51,61 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         return () => observer.disconnect();
     }, [data]);
 
+    const fetchAllData = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        const t0 = performance.now();
+        try {
+            const res = await fetch(`/api/db/${cod}${locationParams}`);
+            if (!res.ok) {
+                if (res.status === 404) {
+                    setData(null);
+                    return;
+                }
+                throw new Error("No se pudo cargar la información del municipio");
+            }
+            const dbData: any = await res.json();
+            if (!dbData) {
+                setData(null);
+                return;
+            }
+            const t1 = performance.now();
+            console.log(`[DB] ${(t1 - t0).toFixed(0)}ms`);
+
+            const wikiPromise = (async () => {
+                const start = performance.now();
+                const res = await getMunicipioWikipedia(dbData.latitud, dbData.longitud, dbData.municipio, dbData.provincia).catch(() => null);
+                console.log(`[Wiki] ${(performance.now() - start).toFixed(0)}ms`);
+                return res;
+            })();
+
+            const inePromise = (async () => {
+                const start = performance.now();
+                const res = dbData.cod_int
+                    ? await fetchAllTables(TABLES, dbData.cod_int).catch(() => ({}))
+                    : null;
+                console.log(`[INE] ${(performance.now() - start).toFixed(0)}ms`);
+                return res;
+            })();
+
+            const [wiki, datos] = await Promise.all([wikiPromise, inePromise]);
+            const t2 = performance.now();
+            console.log(`[Total] ${(t2 - t0).toFixed(0)}ms`);
+
+            setData(dbData);
+            setWikiData(wiki);
+            setDatosData(datos);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : "Error desconocido");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [cod, locationParams]);
+
     useEffect(() => {
         if (!ready) return;
-
-        async function fetchAllData() {
-            setIsLoading(true);
-            setError(null);
-            const t0 = performance.now();
-            try {
-                const res = await fetch(`/api/db/${cod}${locationParams}`);
-                if (!res.ok) throw new Error("Error al cargar el municipio");
-                const dbData: any = await res.json();
-                const t1 = performance.now();
-                console.log(`[DB] ${(t1 - t0).toFixed(0)}ms`);
-
-                const wikiPromise = (async () => {
-                    const start = performance.now();
-                    const res = await getMunicipioWikipedia(dbData.latitud, dbData.longitud, dbData.municipio, dbData.provincia).catch(() => null);
-                    console.log(`[Wiki] ${(performance.now() - start).toFixed(0)}ms`);
-                    return res;
-                })();
-
-                const inePromise = (async () => {
-                    const start = performance.now();
-                    const res = dbData.cod_int
-                        ? await fetchAllTables(TABLES, dbData.cod_int).catch(() => ({}))
-                        : null;
-                    console.log(`[INE] ${(performance.now() - start).toFixed(0)}ms`);
-                    return res;
-                })();
-
-                const [wiki, datos] = await Promise.all([wikiPromise, inePromise]);
-                const t2 = performance.now();
-                console.log(`[Total] ${(t2 - t0).toFixed(0)}ms`);
-
-                setData(dbData);
-                setWikiData(wiki);
-                setDatosData(datos);
-            } catch (e) {
-                setError(e instanceof Error ? e.message : "Error desconocido");
-            } finally {
-                setIsLoading(false);
-            }
-        }
         fetchAllData();
-    }, [cod, locationParams, ready]);
+    }, [ready, fetchAllData]);
 
     useEffect(() => {
         if (!data) return;
@@ -132,8 +141,38 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
             </p>
         </div>
     );
-    if (error) return <div>Error: {error}</div>;
-    if (!data) return <div>Municipio no encontrado.</div>;
+
+    if (error) return (
+        <div className="flex flex-col justify-center items-center w-full min-h-[20svh] px-4 py-8">
+            <div className="p-8 md:p-10 max-w-md w-full flex flex-col items-center text-center gap-5">
+                <div className="flex flex-col gap-1.5">
+                    <h2 className="text-xl font-bold text-title">Error al consultar el municipio</h2>
+                    <p className="text-sm text-black/70 text-balance">{error}</p>
+                </div>
+                <div className="flex gap-3 w-full justify-center pt-2">
+                    <button
+                        onClick={() => fetchAllData()}
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm text-white bg-text-2 hover:opacity-90 transition-opacity"
+                    >
+                        Reintentar
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+
+    if (!data) return (
+        <div className="flex flex-col justify-center items-center w-full min-h-[20svh] px-4 py-8">
+            <div className="p-8 md:p-10 max-w-md w-full flex flex-col items-center text-center gap-5">
+                <div className="flex flex-col gap-1.5">
+                    <h2 className="text-xl font-bold text-title">Municipio no encontrado</h2>
+                    <p className="text-sm text-black/70 text-balance">
+                        No hemos encontrado datos para el código de municipio solicitado.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
 
     return (
         <div className="flex flex-col justify-center items-center min-md:mx-auto w-full h-full border border-title/20 bg-bg-card">

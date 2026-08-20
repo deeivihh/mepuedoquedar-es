@@ -45,8 +45,19 @@ export default function Wikipedia({ data }: { data: WikipediaData | null }) {
                     <div className="flex max-md:flex-col min-md:grid min-md:grid-cols-5 gap-4 items-start w-full">
                         <div className="min-md:col-span-3 h-full w-full flex flex-col items-start justify-start">
                             <div className="relative h-full w-full flex items-start justify-center group">
-                                <img src={img.url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50 blur-2xl max-md:scale-110" />
-                                <img src={img.url} alt={data.title} className="relative z-10 max-h-full max-w-full object-contain object-top border border-title/20" loading="lazy" />
+                                <img
+                                    src={img.url}
+                                    alt=""
+                                    className="absolute inset-0 w-full h-full object-cover opacity-50 blur-2xl max-md:scale-110"
+                                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                                />
+                                <img
+                                    src={img.url}
+                                    alt={data.title}
+                                    className="relative z-10 max-h-full max-w-full object-contain object-top border border-title/20"
+                                    loading="lazy"
+                                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                                />
                             </div>
                         </div>
 
@@ -54,7 +65,13 @@ export default function Wikipedia({ data }: { data: WikipediaData | null }) {
                             <div className="min-md:col-span-2 grid grid-cols-4 max-md:grid-cols-5 content-start self-start w-full max-h-[440px] overflow-y-auto gap-2">
                                 {images.map((item, i) => (
                                     <button key={i} onClick={() => setIdx(i)} title={item.description} className={`w-full aspect-square overflow-hidden border transition-all ${i === idx ? 'border-title opacity-100' : 'border-title/20 opacity-50 hover:opacity-100'}`}>
-                                        <img src={item.url} alt={item.description || ""} className="w-full h-full object-cover" loading="lazy" />
+                                        <img
+                                            src={item.url}
+                                            alt={item.description || ""}
+                                            className="w-full h-full object-cover"
+                                            loading="lazy"
+                                            onError={(e) => { e.currentTarget.style.display = "none"; }}
+                                        />
                                     </button>
                                 ))}
                             </div>
