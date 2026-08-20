@@ -28,11 +28,9 @@ function Toggle({
             role="switch"
             aria-checked={checked}
             onClick={() => onChange(!checked)}
-            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 focus:outline-none ${checked ? "bg-title border-title" : "bg-title/20 border-title/20"}`}
+            className={`font-bold text-sm uppercase border-2 border-title px-3 py-1 flex items-center justify-center transition-colors min-w-[3.5rem] ${checked ? "bg-title text-[var(--bg-color)]" : "bg-transparent text-title"}`}
         >
-            <span
-                className={`inline-block h-4 w-4 mt-0.5 rounded-full bg-bg-card shadow-sm transition-transform duration-200 ${checked ? "translate-x-5" : "translate-x-0.5"}`}
-            />
+            {checked ? "SÍ" : "NO"}
         </button>
     );
 }
@@ -52,11 +50,11 @@ function AgeSlider({
     }
 
     return (
-        <div className="flex flex-col gap-1">
-            <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-title">¿Cuántos años tienes?</span>
-                <span className="text-sm font-semibold text-title/70">
-                    {value} años · <span className="text-text-color-2">{ageLabel(value)}</span>
+        <div className="flex flex-col gap-2 w-full mt-2">
+            <div className="flex flex-col">
+                <span className="text-sm text-title font-semibold uppercase">¿CUÁNTOS AÑOS TIENES?</span>
+                <span className="text-xs font-bold text-title mt-0.5 uppercase">
+                    {value} AÑOS <span className="opacity-50">· {ageLabel(value)}</span>
                 </span>
             </div>
             <input
@@ -66,12 +64,9 @@ function AgeSlider({
                 max={90}
                 value={value}
                 onChange={(e) => onChange(Number(e.target.value))}
-                className="w-full h-2 rounded-full appearance-none cursor-pointer accent-title"
-                style={{
-                    background: `linear-gradient(to right, var(--title-color) 0%, var(--title-color) ${((value - 16) / 74) * 100}%, color-mix(in srgb, var(--title-color) 20%, transparent) ${((value - 16) / 74) * 100}%, color-mix(in srgb, var(--title-color) 20%, transparent) 100%)`
-                }}
+                className="w-full h-2 bg-title rounded-none appearance-none cursor-pointer accent-[var(--bg-color)] mt-2 border-2 border-title"
             />
-            <div className="flex justify-between text-xs text-title/50">
+            <div className="flex justify-between text-xs font-bold text-title w-full mt-1">
                 <span>16</span>
                 <span>90</span>
             </div>
@@ -91,44 +86,46 @@ function PreferencesPanel({
     }
 
     return (
-        <div className="p-4 flex flex-col gap-5 w-full card border border-title/20">
-            {PREFERENCES_SCHEMA.map((config) => {
-                if (config.type === "boolean") {
-                    return (
-                        <div key={config.id} className="flex items-center justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-medium text-title">{config.label}</p>
-                                <p className="text-xs text-title/50">{config.description}</p>
+        <div className="w-full flex flex-col gap-6 pt-6">
+            <div className="flex flex-col gap-6">
+                {PREFERENCES_SCHEMA.map((config) => {
+                    if (config.type === "boolean") {
+                        return (
+                            <div key={config.id} className="flex items-center justify-between gap-6 text-left border-b-2 border-title/20 pb-4">
+                                <div>
+                                    <p className="text-sm text-title font-semibold uppercase">{config.label}</p>
+                                    <p className="text-xs font-bold text-title/70 mt-1 uppercase">{config.description}</p>
+                                </div>
+                                <Toggle
+                                    id={`pref-${config.id}`}
+                                    checked={preferences[config.id] as boolean}
+                                    onChange={(v) => update(config.id, v)}
+                                />
                             </div>
-                            <Toggle
-                                id={`pref-${config.id}`}
-                                checked={preferences[config.id] as boolean}
+                        );
+                    } else if (config.type === "range" && config.id === "age") {
+                        return (
+                            <AgeSlider
+                                key={config.id}
+                                value={preferences[config.id] as number}
                                 onChange={(v) => update(config.id, v)}
                             />
-                        </div>
-                    );
-                } else if (config.type === "range" && config.id === "age") {
-                    return (
-                        <AgeSlider
-                            key={config.id}
-                            value={preferences[config.id] as number}
-                            onChange={(v) => update(config.id, v)}
-                        />
-                    );
-                }
-                return null;
-            })}
+                        );
+                    }
+                    return null;
+                })}
+            </div>
         </div>
     );
 }
 
 function SearchSkeleton() {
     return (
-        <div className="flex flex-col gap-2 w-full animate-pulse">
+        <div className="flex flex-col gap-2 w-full animate-pulse mt-4">
             {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex justify-between items-center w-full h-12 p-2.5 px-4 card border border-title/10 bg-title/5 shrink-0">
-                    <div className="h-4 bg-title/15 rounded w-1/3" />
-                    <div className="h-3 bg-title/10 rounded w-16" />
+                <div key={i} className="flex justify-between items-center w-full h-14 border-b-2 border-title p-3 shrink-0 pointer-events-none">
+                    <div className="h-4 bg-title/20 w-1/3" />
+                    <div className="h-4 bg-title/10 w-16" />
                 </div>
             ))}
         </div>
@@ -183,36 +180,39 @@ export default function SearchBar() {
     }, [query, ready, search]);
 
     return (
-        <div className={`relative flex flex-col w-full mx-auto ${isHome ? "max-w-lg" : ""}`} style={{ zIndex: 100 }}>
-            <div className="flex flex-col gap-1 w-full mx-auto">
+        <div className={`relative flex flex-col w-full h-full`} style={{ zIndex: 100 }}>
+            <div className="flex flex-col gap-1 w-full">
                 <div className="flex gap-2">
                     {!isHome && (
                         <Link
                             href="/"
                             title="Volver"
-                            className="inline-flex items-center gap-2 text-sm text-title/80 hover:text-title transition-colors w-fit px-4 bg-bg-card hover:bg-white border border-title/30"
+                            className="inline-flex items-center justify-center gap-2 text-title hover:opacity-70 transition-opacity h-14 w-14 shrink-0"
                         >
-                            <FaArrowLeft size={15} />
+                            <FaArrowLeft size={20} />
                         </Link>
                     )}
-                    <div className={`w-full card border border-title/30 transition-all duration-300 overflow-hidden flex gap-2 items-center h-12 px-4`}>
+                    <div className={`w-full flex gap-3 items-center h-14 border-b-2 border-title focus-within:border-b-4 transition-all px-1`}>
+                        <svg className="w-6 h-6 text-title shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="square" strokeLinejoin="miter" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
                         <input
                             placeholder="Busca tu municipio..."
                             {...(isHome && { autoFocus: true })}
                             onChange={(e) => { setResults([]); setQuery(e.target.value); }}
                             value={query}
-                            className="w-full h-full outline-none text-title font-medium bg-transparent"
+                            className="w-full h-full outline-none text-title font-medium"
                         />
                         {isLoading && (
-                            <div className="w-3.5 h-3.5 border-2 border-title/30 border-t-title rounded-full animate-spin shrink-0" />
+                            <div className="w-5 h-5 border-2 border-title/30 border-t-title animate-spin shrink-0" />
                         )}
                         {query.length > 0 && !isLoading && (
                             <button
                                 type="button"
                                 onClick={() => { setQuery(''); setResults([]); }}
-                                className="bg-white/0 p-1.5 border border-title/20 hover:bg-white/90 transition-all duration-150 shrink-0"
+                                className="text-title hover:opacity-70 transition-opacity shrink-0 w-10 h-10 flex items-center justify-center"
                             >
-                                <IoMdClose size={15} strokeWidth="10" />
+                                <IoMdClose size={20} />
                             </button>
                         )}
                     </div>
@@ -220,9 +220,9 @@ export default function SearchBar() {
             </div>
 
             {isHome ? (
-                <div className="grid grid-cols-1 grid-rows-1 w-full mt-2 items-start">
+                <div className="grid grid-cols-1 grid-rows-1 h-full w-full mt-2 items-start">
                     <div
-                        className="col-start-1 row-start-1 w-full transition-opacity duration-150"
+                        className="col-start-1 row-start-1 h-full w-full transition-opacity duration-150"
                         style={{ opacity: isSearching ? 0 : 1, pointerEvents: isSearching ? "none" : "auto" }}
                     >
                         <PreferencesPanel
@@ -237,7 +237,7 @@ export default function SearchBar() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -4 }}
                             transition={{ duration: 0.15, ease: "easeOut" }}
-                            className="col-start-1 row-start-1 w-full flex flex-col gap-2 max-h-[390px] overflow-y-auto z-10 self-start"
+                            className="col-start-1 row-start-1 w-full flex flex-col gap-4 max-h-[420px] overflow-y-auto z-10 self-start bg-bg-color pb-4 p-2"
                         >
                             {isLoading ? (
                                 <SearchSkeleton />
@@ -246,11 +246,11 @@ export default function SearchBar() {
                                     <Link
                                         href={`/municipio/${result.cod_ine}`}
                                         key={result.cod_ine}
-                                        className="flex justify-between gap-4 items-center w-full h-12 hover:bg-white/30 border border-title/20 p-2.5 px-4 card shrink-0"
+                                        className="flex justify-between gap-4 items-center w-full py-4 px-2 border-b-2 border-title hover:bg-title hover:text-[var(--bg-color)] group transition-colors"
                                     >
-                                        <p className="font-semibold text-title text-balance">{result.municipio}</p>
+                                        <p className="font-bold text-lg uppercase text-balance group-hover:text-[var(--bg-color)]">{result.municipio}</p>
                                         {result.distance != null && (
-                                            <span className="text-sm text-title opacity-70 flex items-center justify-end gap-1 shrink-0 whitespace-nowrap min-w-[5rem]">
+                                            <span className="text-sm font-bold flex items-center justify-end gap-2 shrink-0 whitespace-nowrap min-w-[5rem] uppercase opacity-80 group-hover:text-[var(--bg-color)]">
                                                 <BsFillSignTurnRightFill className="shrink-0" />
                                                 {result.distance >= 1000
                                                     ? `${(result.distance / 1000).toFixed(1)} km`
@@ -274,7 +274,7 @@ export default function SearchBar() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -4 }}
                         transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="w-full mt-2 flex flex-col gap-2 h-[14.5rem] overflow-y-auto p-2 bg-bg-card card border border-title/20 shadow-sm"
+                        className="w-full mt-2 flex flex-col gap-3 max-h-[16rem] overflow-y-auto p-2"
                     >
                         {isLoading ? (
                             <SearchSkeleton />
@@ -283,11 +283,11 @@ export default function SearchBar() {
                                 <Link
                                     href={`/municipio/${result.cod_ine}`}
                                     key={result.cod_ine}
-                                    className="flex justify-between gap-4 items-center w-full h-12 hover:bg-white/40 border border-title/15 p-2.5 px-4 card shrink-0"
+                                    className="flex justify-between gap-4 items-center w-full py-4 px-2 border-b-2 border-title hover:bg-title hover:text-[var(--bg-color)] group transition-colors"
                                 >
-                                    <p className="font-semibold text-title text-balance">{result.municipio}</p>
+                                    <p className="font-bold text-lg uppercase text-balance group-hover:text-[var(--bg-color)]">{result.municipio}</p>
                                     {result.distance != null && (
-                                        <span className="text-sm text-title opacity-70 flex items-center justify-end gap-1 shrink-0 whitespace-nowrap min-w-[5rem]">
+                                        <span className="text-sm font-bold flex items-center justify-end gap-2 shrink-0 whitespace-nowrap min-w-[5rem] uppercase opacity-80 group-hover:text-[var(--bg-color)]">
                                             <BsFillSignTurnRightFill className="shrink-0" />
                                             {result.distance >= 1000
                                                 ? `${(result.distance / 1000).toFixed(1)} km`
