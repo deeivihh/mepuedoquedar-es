@@ -33,7 +33,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     const [scores, setScores] = useState<ScoreResult | null>(null);
     const [wikiData, setWikiData] = useState<WikipediaData | null>(null);
-    const [datosData, setDatosData] = useState<Record<string, any[]> | null>(null);
+    const [ineData, setIneData] = useState<Record<string, any[]> | null>(null);
 
     useEffect(() => {
         const el = mapContainerRef.current;
@@ -88,13 +88,13 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                 return res;
             })();
 
-            const [wiki, datos] = await Promise.all([wikiPromise, inePromise]);
+            const [wiki, ine] = await Promise.all([wikiPromise, inePromise]);
             const t2 = performance.now();
             console.log(`[Total] ${(t2 - t0).toFixed(0)}ms`);
 
             setData(dbData);
             setWikiData(wiki);
-            setDatosData(datos);
+            setIneData(ine);
         } catch (e) {
             setError(e instanceof Error ? e.message : "Error desconocido");
         } finally {
@@ -111,9 +111,9 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         if (!data) return;
 
         const multipliers = isDefault ? undefined : computeWeightMultipliers(preferences);
-        const scores = calculateScores(data, multipliers);
+        const scores = calculateScores(data, multipliers, ineData);
         setScores(scores);
-    }, [data, preferences, isDefault]);
+    }, [data, preferences, isDefault, ineData]);
 
     const loadingMessages = [
         "Consultando registros del municipio...",
@@ -221,9 +221,9 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     <GeneralScore number={scores?.global ?? 0} scoresDepartments={scores?.departments ?? {}} />
                 </section>
 
-                {data.cod_int && datosData && (
+                {data.cod_int && ineData && (
                     <section className="flex flex-col gap-4 overflow-hidden relative w-full">
-                        <Datos datosData={datosData} />
+                        <Datos ineData={ineData} />
                     </section>
                 )}
 

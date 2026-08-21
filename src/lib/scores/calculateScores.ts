@@ -1,4 +1,5 @@
 import config from "./weights.json";
+import { TABLES, getTableKey } from "@/app/utils/getTables";
 
 interface ThresholdRule {
     label: string;
@@ -251,9 +252,111 @@ function missingWeightFactor(poblacion: number): number {
     return 1.0;
 }
 
+function getIneIndicators(ineData?: Record<string, any[]> | null): Indicator[] {
+    if (!ineData) return [];
+    const res: Indicator[] = [];
+
+    const getSeries = (predicate: (t: typeof TABLES[number]) => boolean) => {
+        const cfg = TABLES.find(predicate);
+        if (!cfg) return null;
+        const key = getTableKey(cfg);
+        const data = ineData[key];
+        return Array.isArray(data) && data.length > 0 ? data : null;
+    };
+
+    const popData = getSeries((t) => t.table === "29005");
+    if (popData && popData[0]?.Data?.length >= 2) {
+        const series = popData[0].Data;
+        const vAct = toNumber(series[0]?.Valor);
+        const idxPrev = Math.min(5, series.length - 1);
+        const vPrev = toNumber(series[idxPrev]?.Valor);
+        if (vPrev > 0 && vAct > 0) {
+            const diffPct = round(((vAct - vPrev) / vPrev) * 100, 1);
+            const sign = diffPct >= 0 ? "+" : "";
+            const score = diffPct > 0 ? Math.min(20, Math.max(0, Math.round((diffPct / 5) * 20))) : 0;
+            res.push({
+                label: "Evolución demográfica",
+                value: `${sign}${diffPct}% (${idxPrev} años)`,
+                score,
+                max: 20
+            });
+        }
+    }
+
+    const empData = getSeries((t) => t.table === "4721" && t.title === "Empresas activas");
+    if (empData && empData[0]?.Data?.length >= 2) {
+        const series = empData[0].Data;
+        const vAct = toNumber(series[0]?.Valor);
+        const idxPrev = Math.min(4, series.length - 1);
+        const vPrev = toNumber(series[idxPrev]?.Valor);
+        if (vPrev > 0 && vAct > 0) {
+            const diffPct = round(((vAct - vPrev) / vPrev) * 100, 1);
+            const sign = diffPct >= 0 ? "+" : "";
+            const score = diffPct > 0 ? Math.min(20, Math.max(0, Math.round((diffPct / 10) * 20))) : 0;
+            res.push({
+                label: "Tendencia empresarial",
+                value: `${sign}${diffPct}% (${idxPrev} años)`,
+                score,
+                max: 20
+            });
+        }
+    }
+
+    const labData = getSeries((t) => t.table === "69993");
+    if (labData && labData.length > 0) {
+        let fijos = 0;
+        let total = 0;
+        for (const s of labData) {
+            const n = (s.Nombre || "").toLowerCase();
+            const val = toNumber(s.Data?.[0]?.Valor ?? s.Valor);
+            total += val;
+            if (n.includes("fijo") || n.includes("indefinido") || n.includes("empresario")) {
+                fijos += val;
+            }
+        }
+        if (total > 0) {
+            const pct = round((fijos / total) * 100, 0);
+            const score = Math.min(20, Math.max(0, Math.round((pct / 80) * 20)));
+            res.push({
+                label: "Estabilidad laboral",
+                value: `${pct}% fijos o autónomos`,
+                score,
+                max: 20
+            });
+        }
+    }
+
+    const eduData = getSeries((t) => t.table === "66622");
+    if (eduData && eduData.length > 0) {
+        let sup = 0;
+        let total = 0;
+        for (const s of eduData) {
+            const n = (s.Nombre || "").toLowerCase();
+            const val = toNumber(s.Data?.[0]?.Valor ?? s.Valor);
+            total += val;
+            if (n.includes("formación profesional") || n.includes("grado") || n.includes("licenciado") || n.includes("doctorado") || n.includes("diplomado")) {
+                sup += val;
+            }
+        }
+        if (total > 0) {
+            const pct = round((sup / total) * 100, 0);
+            const score = Math.min(20, Math.max(0, Math.round((pct / 35) * 20)));
+            res.push({
+                label: "Nivel de estudios",
+                value: `${pct}% FP o Universidad`,
+                score,
+                max: 20
+            });
+        }
+    }
+
+    return res;
+}
+
 export function calculateScores(
     municipio: Record<string, unknown>,
-    weightMultipliers?: Record<string, number>
+    weightMultipliers?: Record<string, number>,
+    ineData?: Record<string, any[]> | null
 ): ScoreResult {
     const departments: Record<string, DepartmentScore> = {};
 
@@ -313,6 +416,17 @@ export function calculateScores(
 
         weightedSum += normalized * finalWeight;
         totalWeight += finalWeight;
+    }
+
+    const ineList = getIneIndicators(ineData);
+    if (ineList.length > 0) {
+        const ineScore = ineList.reduce((sum, ind) => sum + ind.score, 0);
+        const ineMax = ineList.reduce((sum, ind) => sum + ind.max, 0);
+        departments.ine = {
+            score: ineScore,
+            maxScore: ineMax,
+            indicators: ineList
+        };
     }
 
     const global =

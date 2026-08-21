@@ -1,13 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { TABLES, type TableConfig } from "@/app/utils/getTables";
+import { TABLES, getTableKey, type TableConfig } from "@/app/utils/getTables";
 import BaseChart from "@/app/components/charts/BaseChart";
-
-function getTableKey(t: TableConfig): string {
-    const tvStr = t.tv ? (Array.isArray(t.tv) ? t.tv.join("&") : t.tv) : "";
-    return `${t.table}:${t.nult ?? 15}:${t.title || ""}:${tvStr}`;
-}
 
 export async function fetchAllTables(tables: TableConfig[], cod_int: string | number): Promise<Record<string, any[]>> {
     const queries = tables.map((t) => ({
@@ -71,10 +66,10 @@ function Tabla({ table, data }: { table: TableConfig; data: any[] }) {
     );
 }
 
-export default function Datos({ datosData, tables = TABLES }: { datosData: Record<string, any[]>; tables?: TableConfig[] }) {
+export default function Datos({ ineData, tables = TABLES }: { ineData: Record<string, any[]>; tables?: TableConfig[] }) {
     const hasAnyData = useMemo(() => {
         return tables.some((t) => {
-            const d = datosData?.[getTableKey(t)];
+            const d = ineData?.[getTableKey(t)];
             const f = filterData(d ?? [], t.filter);
             if (!f || !Array.isArray(f) || f.length === 0) return false;
             const isSeriesArray = f.some((s: any) => s.Data !== undefined);
@@ -83,7 +78,7 @@ export default function Datos({ datosData, tables = TABLES }: { datosData: Recor
             }
             return true;
         });
-    }, [datosData, tables]);
+    }, [ineData, tables]);
 
     if (!hasAnyData) {
         return (
@@ -96,7 +91,7 @@ export default function Datos({ datosData, tables = TABLES }: { datosData: Recor
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 divide-title/20 w-full">
             {tables.map((t) => (
-                <Tabla key={getTableKey(t)} table={t} data={datosData?.[getTableKey(t)] ?? []} />
+                <Tabla key={getTableKey(t)} table={t} data={ineData?.[getTableKey(t)] ?? []} />
             ))}
         </div>
     );

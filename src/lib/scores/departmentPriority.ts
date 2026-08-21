@@ -61,6 +61,9 @@ export function getDepartmentPriority(
 
 export function formatIndicatorValue(indicator: Indicator): string {
     const raw = indicator.value;
+    if (typeof raw === "string" && isNaN(Number(raw))) {
+        return raw;
+    }
     const num = typeof raw === "number" ? raw : Number(raw);
 
     if (isNaN(num) || num === 0) {

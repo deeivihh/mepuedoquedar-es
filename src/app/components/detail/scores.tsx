@@ -10,6 +10,7 @@ import {
     FaLandmark,
     FaShieldAlt,
     FaLayerGroup,
+    FaChartLine,
 } from "react-icons/fa";
 import { IconType } from "react-icons";
 import { MdLocalHospital, MdOutlineSportsMartialArts, MdOutlineTravelExplore, MdPublic } from "react-icons/md";
@@ -31,6 +32,7 @@ const DEPARTMENT_ICONS: Record<string, IconType> = {
     deporte: MdOutlineSportsMartialArts,
     deportes: MdOutlineSportsMartialArts,
     sociedad: MdPublic,
+    ine: FaChartLine,
 };
 
 export default function GeneralScore({
@@ -123,11 +125,11 @@ export function ScoreItem({
     const priority = getDepartmentPriority(name, multiplier, preferences, isDefault);
 
     return (
-        <div className="flex flex-col gap-2.5 p-4 bg-bg-card border border-title/30 text-title">
+        <div className={`flex flex-col gap-2.5 p-4 bg-bg-card border border-title/30 text-title ${name === "ine" ? "md:col-span-2" : ""}`}>
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-title/20 pb-2">
                 <div className="flex items-center gap-2">
                     <Icon className="text-title text-lg shrink-0" />
-                    <span className="text-title text-base font-semibold capitalize">
+                    <span className={`text-title text-base font-semibold ${name === "ine" ? "uppercase" : "capitalize"}`}>
                         {name}
                     </span>
                     {priority.level === "high" && (
@@ -162,7 +164,7 @@ export function ScoreItem({
                     Sin registros oficiales suficientes en el término municipal
                 </p>
             ) : (
-                <div className="flex flex-col gap-1.5 pt-0.5">
+                <div className={`${name === "ine" ? "grid grid-cols-1 md:grid-cols-2 md:gap-x-8" : "flex flex-col"} gap-1.5 pt-0.5`}>
                     {number.indicators.map((ind, idx) => (
                         <div
                             key={idx}

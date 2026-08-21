@@ -10,6 +10,11 @@ export interface TableConfig {
     formatName?: (name: string) => string;
 }
 
+export function getTableKey(t: TableConfig): string {
+    const tvStr = t.tv ? (Array.isArray(t.tv) ? t.tv.join("&") : t.tv) : "";
+    return `${t.table}:${t.nult ?? 15}:${t.title || ""}:${tvStr}`;
+}
+
 export const TABLES: TableConfig[] = [
     { table: "29005", nult: 11, title: "Población total", type: "line", tv: ["18:451"], filter: "Total." },
     {
