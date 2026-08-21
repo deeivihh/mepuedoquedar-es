@@ -1,5 +1,7 @@
+import Link from "next/link";
 import DynamicHeading from "./components/home/dynamicHeading";
 import SearchBar from "./components/home/searchbar";
+import { FaBookOpen, FaGithub, FaEnvelope } from "react-icons/fa";
 
 export const dynamic = "force-static";
 export const revalidate = 86400;
@@ -21,15 +23,43 @@ export default function Home() {
                         <source src="/videos/hero_video.mp4" type="video/mp4" />
                     </video>
                     <div className="absolute bottom-0 inset-x-0 h-50 backdrop-blur-[1px] bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none z-999" />
-                    <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-1 text-text-3 pointer-events-none z-999 p-4">
+                    <div className="absolute bottom-6 left-6 right-6 flex flex-col md:flex-row items-start md:items-end justify-between gap-4 text-text-3 pointer-events-none z-999 p-4">
                         <h2 className="text-5xl max-w-xl text-balance font-semibold title-font shadow-sm">
                             Tu <span className="text-text-2 brightness-108">próximo gran capítulo</span> empieza aquí
                         </h2>
+                        <nav className="pointer-events-auto flex items-center gap-2 shrink-0">
+                            <Link
+                                href="/metodologia"
+                                title="Metodología"
+                                aria-label="Metodología"
+                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-all shadow-sm flex items-center justify-center"
+                            >
+                                <FaBookOpen size={14} />
+                            </Link>
+                            <a
+                                href="https://github.com/deeivihh/mepuedoquedar"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Repositorio en GitHub"
+                                aria-label="Repositorio en GitHub"
+                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-all shadow-sm flex items-center justify-center"
+                            >
+                                <FaGithub size={15} />
+                            </a>
+                            <a
+                                href="mailto:deeivihh3@hotmail.com"
+                                title="Contacto"
+                                aria-label="Contacto"
+                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-all shadow-sm flex items-center justify-center"
+                            >
+                                <FaEnvelope size={14} />
+                            </a>
+                        </nav>
                     </div>
                 </div>
             </div>
-            <div className="w-full lg:w-[40%] min-h-screen lg:h-full lg:overflow-y-auto flex flex-col items-center p-6 lg:px-12 lg:py-8">
-                <div className="w-full max-w-xl flex flex-col items-center gap-6 my-auto shrink-0">
+            <div className="w-full lg:w-[40%] min-h-screen lg:h-full lg:overflow-y-auto flex flex-col items-center justify-center p-6 lg:px-12 lg:py-8">
+                <div className="w-full max-w-xl flex flex-col items-center gap-6 shrink-0">
                     <DynamicHeading />
                     <SearchBar />
                 </div>
