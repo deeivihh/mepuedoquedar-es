@@ -90,7 +90,7 @@ export default function MetodologiaPage() {
     });
 
     return (
-        <main className="flex justify-center min-h-screen w-full px-4 py-10 md:py-16">
+        <main className="flex justify-center min-h-screen w-full p-6 py-10 md:py-16">
             <article className="w-full max-w-3xl flex flex-col gap-10">
                 <Link
                     href="/"

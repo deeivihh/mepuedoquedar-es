@@ -27,7 +27,7 @@ export default function Home() {
                         <h2 className="text-5xl max-w-xl text-balance font-semibold title-font shadow-sm">
                             Tu <span className="text-text-2 brightness-108">próximo gran capítulo</span> empieza aquí
                         </h2>
-                        <nav className="pointer-events-auto flex items-center gap-2 shrink-0">
+                        <nav className="pointer-events-auto flex items-center gap-2 shrink-0 order-first md:order-last">
                             <Link
                                 href="/metodologia"
                                 title="Metodología"
