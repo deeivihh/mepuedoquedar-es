@@ -188,7 +188,7 @@ export default function SearchBar() {
     return (
         <div className={`relative flex flex-col w-full`} style={{ zIndex: 100 }}>
             <div className="flex flex-col gap-1 w-full">
-                <div className="flex divide-x divide-title/30 border border-title/30 overflow-hidden">
+                <div className="flex justify-center items-center divide-x divide-title/30 border border-title/30 h-12 overflow-hidden">
                     {!isHome && (
                         <Link
                             href="/"
@@ -198,7 +198,7 @@ export default function SearchBar() {
                             <FaArrowLeft size={20} />
                         </Link>
                     )}
-                    <div className={`w-full flex gap-4 items-center h-12 px-4 focus-within:bg-bg-card bg-bg-card/80 active:bg-bg-card`}>
+                    <div className={`w-full flex gap-4 justify-center items-center h-full px-4 focus-within:bg-bg-card ${isHome ? 'bg-bg-card' : 'hover:bg-bg-card/80'} active:bg-bg-card`}>
                         <FaSearch size={20} className="opacity-80 text-title shrink-0" />
                         <input
                             id="search-municipios"
