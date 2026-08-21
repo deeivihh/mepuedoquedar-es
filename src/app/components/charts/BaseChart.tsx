@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { defineChart, lineY, barY, areaY, dot } from "@tanstack/charts";
 import { scalePoint } from "@tanstack/charts/scales/point";
 import { scaleBand } from "@tanstack/charts/scales/band";
@@ -10,6 +10,7 @@ import { Chart } from "@tanstack/charts/react/tooltip";
 import { tooltip } from "@tanstack/charts/tooltip";
 import type { ChartType } from "@/app/utils/getTables";
 import { IoTimeSharp } from "react-icons/io5";
+import { FaListUl } from "react-icons/fa";
 
 export interface BaseChartProps {
     type?: ChartType;
@@ -52,6 +53,7 @@ const getPeriod = (d: any) => String(d?.Anyo ?? d?.T3_Periodo ?? d?.Periodo ?? d
 const getVal = (v: any) => (typeof v === "number" ? v : Number(v) || 0);
 
 export default function BaseChart({ type = "line", data, title, height = 260, formatName }: BaseChartProps) {
+    const [showLegend, setShowLegend] = useState(false);
     const isPolar = type === "pie" || type === "donut";
     const isCategorical = isPolar || type === "column";
     const isSeriesArray = Array.isArray(data) && data.length > 0 && Array.isArray(data[0]?.Data);
@@ -62,18 +64,22 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
         }
 
         if (isCategorical) {
-            const pieData = isSeriesArray
+            const raw = isSeriesArray
                 ? data.map((s: any) => ({
                     label: (formatName ? formatName(s.Nombre) : formatSeriesName(s.Nombre)) || "Dato",
                     value: getVal(s.Data?.[0]?.Valor),
-                })).filter((d: any) => !isNaN(d.value))
+                }))
                 : data.map((d: any) => ({
                     label: (formatName ? formatName(String(d.Nombre ?? getPeriod(d) ?? "Dato")) : formatSeriesName(String(d.Nombre ?? getPeriod(d) ?? "Dato"))),
                     value: getVal(d.Valor),
                 }));
 
+            const filtered = isPolar
+                ? raw.filter((d: any) => !isNaN(d.value) && d.value > 0)
+                : raw.filter((d: any) => !isNaN(d.value));
+
             const latest = isSeriesArray ? getPeriod(data[0]?.Data?.[0]) : getPeriod(data[0]);
-            return { flatData: [], pieData, latestYear: latest };
+            return { flatData: [], pieData: filtered, latestYear: latest };
         }
 
         if (isSeriesArray) {
@@ -96,7 +102,11 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
             res[i] = { period: getPeriod(item), value: getVal(item.Valor), series: title || "Valor" };
         }
         return { flatData: res, pieData: [], latestYear: getPeriod(data[0]) };
-    }, [data, isCategorical, isSeriesArray, title, formatName]);
+    }, [data, isCategorical, isPolar, isSeriesArray, title, formatName]);
+
+    const totalPieValue = useMemo(() => {
+        return pieData.reduce((acc: number, item: any) => acc + item.value, 0);
+    }, [pieData]);
 
     const definition = useMemo(() => {
         if (isPolar) {
@@ -174,24 +184,46 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
 
     if (!definition) return null;
 
-    const legends: { label: string; extra?: string }[] | null = isCategorical
-        ? pieData.map((d: any) => ({ label: d.label, extra: d.value.toLocaleString("es-ES") }))
+    const legends: { label: string; extra?: string; percentage?: string }[] | null = isCategorical
+        ? pieData.map((d: any) => {
+            const pct = totalPieValue > 0 ? ((d.value / totalPieValue) * 100).toFixed(0) : undefined;
+            return {
+                label: d.label,
+                extra: d.value.toLocaleString("es-ES"),
+                percentage: pct ? `${pct}%` : undefined
+            };
+        })
         : isSeriesArray && data.length > 1
-            ? data.map((s: any, idx: number) => ({ label: (formatName ? formatName(s.Nombre) : formatSeriesName(s.Nombre)) || `Serie ${idx + 1}` }))
+            ? data.map((s: any, idx: number) => ({
+                label: (formatName ? formatName(s.Nombre) : formatSeriesName(s.Nombre)) || `Serie ${idx + 1}`
+            }))
             : null;
 
-    const isManyLegends = legends && legends.length > 3;
+    const hasLegends = legends && legends.length > 0;
+    const isManyLegends = legends && legends.length > 2;
 
     return (
         <div className="flex flex-col gap-3 w-full text-title relative">
             <div className="flex justify-between w-full items-center">
                 {title && <h3 className="font-semibold text-title text-sm md:text-base">{title}</h3>}
-                {latestYear && (
-                    <h4 title={`Última actualización: ${latestYear}`} className="flex gap-1 items-center justify-center font-semibold text-title/70 text-xs">
-                        <IoTimeSharp size={13} />
-                        {latestYear}
-                    </h4>
-                )}
+                <div className="flex items-center gap-2">
+                    {hasLegends && (
+                        <button
+                            onClick={() => setShowLegend(!showLegend)}
+                            className="hidden md:flex items-center text-title/60 hover:text-title transition-colors"
+                            title={showLegend ? "Ocultar leyenda" : "Mostrar leyenda"}
+                            aria-label={showLegend ? "Ocultar leyenda" : "Mostrar leyenda"}
+                        >
+                            <FaListUl size={12} />
+                        </button>
+                    )}
+                    {latestYear && (
+                        <h4 title={`Última actualización: ${latestYear}`} className="flex gap-1 items-center justify-center font-semibold text-title/70 text-xs">
+                            <IoTimeSharp size={13} />
+                            {latestYear}
+                        </h4>
+                    )}
+                </div>
             </div>
 
             <div className="w-full relative">
@@ -245,12 +277,14 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                 />
             </div>
 
-            {legends && legends.length > 0 && (
+            {hasLegends && (
                 <div
                     className={
-                        isManyLegends
-                            ? "grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 pt-2 border-t border-title/10 w-full text-xs"
-                            : "flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 pt-2 border-t border-title/10 w-full text-xs"
+                        `${showLegend ? "flex" : "hidden max-md:flex"} ${
+                            isManyLegends
+                                ? "flex-col sm:grid sm:grid-cols-2"
+                                : "flex-wrap items-center justify-center"
+                        } gap-x-4 gap-y-1.5 pt-2 border-t border-title/10 w-full text-xs`
                     }
                 >
                     {legends.map((item, idx) => (
@@ -260,15 +294,22 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                                     className="w-2.5 h-2.5 rounded-full shrink-0 border border-title/20"
                                     style={{ backgroundColor: BRAND_PALETTE[idx % BRAND_PALETTE.length] }}
                                 />
-                                <span className="font-medium text-title/85 truncate text-[11px] sm:text-xs">
+                                <span className="font-medium text-title/85 text-[11px] sm:text-xs truncate">
                                     {item.label}
                                 </span>
                             </div>
-                            {item.extra && (
-                                <span className="text-title/60 font-mono font-semibold text-[11px] tabular-nums shrink-0">
-                                    {item.extra}
-                                </span>
-                            )}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                                {item.percentage && (
+                                    <span className="text-title/40 font-mono text-[10px]">
+                                        {item.percentage}
+                                    </span>
+                                )}
+                                {item.extra && (
+                                    <span className="text-title/70 font-mono font-semibold text-[11px] tabular-nums">
+                                        ({item.extra})
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
