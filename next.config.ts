@@ -14,10 +14,12 @@ const cspHeader = [
 	"upgrade-insecure-requests",
 ].join("; ");
 
+const isProd = process.env.NODE_ENV === "production";
+
 const nextConfig: NextConfig = {
 	poweredByHeader: false,
 	async headers() {
-		return [
+		const headersList = [
 			{
 				source: "/:path*",
 				headers: [
@@ -63,44 +65,50 @@ const nextConfig: NextConfig = {
 					},
 				],
 			},
-			{
-				source: "/videos/:path*",
-				headers: [
-					{
-						key: "Cache-Control",
-						value: "public, max-age=31536000, immutable"
-					}
-				]
-			},
-			{
-				source: "/favicon/:path*",
-				headers: [
-					{
-						key: "Cache-Control",
-						value: "public, max-age=31536000, immutable"
-					}
-				]
-			},
-			{
-				source: "/_next/static/:path*",
-				headers: [
-					{
-						key: "Cache-Control",
-						value: "public, max-age=31536000, immutable"
-					}
-				]
-			},
-			{
-				source: "/",
-				headers: [
-					{
-						key: "Cache-Control",
-						value: "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800"
-					}
-				]
-			},
-
 		];
+
+		if (isProd) {
+			headersList.push(
+				{
+					source: "/videos/:path*",
+					headers: [
+						{
+							key: "Cache-Control",
+							value: "public, max-age=31536000, immutable",
+						},
+					],
+				},
+				{
+					source: "/favicon/:path*",
+					headers: [
+						{
+							key: "Cache-Control",
+							value: "public, max-age=31536000, immutable",
+						},
+					],
+				},
+				{
+					source: "/_next/static/:path*",
+					headers: [
+						{
+							key: "Cache-Control",
+							value: "public, max-age=31536000, immutable",
+						},
+					],
+				},
+				{
+					source: "/",
+					headers: [
+						{
+							key: "Cache-Control",
+							value: "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800",
+						},
+					],
+				}
+			);
+		}
+
+		return headersList;
 	},
 };
 
