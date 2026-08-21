@@ -1,6 +1,5 @@
 import DynamicHeading from "./components/home/dynamicHeading";
 import SearchBar from "./components/home/searchbar";
-import Image from "next/image";
 
 export default function Home() {
     return (
@@ -12,9 +11,13 @@ export default function Home() {
                         loop
                         muted
                         playsInline
-                        src="/videos/hero_video.mp4"
+                        preload="auto"
+                        poster="/videos/hero_poster.webp"
                         className="w-full h-full object-cover"
-                    />
+                    >
+                        <source src="/videos/hero_video.mp4" type="video/mp4" />
+                    </video>
+
                     <div className="absolute bottom-0 inset-x-0 h-50 backdrop-blur-[1px] bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none z-999" />
                     <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-1 text-text-3 pointer-events-none z-999 p-4">
                         <h2 className="text-5xl max-w-xl text-balance font-semibold title-font shadow-sm">
