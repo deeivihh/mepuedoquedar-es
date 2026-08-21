@@ -21,6 +21,12 @@
 		"binding": "ASSETS",
 		"directory": ".open-next/assets"
 	},
+	"kv_namespaces": [
+		{
+			"binding": "NEXT_CACHE_WORKERS_KV",
+			"id": "166736e4c3814ef091a67bff6ee3b078"
+		}
+	],
 	"images": {
 		// Enable image optimization
 		// see https://opennext.js.org/cloudflare/howtos/image
