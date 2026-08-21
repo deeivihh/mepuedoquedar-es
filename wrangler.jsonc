@@ -23,7 +23,7 @@
 	},
 	"kv_namespaces": [
 		{
-			"binding": "MPQ_NEXT_CACHE_WORKERS_KV",
+			"binding": "NEXT_INC_CACHE_KV",
 			"id": "166736e4c3814ef091a67bff6ee3b078"
 		}
 	],
