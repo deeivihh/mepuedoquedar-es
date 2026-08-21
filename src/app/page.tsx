@@ -1,6 +1,9 @@
 import DynamicHeading from "./components/home/dynamicHeading";
 import SearchBar from "./components/home/searchbar";
 
+export const dynamic = "force-static";
+export const revalidate = 86400;
+
 export default function Home() {
     return (
         <main className="flex flex-col md:flex-row min-h-screen w-full bg-bg-color overflow-hidden">
