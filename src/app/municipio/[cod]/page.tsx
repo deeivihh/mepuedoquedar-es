@@ -10,7 +10,7 @@ export default async function DetailPage({
 
     return (
         <main className="flex flex-col justify-start mx-auto items-center min-h-screen w-full px-8 py-4 max-w-5xl">
-            <section className="w-full pb-2">
+            <section className="w-full">
                 <SearchBar />
             </section>
 

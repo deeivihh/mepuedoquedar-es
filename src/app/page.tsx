@@ -6,8 +6,8 @@ export const revalidate = 86400;
 
 export default function Home() {
     return (
-        <main className="flex flex-col md:flex-row min-h-screen w-full bg-bg-color overflow-hidden">
-            <div className="w-full md:w-[60%] h-screen overflow-y-auto relative no-scrollbar flex flex-col">
+        <main className="flex flex-col lg:flex-row min-h-screen w-full lg:h-screen lg:overflow-hidden">
+            <div className="w-full lg:w-[60%] h-[100svh] lg:h-screen lg:overflow-y-auto relative no-scrollbar flex flex-col shrink-0">
                 <div className="relative w-full h-[100svh] shrink-0">
                     <video
                         autoPlay
@@ -20,7 +20,6 @@ export default function Home() {
                     >
                         <source src="/videos/hero_video.mp4" type="video/mp4" />
                     </video>
-
                     <div className="absolute bottom-0 inset-x-0 h-50 backdrop-blur-[1px] bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none z-999" />
                     <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-1 text-text-3 pointer-events-none z-999 p-4">
                         <h2 className="text-5xl max-w-xl text-balance font-semibold title-font shadow-sm">
@@ -29,8 +28,8 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="w-full md:w-[40%] h-screen overflow-y-auto flex flex-col relative max-md:pt-6">
-                <div className="w-full h-full flex flex-col justify-center items-center min-md:p-24 p-6">
+            <div className="w-full lg:w-[40%] min-h-screen lg:h-full lg:overflow-y-auto flex flex-col items-center p-6 lg:px-12 lg:py-8">
+                <div className="w-full max-w-xl flex flex-col items-center gap-6 my-auto shrink-0">
                     <DynamicHeading />
                     <SearchBar />
                 </div>

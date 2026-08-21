@@ -27,7 +27,7 @@ export default function DynamicHeading() {
     }, []);
 
     return (
-        <h1 className="text-4xl max-md:text-3xl text-center mb-8 font-semibold tracking-tight min-h-[5.5rem] max-md:min-h-[4.5rem] flex flex-col justify-center items-center">
+        <h1 className="text-4xl max-md:text-3xl text-center font-semibold tracking-tight flex flex-col justify-center items-center">
             <span className="block">¿Me puedo quedar en</span>
             <span className="block max-w-2xl text-balance">
                 <span className="text-color-2">{typed || "\u00A0"}</span>
