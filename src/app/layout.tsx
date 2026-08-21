@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 		"Descubre dónde vivir en Castilla y León. Encuentra municipios con oportunidades, servicios y calidad de vida para construir tu próximo hogar.",
 
 	alternates: {
-		canonical: "/"
+		canonical: "https://mepuedoquedar.es"
 	},
 
 	robots: {
@@ -47,13 +47,15 @@ export const metadata: Metadata = {
 		title: "Dónde vivir en Castilla y León",
 		description:
 			"Descubre municipios con oportunidades, servicios y calidad de vida para construir tu próximo hogar.",
-		url: "/",
+		url: "https://mepuedoquedar.es",
 		images: [
 			{
-				url: "/og/og-image.jpg",
+				url: "https://mepuedoquedar.es/og/og-image.jpg",
+				secureUrl: "https://mepuedoquedar.es/og/og-image.jpg",
 				width: 1200,
 				height: 630,
-				alt: "¿El texto en español dice: «¿Me puedo quedar?», escrito en letra grande y negrita sobre un fondo claro, con parte de un signo de interrogación visible."
+				type: "image/jpeg",
+				alt: "¿Me puedo quedar? - Dónde vivir en Castilla y León"
 			}
 		]
 	},
@@ -61,10 +63,16 @@ export const metadata: Metadata = {
 	twitter: {
 		card: "summary_large_image",
 		site: "@deeivihh",
+		creator: "@deeivihh",
 		title: "Dónde vivir en Castilla y León",
 		description:
 			"Descubre municipios con oportunidades, servicios y calidad de vida para construir tu próximo hogar.",
-		images: ["/og/og-image.jpg"]
+		images: [
+			{
+				url: "https://mepuedoquedar.es/og/og-image.jpg",
+				alt: "¿Me puedo quedar? - Dónde vivir en Castilla y León"
+			}
+		]
 	},
 
 	icons: {
