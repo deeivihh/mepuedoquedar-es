@@ -40,8 +40,8 @@ export default function Home() {
                                 href="https://github.com/deeivihh/mepuedoquedar"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                title="Repositorio en GitHub"
-                                aria-label="Repositorio en GitHub"
+                                title="Repositorio"
+                                aria-label="Repositorio"
                                 className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-all shadow-sm flex items-center justify-center"
                             >
                                 <FaGithub size={15} />
