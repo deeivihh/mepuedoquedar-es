@@ -17,16 +17,19 @@ function Toggle({
     id,
     checked,
     onChange,
+    ariaLabel,
 }: {
     id: string;
     checked: boolean;
     onChange: (v: boolean) => void;
+    ariaLabel?: string;
 }) {
     return (
         <button
             id={id}
             role="switch"
             aria-checked={checked}
+            aria-label={ariaLabel}
             onClick={() => onChange(!checked)}
             className={`font-bold text-sm uppercase border-2 border-title px-3 py-1 flex items-center justify-center transition-colors min-w-[3.5rem] ${checked ? "bg-title text-[var(--bg-color)]" : "bg-transparent text-title"}`}
         >
@@ -52,9 +55,9 @@ function AgeSlider({
     return (
         <div className="flex flex-col gap-2 w-full mt-2">
             <div className="flex flex-col">
-                <span className="text-sm text-title font-semibold uppercase">¿CUÁNTOS AÑOS TIENES?</span>
+                <label htmlFor="pref-age" className="text-sm text-title font-semibold uppercase cursor-pointer">¿CUÁNTOS AÑOS TIENES?</label>
                 <span className="text-xs font-bold text-title mt-0.5 uppercase">
-                    {value} AÑOS <span className="opacity-50">· {ageLabel(value)}</span>
+                    {value} AÑOS <span className="opacity-80">· {ageLabel(value)}</span>
                 </span>
             </div>
             <input
@@ -63,6 +66,7 @@ function AgeSlider({
                 min={16}
                 max={90}
                 value={value}
+                aria-label="¿Cuántos años tienes?"
                 onChange={(e) => onChange(Number(e.target.value))}
                 className="w-full h-2 bg-title rounded-none appearance-none cursor-pointer accent-[var(--bg-color)] mt-2 border-2 border-title"
             />
@@ -93,11 +97,12 @@ function PreferencesPanel({
                         return (
                             <div key={config.id} className="flex items-center justify-between gap-6 text-left border-b-2 border-title/20 pb-4">
                                 <div>
-                                    <p className="text-sm text-title font-semibold uppercase">{config.label}</p>
-                                    <p className="text-xs font-bold text-title/70 mt-1 uppercase">{config.description}</p>
+                                    <label htmlFor={`pref-${config.id}`} className="text-sm text-title font-semibold uppercase cursor-pointer">{config.label}</label>
+                                    <p className="text-xs font-bold text-title/85 mt-1 uppercase">{config.description}</p>
                                 </div>
                                 <Toggle
                                     id={`pref-${config.id}`}
+                                    ariaLabel={config.label}
                                     checked={preferences[config.id] as boolean}
                                     onChange={(v) => update(config.id, v)}
                                 />
@@ -197,6 +202,8 @@ export default function SearchBar() {
                             <path strokeLinecap="square" strokeLinejoin="miter" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                         <input
+                            id="search-municipios"
+                            aria-label="Buscar municipio"
                             placeholder="Busca tu municipio..."
                             {...(isHome && { autoFocus: true })}
                             onChange={(e) => { setResults([]); setQuery(e.target.value); }}
@@ -209,6 +216,7 @@ export default function SearchBar() {
                         {query.length > 0 && !isLoading && (
                             <button
                                 type="button"
+                                aria-label="Limpiar búsqueda"
                                 onClick={() => { setQuery(''); setResults([]); }}
                                 className="text-title hover:opacity-70 transition-opacity shrink-0 w-10 h-10 flex items-center justify-center"
                             >
