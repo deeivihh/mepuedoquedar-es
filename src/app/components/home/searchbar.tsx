@@ -10,8 +10,9 @@ import { useLocation } from "@/app/utils/useLocation";
 import { usePreferences } from "@/app/contexts/PreferencesContext";
 import { UserPreferences } from "@/lib/scores/userPreferences";
 import { PREFERENCES_SCHEMA } from "@/lib/scores/preferencesSchema";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaRoute, FaSearch } from "react-icons/fa";
 import { usePathname } from "next/navigation";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 function Toggle({
     id,
@@ -126,9 +127,9 @@ function PreferencesPanel({
 
 function SearchSkeleton() {
     return (
-        <div className="flex flex-col gap-2 w-full animate-pulse mt-4">
+        <div className="flex flex-col gap-2 w-full animate-pulse">
             {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex justify-between items-center w-full h-14 border-b-2 border-title p-3 shrink-0 pointer-events-none">
+                <div key={i} className="flex justify-between items-center w-full h-10 border border-title/30 p-2 shrink-0 pointer-events-none">
                     <div className="h-4 bg-title/20 w-1/3" />
                     <div className="h-4 bg-title/10 w-16" />
                 </div>
@@ -185,22 +186,20 @@ export default function SearchBar() {
     }, [query, ready, search]);
 
     return (
-        <div className={`relative flex flex-col w-full h-full`} style={{ zIndex: 100 }}>
+        <div className={`relative flex flex-col w-full`} style={{ zIndex: 100 }}>
             <div className="flex flex-col gap-1 w-full">
-                <div className="flex gap-2">
+                <div className="flex divide-x divide-title/30 border border-title/30 overflow-hidden">
                     {!isHome && (
                         <Link
                             href="/"
                             title="Volver"
-                            className="inline-flex items-center justify-center gap-2 text-title hover:opacity-70 transition-opacity h-14 w-14 shrink-0"
+                            className={`justify-center items-center flex p-4 px-4.5 opacity-80 hover:opacity-100 text-title hover:bg-bg-card`}
                         >
                             <FaArrowLeft size={20} />
                         </Link>
                     )}
-                    <div className="w-full flex gap-3 items-center h-14 border-b-2 border-title focus-within:shadow-[0_2px_0_0_var(--title-color)] transition-shadow px-1">
-                        <svg className="w-6 h-6 text-title shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="square" strokeLinejoin="miter" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+                    <div className={`w-full flex gap-4 items-center h-12 px-4 focus-within:bg-bg-card bg-bg-card/80 active:bg-bg-card`}>
+                        <FaSearch size={20} className="opacity-80 text-title shrink-0" />
                         <input
                             id="search-municipios"
                             aria-label="Buscar municipio"
@@ -208,17 +207,19 @@ export default function SearchBar() {
                             {...(isHome && { autoFocus: true })}
                             onChange={(e) => { setResults([]); setQuery(e.target.value); }}
                             value={query}
-                            className="w-full h-full outline-none text-title font-medium"
+                            className="w-full flex-1 min-w-0 h-full outline-none text-title font-medium bg-transparent"
                         />
                         {isLoading && (
-                            <div className="w-5 h-5 border-2 border-title/30 border-t-title animate-spin shrink-0" />
+                            <AiOutlineLoading3Quarters
+                                size={20}
+                                className="text-title shrink-0 flex items-center justify-center animate-spin" />
                         )}
                         {query.length > 0 && !isLoading && (
                             <button
                                 type="button"
                                 aria-label="Limpiar búsqueda"
                                 onClick={() => { setQuery(''); setResults([]); }}
-                                className="text-title hover:opacity-70 transition-opacity shrink-0 w-10 h-10 flex items-center justify-center"
+                                className="text-title hover:opacity-70 transition-opacity shrink-0 w-8 h-8 flex items-center justify-center"
                             >
                                 <IoMdClose size={20} />
                             </button>
@@ -241,11 +242,7 @@ export default function SearchBar() {
 
                     {isSearching && (
                         <motion.div
-                            initial={{ opacity: 0, y: -4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -4 }}
-                            transition={{ duration: 0.15, ease: "easeOut" }}
-                            className="col-start-1 row-start-1 w-full flex flex-col gap-4 max-h-[420px] overflow-y-auto z-10 self-start bg-bg-color pb-4 p-2"
+                            className="col-start-1 row-start-1 w-full flex flex-col gap-4 min-md:max-h-[40rem] overflow-y-auto z-10 self-start p-1"
                         >
                             {isLoading ? (
                                 <SearchSkeleton />
@@ -254,16 +251,18 @@ export default function SearchBar() {
                                     <Link
                                         href={`/municipio/${result.cod_ine}`}
                                         key={result.cod_ine}
-                                        className="flex justify-between gap-4 items-center w-full py-4 px-2 border-b-2 border-title hover:bg-title hover:text-[var(--bg-color)] group transition-colors"
+                                        className="flex justify-between w-full items-center gap-4 p-2 border border-title/50 hover:bg-bg-card/50 active:bg-bg-card"
                                     >
-                                        <p className="font-bold text-lg uppercase text-balance group-hover:text-[var(--bg-color)]">{result.municipio}</p>
+                                        <p className="font-semibold text-title">{result.municipio}</p>
                                         {result.distance != null && (
-                                            <span className="text-sm font-bold flex items-center justify-end gap-2 shrink-0 whitespace-nowrap min-w-[5rem] uppercase opacity-80 group-hover:text-[var(--bg-color)]">
-                                                <BsFillSignTurnRightFill className="shrink-0" />
-                                                {result.distance >= 1000
-                                                    ? `${(result.distance / 1000).toFixed(1)} km`
-                                                    : `${result.distance} m`}
-                                            </span>
+                                            <div className="flex items-center justify-center gap-1.5 shrink-0 text-title/80">
+                                                <span className="font-medium text-sm text-right" title="Distancia desde tu ubicación actual"><FaRoute /></span>
+                                                <span className="text-sm font-medium tabular-nums text-right">
+                                                    {result.distance >= 1000
+                                                        ? `${(result.distance / 1000).toFixed(1)} km`
+                                                        : `${result.distance} m`}
+                                                </span>
+                                            </div>
                                         )}
                                     </Link>
                                 ))
@@ -277,39 +276,39 @@ export default function SearchBar() {
                 </div>
             ) : (
                 isSearching && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -4 }}
-                        transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="w-full mt-2 flex flex-col gap-3 max-h-[16rem] overflow-y-auto p-2"
-                    >
-                        {isLoading ? (
-                            <SearchSkeleton />
-                        ) : results.length > 0 ? (
-                            results.map((result) => (
-                                <Link
-                                    href={`/municipio/${result.cod_ine}`}
-                                    key={result.cod_ine}
-                                    className="flex justify-between gap-4 items-center w-full py-4 px-2 border-b-2 border-title hover:bg-title hover:text-[var(--bg-color)] group transition-colors"
-                                >
-                                    <p className="font-bold text-lg uppercase text-balance group-hover:text-[var(--bg-color)]">{result.municipio}</p>
-                                    {result.distance != null && (
-                                        <span className="text-sm font-bold flex items-center justify-end gap-2 shrink-0 whitespace-nowrap min-w-[5rem] uppercase opacity-80 group-hover:text-[var(--bg-color)]">
-                                            <BsFillSignTurnRightFill className="shrink-0" />
-                                            {result.distance >= 1000
-                                                ? `${(result.distance / 1000).toFixed(1)} km`
-                                                : `${result.distance} m`}
-                                        </span>
-                                    )}
-                                </Link>
-                            ))
-                        ) : query.trim().length >= 3 ? (
-                            <div className="flex items-center justify-center h-full text-sm text-title/60 font-medium">
-                                No se encontraron municipios
-                            </div>
-                        ) : null}
-                    </motion.div>
+                    <div className="bg-bg-card h-[15rem] overflow-y-auto my-2 border border-title/30">
+                        <motion.div
+                            className="w-full min-h-full flex flex-col gap-2 p-4"
+                        >
+                            {isLoading ? (
+                                <SearchSkeleton />
+                            ) : results.length > 0 ? (
+                                results.map((result) => (
+                                    <Link
+                                        href={`/municipio/${result.cod_ine}`}
+                                        key={result.cod_ine}
+                                        className="flex justify-between w-full items-center gap-4 p-2 border border-title/30 hover:bg-white/50 active:bg-white"
+                                    >
+                                        <p className="font-semibold text-title">{result.municipio}</p>
+                                        {result.distance != null && (
+                                            <div className="flex items-center justify-center gap-1.5 shrink-0 text-title/80">
+                                                <span className="font-medium text-sm text-right" title="Distancia desde tu ubicación actual"><FaRoute /></span>
+                                                <span className="text-sm font-medium tabular-nums text-right">
+                                                    {result.distance >= 1000
+                                                        ? `${(result.distance / 1000).toFixed(1)} km`
+                                                        : `${result.distance} m`}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </Link>
+                                ))
+                            ) : query.trim().length >= 3 ? (
+                                <div className="flex items-center justify-center h-48 text-sm text-title/60 font-medium">
+                                    No se encontraron municipios
+                                </div>
+                            ) : null}
+                        </motion.div>
+                    </div>
                 )
             )}
         </div>
