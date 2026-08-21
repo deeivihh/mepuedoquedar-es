@@ -19,7 +19,21 @@ export interface BaseChartProps {
     formatName?: (name: string) => string;
 }
 
-const BRAND_PALETTE = ["#C46A4A", "#1F3A2E", "#6B7F4D", "#D48B6E", "#3A5C4C"];
+const BRAND_PALETTE = [
+    "#C46A4A",
+    "#1F3A2E",
+    "#6B7F4D",
+    "#C28B38",
+    "#3D6053",
+    "#D48B6E",
+    "#4E6E7E",
+    "#944C36",
+    "#8EA675",
+    "#9E7B56",
+    "#825366",
+    "#284B3D",
+];
+
 const IGNORED_SEGMENTS = new Set(["dato base", "personas", "todas las edades"]);
 
 export function formatSeriesName(name?: string): string {
@@ -93,11 +107,11 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                 marks: [
                     polar({
                         inset: 8,
-                        radiusRatio: 0.85,
+                        radiusRatio: 0.88,
                         marks: [
                             radialArc(slices, {
                                 innerRadius: type === "donut" ? ({ radius }) => radius * 0.58 : 0,
-                                cornerRadius: 4,
+                                cornerRadius: 3,
                                 color: (d: any) => d.label,
                                 key: (d: any) => d.label,
                             }),
@@ -166,13 +180,15 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
             ? data.map((s: any, idx: number) => ({ label: (formatName ? formatName(s.Nombre) : formatSeriesName(s.Nombre)) || `Serie ${idx + 1}` }))
             : null;
 
+    const isManyLegends = legends && legends.length > 3;
+
     return (
-        <div className="flex flex-col gap-4 w-full text-title relative">
+        <div className="flex flex-col gap-3 w-full text-title relative">
             <div className="flex justify-between w-full items-center">
-                {title && <h3 className="font-semibold text-title">{title}</h3>}
+                {title && <h3 className="font-semibold text-title text-sm md:text-base">{title}</h3>}
                 {latestYear && (
-                    <h4 title={`Última actualización: ${latestYear}`} className="mb-1 flex gap-1   items-center justify-center font-semibold text-title/80 text-sm">
-                        <IoTimeSharp size={15} />
+                    <h4 title={`Última actualización: ${latestYear}`} className="flex gap-1 items-center justify-center font-semibold text-title/70 text-xs">
+                        <IoTimeSharp size={13} />
                         {latestYear}
                     </h4>
                 )}
@@ -229,19 +245,34 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                 />
             </div>
 
-            {
-                legends && legends.length > 0 && (
-                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 mt-1 text-xs">
-                        {legends.map((item, idx) => (
-                            <div key={idx} className="flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: BRAND_PALETTE[idx % BRAND_PALETTE.length] }} />
-                                <span className="font-medium text-title/90">{item.label}</span>
-                                {item.extra && <span className="text-title/60 tabular-nums">({item.extra})</span>}
+            {legends && legends.length > 0 && (
+                <div
+                    className={
+                        isManyLegends
+                            ? "grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 pt-2 border-t border-title/10 w-full text-xs"
+                            : "flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 pt-2 border-t border-title/10 w-full text-xs"
+                    }
+                >
+                    {legends.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between gap-2 py-0.5 min-w-0">
+                            <div className="flex items-center gap-2 min-w-0">
+                                <span
+                                    className="w-2.5 h-2.5 rounded-full shrink-0 border border-title/20"
+                                    style={{ backgroundColor: BRAND_PALETTE[idx % BRAND_PALETTE.length] }}
+                                />
+                                <span className="font-medium text-title/85 truncate text-[11px] sm:text-xs">
+                                    {item.label}
+                                </span>
                             </div>
-                        ))}
-                    </div>
-                )
-            }
-        </div >
+                            {item.extra && (
+                                <span className="text-title/60 font-mono font-semibold text-[11px] tabular-nums shrink-0">
+                                    {item.extra}
+                                </span>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 }

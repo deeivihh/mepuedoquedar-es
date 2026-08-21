@@ -22,8 +22,15 @@
     --ts-chart-1: #C46A4A;
     --ts-chart-2: #1F3A2E;
     --ts-chart-3: #6B7F4D;
-    --ts-chart-4: #D48B6E;
-    --ts-chart-5: #3A5C4C;
+    --ts-chart-4: #C28B38;
+    --ts-chart-5: #3D6053;
+    --ts-chart-6: #D48B6E;
+    --ts-chart-7: #4E6E7E;
+    --ts-chart-8: #944C36;
+    --ts-chart-9: #8EA675;
+    --ts-chart-10: #9E7B56;
+    --ts-chart-11: #825366;
+    --ts-chart-12: #284B3D;
     --ts-chart-tooltip-background: var(--bg-card);
     --ts-chart-tooltip-color: var(--text-color);
     --ts-chart-tooltip-border: 1px solid color-mix(in srgb, var(--title-color) 20%, transparent);
