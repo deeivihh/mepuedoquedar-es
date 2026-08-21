@@ -5,12 +5,14 @@ import { PreferencesProvider } from "@/app/contexts/PreferencesContext";
 
 const titleFont = Source_Serif_4({
 	subsets: ["latin"],
-	variable: "--font-title"
+	variable: "--font-title",
+	display: "swap"
 });
 
 const textFont = Inter({
 	subsets: ["latin"],
-	variable: "--font-text"
+	variable: "--font-text",
+	display: "swap"
 });
 
 export const metadata: Metadata = {
@@ -125,6 +127,14 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="es">
+			<head>
+				<link
+					rel="preload"
+					as="image"
+					href="/videos/hero_poster.webp"
+					fetchPriority="high"
+				/>
+			</head>
 			<body
 				className={`${titleFont.variable} ${textFont.variable} antialiased`}
 			>

@@ -192,7 +192,7 @@ export default function SearchBar() {
                             <FaArrowLeft size={20} />
                         </Link>
                     )}
-                    <div className={`w-full flex gap-3 items-center h-14 border-b-2 border-title focus-within:border-b-4 transition-all px-1`}>
+                    <div className="w-full flex gap-3 items-center h-14 border-b-2 border-title focus-within:shadow-[0_2px_0_0_var(--title-color)] transition-shadow px-1">
                         <svg className="w-6 h-6 text-title shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="square" strokeLinejoin="miter" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
