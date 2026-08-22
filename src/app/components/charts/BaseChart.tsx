@@ -209,8 +209,10 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                 <div className="flex items-center gap-2">
                     {hasLegends && (
                         <button
+                            type="button"
                             onClick={() => setShowLegend(!showLegend)}
-                            className="hidden md:flex items-center text-title/60 hover:text-title transition-colors"
+                            className={`flex items-center transition-colors cursor-pointer p-1 rounded ${showLegend ? "text-title bg-title/10" : "text-title/60 hover:text-title hover:bg-title/5"
+                                }`}
                             title={showLegend ? "Ocultar leyenda" : "Mostrar leyenda"}
                             aria-label={showLegend ? "Ocultar leyenda" : "Mostrar leyenda"}
                         >
@@ -277,13 +279,12 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                 />
             </div>
 
-            {hasLegends && (
+            {hasLegends && showLegend && (
                 <div
                     className={
-                        `${showLegend ? "flex" : "hidden max-md:flex"} ${
-                            isManyLegends
-                                ? "flex-col sm:grid sm:grid-cols-2"
-                                : "flex-wrap items-center justify-center"
+                        `flex ${isManyLegends
+                            ? "flex-col sm:grid sm:grid-cols-2"
+                            : "flex-wrap items-center justify-center"
                         } gap-x-4 gap-y-1.5 pt-2 border-t border-title/10 w-full text-xs`
                     }
                 >
