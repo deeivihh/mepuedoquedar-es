@@ -1,5 +1,6 @@
 import MunicipioDetail from "@/app/components/detail/municipio";
 import SearchBar from "@/app/components/home/searchbar";
+import Link from "next/link";
 
 export default async function DetailPage({
     params,
@@ -9,14 +10,18 @@ export default async function DetailPage({
     const { cod } = await params;
 
     return (
-        <main className="flex flex-col justify-start mx-auto items-center min-h-screen w-full px-8 py-4 max-w-5xl">
-            <section className="w-full">
-                <SearchBar />
-            </section>
+        <main className="min-h-screen w-full bg-bg px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex w-full flex-col max-w-5xl">
+                <header className="pt-6 flex justify-between items-center">
+                    <div className="flex-1">
+                        <SearchBar />
+                    </div>
+                </header>
 
-            <section className="flex w-full h-full">
-                <MunicipioDetail cod={cod} />
-            </section>
+                <div className="py-5 sm:py-8 lg:py-10">
+                    <MunicipioDetail cod={cod} />
+                </div>
+            </div>
         </main>
     );
 }

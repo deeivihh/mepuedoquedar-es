@@ -175,62 +175,96 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     );
 
     return (
-        <div className="flex flex-col justify-center items-center min-md:mx-auto w-full h-full bg-bg-card overflow-hidden border border-title/20 mt-2">
-            <div className="flex flex-col w-full h-full overflow-hidden divide-y divide-title/20">
-                <section className="flex flex-col justify-center items-start overflow-hidden relative w-full h-fit min-h-[20svh] pt-4">
-                    <div className="flex flex-col max-md:py-6 p-8 h-full w-full">
-                        <div className="flex flex-col items-start justify-start h-full w-full max-w-2xl">
-                            <h1 className="text-6xl max-md:text-4xl max-md:w-full min-md:max-w-[17ch] font-bold text-balance max-md:text-center z-10">{data.municipio}</h1>
-                        </div>
-                        <div className="flex max-md:flex-col gap-4 justify-between min-md:items-end w-full mt-4">
-                            <div className="flex max-md:items-center max-md:justify-center z-50">
-                                <div className="flex flex-col max-md:w-full gap-4 max-md:items-center max-md:justify-center px-0.5">
-                                    <div className="flex max-[23.5rem]:flex-col gap-2">
-                                        {data.provincia && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><FaMapMarkedAlt /> {capitalize(data?.provincia)}</span>}
-                                        {data.poblacion > 0 && <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><IoPeopleSharp /> {data?.poblacion.toLocaleString('es-ES', { useGrouping: true })}</span>}
-                                        {data.distance > 0 && (
-                                            <span className="flex items-center gap-2 bg-white/70 backdrop-blur-xs px-2 max-[23.5rem]:w-90 max-[23.5rem]:justify-center rounded-full border border-title"><FaCarSide /> {data.distance >= 1000
-                                                ? `${(data.distance / 1000).toFixed(0)}km`
-                                                : `${data.distance}m`}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex gap-2 z-50">
-                                <a href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`} target="_blank" rel="noopener noreferrer" className="w-fit flex backdrop-blur-xs items-center gap-2 py-1 max-md:justify-center rounded-full hover:shadow-inner hover:bg-text-2 bg-text-2/90 font-semibold border border-title/20 min-md:px-4 max-md:w-80 max-[23.5rem]:w-90"><span className="text-white flex gap-2 items-center">Cómo llegar <MdArrowOutward /></span></a>
-                            </div>
+        <article className="w-full text-title">
+
+            <section className="relative isolate flex min-h-0 flex-col overflow-hidden border border-title/25 bg-bg-card lg:min-h-[30svh]">
+                <div className="flex flex-col h-full my-auto justify-center items-start gap-3 max-md:py-12">
+                    <div className="flex z-999 w-full">
+                        <div className="flex h-full w-full items-center justify-start px-12">
+                            <h1 className="w-full max-w-[22ch] break-words text-left text-4xl font-bold leading-[1.05] text-balance text-title sm:text-5xl lg:max-w-3xl">{data.municipio}</h1>
                         </div>
                     </div>
-                    <div
-                        ref={mapContainerRef}
-                        className="cursor-move w-full max-md:h-[200px] min-md:h-full min-md:absolute min-md:inset-y-0 min-md:right-0 min-md:w-3/5 image-fade"
-                    >
-                        <Map
-                            center={[data.latitud, data.longitud]}
-                            zoom={14}
-                            minZoom={5}
-                            height={mapHeight}
-                            width={mapWidth}
-                            attribution={false}
-                        />
+                    <div className="flex flex-col z-999 px-12 gap-8 w-full">
+                        <ul className="flex flex-col md:flex-row items-start md:items-center w-full text-xs lg:px-1 gap-4 list-disc list-inside md:list-none text-left">
+                            {data.distance > 0 && (
+                                <li className="text-title/70">
+                                    <span className="inline-flex items-center gap-2">
+                                        <FaCarSide className="text-text-2" aria-hidden="true" />
+                                        <span>{data.distance >= 1000 ? `${(data.distance / 1000).toFixed(0)} km` : `${data.distance} m`} desde tu ubicación</span>
+                                    </span>
+                                </li>
+                            )}
+                            {data.poblacion > 0 && (
+                                <li>
+                                    <span className="inline-flex items-center gap-2">
+                                        <IoPeopleSharp className="text-text-2" aria-hidden="true" />
+                                        <span>{data.poblacion.toLocaleString("es-ES")} habitantes</span>
+                                    </span>
+                                </li>
+                            )}
+                            {data.provincia && (
+                                <li>
+                                    <span className="inline-flex items-center gap-2">
+                                        <FaMapMarkedAlt className="text-text-2" aria-hidden="true" />
+                                        <span>{capitalize(data.provincia)}</span>
+                                    </span>
+                                </li>
+                            )}
+                        </ul>
+                        <a
+                            href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center max-md:justify-center max-md:w-full gap-2 bg-text-2 w-fit px-4 py-1 text-text-3"
+                        >
+                            Cómo llegar <MdArrowOutward aria-hidden="true" />
+                        </a>
                     </div>
-                </section>
+                </div>
+                <div ref={mapContainerRef} className="image-fade relative order-3 h-[260px] w-full cursor-move overflow-hidden bg-title/10 lg:absolute lg:inset-y-0 lg:right-0 lg:order-none lg:h-full lg:w-3/5">
+                    <Map
+                        center={[data.latitud, data.longitud]}
+                        zoom={14}
+                        minZoom={5}
+                        height={mapHeight}
+                        width={mapWidth}
+                        attribution={false}
+                    />
+                </div>
+            </section>
 
-                <section className="flex flex-col gap-6 overflow-hidden relative w-full p-6 py-8">
-                    <GeneralScore number={scores?.global ?? 0} scoresDepartments={scores?.departments ?? {}} />
-                </section>
+            <section className="py-14 pt-18 sm:py-12 sm:pt-22">
+                <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">¿Encaja contigo?</h2>
+                    </div>
+                </div>
+                <GeneralScore number={scores?.global ?? 0} scoresDepartments={scores?.departments ?? {}} />
+            </section>
 
-                {data.cod_int && ineData && (
-                    <section className="flex flex-col gap-4 overflow-hidden relative w-full">
+            {data.cod_int && ineData && (
+                <section className="py-14 sm:py-12">
+                    <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Lo que cuentan los datos</h2>
+                        </div>
+                    </div>
+                    <div className="overflow-hidden border-y border-title/20 bg-bg-card">
                         <Datos ineData={ineData} />
-                    </section>
-                )}
-
-                <section className="flex flex-col gap-4 overflow-hidden relative w-full">
-                    <Wikipedia data={wikiData} />
+                    </div>
                 </section>
-            </div>
-        </div>
+            )}
+
+            {wikiData && (
+                <section className="py-14 sm:py-12">
+                    <div className="mb-8">
+                        <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Conoce el lugar</h2>
+                    </div>
+                    <div className="overflow-hidden border-y border-title/20 bg-bg-card">
+                        <Wikipedia data={wikiData} />
+                    </div>
+                </section>
+            )}
+        </article>
     );
 }

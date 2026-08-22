@@ -18,30 +18,34 @@ export default function Wikipedia({ data }: { data: WikipediaData | null }) {
     const visibleParas = expanded ? paras : paras.slice(0, 2);
 
     return (
-        <article className="flex flex-col gap-8 p-6 md:p-8">
-            <section className="flex flex-col gap-4">
-                <header className="flex justify-between border-b pb-2 text-sm uppercase">
-                    <FaWikipediaW size={20} />
+        <article className="flex flex-col gap-10 p-6 sm:p-8 lg:gap-12 lg:p-10">
+            <section className="flex flex-col gap-5">
+                <header className="flex items-center justify-between border-b border-title/20 pb-3 text-sm">
+                    <div className="flex items-center gap-2 text-title">
+                        <FaWikipediaW size={18} />
+                        <span className="text-[10px] font-bold uppercase tracking-[0.18em]">Wikipedia</span>
+                    </div>
                     {data.pageUrl && (
-                        <a href={data.pageUrl} target="_blank" rel="noreferrer" title="Abrir en Wikipedia" className="flex items-center gap-2 font-semibold hover:text-black text-black/70">
+                        <a href={data.pageUrl} target="_blank" rel="noreferrer" title="Abrir en Wikipedia" className="flex items-center gap-2 text-xs font-semibold text-title/60 hover:text-text-2">
                             <FaExternalLinkAlt size={15} className="mb-0.5" />
                         </a>
                     )}
                 </header>
 
                 <div className="space-y-4">
+                    <h3 className="title-font text-3xl font-semibold leading-tight text-title">{data.title}</h3>
                     {visibleParas.map((p, i) => <p key={i}>{p}</p>)}
                 </div>
 
                 {paras.length > 2 && (
-                    <button onClick={() => setExpanded(!expanded)} className="text-xs flex gap-2 items-center justify-start uppercase text-black/60 hover:text-black">
+                        <button onClick={() => setExpanded(!expanded)} className="flex items-center justify-start gap-2 text-xs uppercase text-title/60 hover:text-text-2">
                         {expanded ? <>Menos <FaChevronUp size={10} className="mb-0.5" /></> : <>Más <FaChevronDown size={10} className="mb-0.5" /></>}
                     </button>
                 )}
             </section>
 
             {img && (
-                <section className="flex flex-col gap-4 mt-6">
+                <section className="mt-2 flex flex-col gap-4">
                     <div className="flex max-md:flex-col min-md:grid min-md:grid-cols-5 gap-4 items-start w-full">
                         <div className="min-md:col-span-3 h-full w-full flex flex-col items-start justify-start">
                             <div className="relative h-full w-full flex items-start justify-center group">

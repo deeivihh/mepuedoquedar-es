@@ -96,7 +96,7 @@ h1 {
     cursor: grab;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
     .image-fade {
         display: block;
 

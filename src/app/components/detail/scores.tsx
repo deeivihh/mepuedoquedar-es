@@ -16,6 +16,7 @@ import { IconType } from "react-icons";
 import { MdLocalHospital, MdOutlineSportsMartialArts, MdOutlineTravelExplore, MdPublic } from "react-icons/md";
 import { GiBowlingPin } from "react-icons/gi";
 import { FaPeopleGroup, FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
+import { FaChevronDown } from "react-icons/fa";
 import { useMemo } from "react";
 
 const DEPARTMENT_ICONS: Record<string, IconType> = {
@@ -57,30 +58,23 @@ export default function GeneralScore({
     }, [preferences, isDefault]);
 
     return (
-        <div className="flex flex-col items-center justify-center gap-5 w-full h-full text-title">
-            <div className="flex max-[73rem]:flex-col gap-4 w-full h-full justify-between items-start sm:items-end border-b border-title/20 pb-4">
+        <div className="flex w-full flex-col items-center justify-center gap-6 text-title">
+            <div className="grid w-full gap-5 pb-2 sm:grid-cols-[auto_1fr] sm:items-end sm:gap-8">
                 <div className="flex flex-col">
-                    <span className="text-xs font-bold uppercase tracking-widest text-black/50">
-                        Afinidad con tu perfil
-                    </span>
                     <div className="flex items-baseline gap-1 mt-1">
-                        <span className="text-6xl max-md:text-5xl font-bold title-font text-title">
+                        <span className="title-font text-7xl font-semibold leading-none text-title sm:text-8xl">
                             {number}
                         </span>
-                        <span className="text-2xl text-color-2 font-semibold font-mono">
-                            %
-                        </span>
+                        <span className="font-mono text-xl font-semibold text-text-2">/ 100</span>
                     </div>
                 </div>
-                <span
-                    className="text-4xl max-[51rem]:text-3xl max-md:text-center font-semibold text-title title-font"
-                >
+                <span className="max-w-xl text-3xl font-semibold leading-tight text-title title-font sm:justify-self-end sm:text-right sm:text-4xl">
                     {labelText()}
                 </span>
             </div>
 
-            <div className="w-full flex flex-col gap-1.5">
-                <div className="w-full h-3 bg-title/10 overflow-hidden border border-title/30 p-0.5">
+            <div className="flex w-full flex-col gap-2">
+                <div className="h-2 w-full overflow-hidden bg-title/10">
                     <div
                         className="h-full bg-text-2 transition-all duration-500 ease-out"
                         style={{ width: `${Math.min(100, Math.max(0, number))}%` }}
@@ -88,8 +82,8 @@ export default function GeneralScore({
                 </div>
             </div>
 
-            <div className="w-full pt-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            <div className="w-full pt-1">
+                <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
                     {Object.entries(scoresDepartments).map(([key, value]) => (
                         <ScoreItem
                             key={key}
@@ -125,71 +119,52 @@ export function ScoreItem({
     const priority = getDepartmentPriority(name, multiplier, preferences, isDefault);
 
     return (
-        <div className={`flex flex-col gap-2.5 p-4 bg-bg-card border border-title/30 text-title ${name === "ine" ? "md:col-span-2" : ""}`}>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-title/20 pb-2">
-                <div className="flex items-center gap-2">
-                    <Icon className="text-title text-lg shrink-0" />
-                    <span className={`text-title text-base font-semibold ${name === "ine" ? "uppercase" : "capitalize"}`}>
-                        {name}
-                    </span>
-                    {priority.level === "high" && (
-                        <span
-                            title={priority.reason ?? "Mayor peso en tu perfil"}
-                            className="flex items-center text-color-2 cursor-help"
-                        >
-                            <FaArrowTrendUp size={13} />
+        <details className={`group bg-bg-card p-5 text-title transition-colors hover:bg-white/30 ${name === "ine" ? "md:col-span-2" : ""}`}>
+            <summary className="list-none cursor-pointer [&::-webkit-details-marker]:hidden">
+                <div className="flex min-h-11 items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <Icon className="shrink-0 text-lg text-title" />
+                        <span className={`truncate text-base font-semibold text-title ${name === "ine" ? "uppercase" : "capitalize"}`}>
+                            {name}
                         </span>
-                    )}
-                    {priority.level === "low" && (
-                        <span
-                            title={priority.reason ?? "Menor peso en tu perfil"}
-                            className="flex items-center text-black/40 cursor-help"
-                        >
-                            <FaArrowTrendDown size={13} />
-                        </span>
-                    )}
-                </div>
-                <div className="flex items-baseline gap-0.5">
-                    <span className="text-base font-bold font-mono text-color-2">
-                        {itemPercentage}
-                    </span>
-                    <span className="text-xs font-mono text-title/60 font-semibold">
-                        %
-                    </span>
-                </div>
-            </div>
-
-            {number.noData ? (
-                <p className="text-xs text-black/50 italic">
-                    Sin registros oficiales suficientes en el término municipal
-                </p>
-            ) : (
-                <div className={`${name === "ine" ? "grid grid-cols-1 md:grid-cols-2 md:gap-x-8" : "flex flex-col"} gap-1.5 pt-0.5`}>
-                    {number.indicators.map((ind, idx) => (
-                        <div
-                            key={idx}
-                            className="flex items-center justify-between text-xs py-1 border-b border-title/10 last:border-0"
-                        >
-                            <span className="text-black/80 font-medium">
-                                {ind.label}
+                        {priority.level === "high" && (
+                            <span title={priority.reason ?? "Mayor peso en tu perfil"} className="flex shrink-0 cursor-help items-center text-color-2">
+                                <FaArrowTrendUp size={13} />
                             </span>
-                            <div className="flex items-center gap-2 shrink-0">
-                                <span className="text-black/60 font-mono text-[11px]">
-                                    {formatIndicatorValue(ind)}
-                                </span>
-                                <span
-                                    className={`text-[11px] border border-title/10 font-semibold font-mono px-1 py-0.5 ${ind.score > 0
-                                        ? "bg-gray-500/10 text-title/80"
-                                        : "bg-gray-500/20 text-title/30"
-                                        }`}
-                                >
+                        )}
+                        {priority.level === "low" && (
+                            <span title={priority.reason ?? "Menor peso en tu perfil"} className="flex shrink-0 cursor-help items-center text-black/40">
+                                <FaArrowTrendDown size={13} />
+                            </span>
+                        )}
+                    </div>
+                    <div className="ml-auto flex shrink-0 items-center gap-3">
+                        <span className="font-mono text-base font-bold text-color-2">{itemPercentage}/100</span>
+                        <FaChevronDown className="text-xs text-title/45 transition-transform group-open:rotate-180" aria-hidden="true" />
+                    </div>
+                </div>
+                <div className="mt-3 h-1 w-full overflow-hidden bg-title/10">
+                    <div className="h-full bg-text-2 transition-all duration-500" style={{ width: `${itemPercentage}%` }} />
+                </div>
+            </summary>
+
+            <div className="mt-4 flex flex-col gap-2 pt-1">
+                {number.noData ? (
+                    <p className="text-xs italic text-black/50">Sin registros oficiales suficientes en el término municipal</p>
+                ) : (
+                    number.indicators.map((ind, idx) => (
+                        <div key={idx} className="flex items-center justify-between gap-3 bg-bg/60 px-3 py-2.5 text-[11px]">
+                            <span className="min-w-0 truncate whitespace-nowrap font-medium text-black/80" title={ind.label}>{ind.label}</span>
+                            <div className="flex shrink-0 items-center gap-2">
+                                <span className="whitespace-nowrap font-mono text-[10px] text-black/60">{formatIndicatorValue(ind)}</span>
+                                <span className={`whitespace-nowrap font-mono text-[10px] font-semibold ${ind.score > 0 ? "text-title/80" : "text-title/30"}`}>
                                     +{ind.score}/{ind.max}
                                 </span>
                             </div>
                         </div>
-                    ))}
-                </div>
-            )}
-        </div>
+                    ))
+                )}
+            </div>
+        </details>
     );
 }
