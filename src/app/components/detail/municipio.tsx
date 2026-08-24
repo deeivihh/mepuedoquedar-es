@@ -178,85 +178,61 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     return (
         <article className="w-full text-title">
-
-            <section className="relative isolate flex min-h-0 flex-col overflow-hidden border border-title/25 bg-bg-card lg:min-h-[30svh]">
-                <div className="flex flex-col h-full my-auto justify-center items-start gap-3.5 max-md:py-12">
-                    <div className="flex z-999 w-full">
-                        <div className="flex h-full w-full items-center justify-start px-12">
-                            <h1 className="w-full max-w-[22ch] break-words text-left text-4xl font-bold leading-[1.05] text-balance text-title sm:text-5xl lg:max-w-3xl">{data.municipio}</h1>
-                        </div>
-                    </div>
-                    <div className="flex flex-col z-999 px-13 gap-8 w-full">
-                        <ul className="flex flex-col md:flex-row items-start md:items-center w-full text-xs lg:px-1 gap-4 list-disc list-inside md:list-none text-left">
-                            {data.distance > 0 && (
-                                <li className="text-title/70">
-                                    <span className="inline-flex items-center gap-2">
-                                        <FaCarSide className="text-text-2" aria-hidden="true" />
-                                        <span>{data.distance >= 1000 ? `${(data.distance / 1000).toFixed(0)} km` : `${data.distance} m`} desde tu ubicación</span>
-                                    </span>
-                                </li>
-                            )}
-                            {data.poblacion > 0 && (
-                                <li>
+            <div className="flex flex-col min-h-[75svh]">
+                <section className="relative isolate flex min-h-0 flex-col overflow-hidden border border-title/20 bg-bg-card min-md:h-[50svh]">
+                    <div className="relative max-md:p-6 p-16 flex flex-col justify-between items-between w-full h-full gap-2 z-999 max-w-2xl h-full">
+                        <div className="flex flex-col gap-2">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-title/55 px-1">
+                                {data.provincia && data.provincia !== data.municipio ? `${capitalize(data.provincia)}, España` : "Castilla y León, España"}
+                            </p>
+                            <h1 className="title-font text-6xl font-semibold text-pretty max-md:text-5xl">
+                                {data.municipio}
+                            </h1>
+                            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-title/75 mt-2 px-1">
+                                {data.poblacion > 0 && (
                                     <span className="inline-flex items-center gap-2">
                                         <IoPeopleSharp className="text-text-2" aria-hidden="true" />
-                                        <span>{data.poblacion.toLocaleString("es-ES")} habitantes</span>
+                                        {data.poblacion.toLocaleString("es-ES")} habitantes
                                     </span>
-                                </li>
-                            )}
-                            {data.provincia && data.provincia !== data.municipio && (
-                                <li>
+                                )}
+                                {data.distance > 0 && (
                                     <span className="inline-flex items-center gap-2">
-                                        <FaMapMarkedAlt className="text-text-2" aria-hidden="true" />
-                                        <span>{capitalize(data.provincia)}</span>
+                                        <FaCarSide className="text-text-2" aria-hidden="true" />
+                                        {data.distance >= 1000 ? `${(data.distance / 1000).toFixed(0)} km` : `${data.distance} m`} desde tu ubicación
                                     </span>
-                                </li>
-                            )}
-                        </ul>
-                        <a
-                            href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center max-md:justify-center max-md:w-full gap-2 bg-text-2 w-fit px-4 py-1 text-text-3"
-                        >
-                            Cómo llegar <MdArrowOutward aria-hidden="true" />
-                        </a>
-                    </div>
-                </div>
-                <div ref={mapContainerRef} className="image-fade relative order-3 h-[260px] w-full cursor-move overflow-hidden bg-title/10 lg:absolute lg:inset-y-0 lg:right-0 lg:order-none lg:h-full lg:w-3/5">
-                    <Map
-                        center={[data.latitud, data.longitud]}
-                        zoom={14}
-                        minZoom={5}
-                        height={mapHeight}
-                        width={mapWidth}
-                        attribution={false}
-                    />
-                </div>
-            </section>
-
-            <section className="py-14 pt-18 sm:py-12 sm:pt-22">
-                <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">¿Encaja contigo?</h2>
-                    </div>
-                </div>
-                <GeneralScore number={scores?.global ?? 0} scoresDepartments={scores?.departments ?? {}} />
-            </section>
-
-            {data.cod_int && ineData && (
-                <section className="py-14 sm:py-12">
-                    <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                            <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Lo que cuentan los datos</h2>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex items-end justify-start h-full mt-6">
+                            <a
+                                href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 bg-text-2 text-text-3 font-semibold px-4 py-1 w-fit"
+                            >
+                                Cómo llegar <MdArrowOutward aria-hidden="true" />
+                            </a>
                         </div>
                     </div>
-                    <div className="overflow-hidden border-y border-title/20 bg-bg-card">
-                        <Datos ineData={ineData} />
+
+                    <div ref={mapContainerRef} className="image-fade relative order-3 h-[260px] w-full cursor-move overflow-hidden bg-title/10 lg:absolute lg:inset-y-0 lg:right-0 lg:order-none lg:h-full lg:w-3/5">
+                        <Map
+                            center={[data.latitud, data.longitud]}
+                            zoom={14}
+                            minZoom={5}
+                            height={mapHeight}
+                            width={mapWidth}
+                            attribution={false}
+                        />
                     </div>
                 </section>
-            )}
 
+                <section className="border border-title/20 bg-bg-card">
+                    <div className="px-6 py-10 sm:px-10 lg:px-14 lg:py-12">
+                        <GeneralScore number={scores?.global ?? 0} scoresDepartments={scores?.departments ?? {}} />
+                    </div>
+                </section>
+            </div>
             {data.mas?.vivienda?.alquiler && (
                 <section className="py-14 sm:py-12">
                     <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -278,13 +254,11 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                                         <span className="font-mono text-lg font-semibold text-text-2">€/mes</span>
                                     </div>
                                 </div>
-                                {data.mas.vivienda.alquiler.superficie > 0 && (
-                                    <p className="text-sm text-title/70">
-                                        Viviendas de media <span className="font-semibold text-title">{data.mas.vivienda.alquiler.superficie} m²</span>
-                                    </p>
-                                )}
                                 <p className="text-xs leading-5 text-title/55">
-                                    Mediana del alquiler declarado en {data.mas.vivienda.tipo === "casa" ? "casas" : "pisos"} (IRPF), no precios de anuncio. Fuente: Ministerio de Vivienda ({data.mas.vivienda.actualizado}).
+                                    Mediana del alquiler declarado en {data.mas.vivienda.tipo === "casa" ? "casas" : "pisos"} (IRPF), no precios de anuncio.
+                                </p>
+                                <p className="text-xs leading-5 text-title/55">
+                                    Fuente: Ministerio de Vivienda ({data.mas.vivienda.actualizado})
                                 </p>
                             </div>
                             <div className="min-w-0 flex-1">
@@ -301,6 +275,20 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                                 />
                             </div>
                         </div>
+                    </div>
+                </section>
+            )}
+
+
+            {data.cod_int && ineData && (
+                <section className="py-14 sm:py-12">
+                    <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Lo que cuentan los datos</h2>
+                        </div>
+                    </div>
+                    <div className="overflow-hidden border-y border-title/20 bg-bg-card">
+                        <Datos ineData={ineData} />
                     </div>
                 </section>
             )}

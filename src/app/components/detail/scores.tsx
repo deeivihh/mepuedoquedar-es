@@ -15,7 +15,7 @@ import {
 import { IconType } from "react-icons";
 import { MdLocalHospital, MdOutlineSportsMartialArts, MdOutlineTravelExplore, MdPublic } from "react-icons/md";
 import { GiBowlingPin } from "react-icons/gi";
-import { FaPeopleGroup, FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
+import { FaPeopleGroup, FaArrowTrendUp, FaArrowTrendDown, FaArrowRight } from "react-icons/fa6";
 import { FaChevronDown } from "react-icons/fa";
 import { useMemo, useState } from "react";
 
@@ -60,59 +60,60 @@ export default function GeneralScore({
     const [showDepartments, setShowDepartments] = useState(false);
 
     return (
-        <div className="flex w-full flex-col items-center justify-center gap-6 text-title">
-            <div className="grid w-full gap-5 pb-2 sm:grid-cols-[auto_1fr] sm:items-end sm:gap-8">
-                <div className="flex flex-col">
-                    <div className="flex items-baseline gap-1 mt-1">
-                        <span className="title-font text-7xl font-semibold leading-none text-title sm:text-8xl">
+        <div className="flex w-full flex-col gap-7 text-title">
+            <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center sm:gap-8">
+                <div className="shrink-0">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-title/55">¿Encaja contigo?</p>
+                    <div className="mt-1 flex items-baseline gap-1.5">
+                        <span className="title-font text-6xl font-semibold leading-none text-title sm:text-7xl">
                             {number}
                         </span>
-                        <span className="font-mono text-xl font-semibold text-text-2">/ 100</span>
+                        <span className="font-mono text-sm font-semibold text-title/50">/ 100</span>
                     </div>
                 </div>
-                <span className="max-w-xl text-3xl font-semibold leading-tight text-title title-font sm:justify-self-end sm:text-right sm:text-4xl">
-                    {labelText()}
-                </span>
-            </div>
 
-            <div className="flex w-full flex-col gap-2">
-                <div className="h-2 w-full overflow-hidden bg-title/10">
-                    <div
-                        className="h-full bg-text-2 transition-all duration-500 ease-out"
-                        style={{ width: `${Math.min(100, Math.max(0, number))}%` }}
-                    />
+                <div className="hidden h-14 w-px bg-title/20 sm:block" aria-hidden="true" />
+
+                <div className="flex flex-col gap-4 w-full items-center min-md:justify-end">
+                    <p className="title-font text-2xl font-semibold w-full min-md:text-right sm:text-3xl">
+                        {labelText()}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => setShowDepartments((v) => !v)}
+                        aria-expanded={showDepartments}
+                        className="inline-flex items-center gap-2 self-start text-[11px] font-bold uppercase tracking-[0.18em] text-text-2 transition-colors hover:text-title sm:ml-auto sm:self-center"
+                    >
+                        {showDepartments ? "Ocultar puntuación" : "Ver puntuación por departamento"}
+                        <FaArrowRight
+                            className={`text-[10px] transition-transform ${showDepartments ? "rotate-90" : ""}`}
+                            aria-hidden="true"
+                        />
+                    </button>
                 </div>
             </div>
 
-            <div className="flex w-full flex-col items-end gap-4 pt-1">
-                <button
-                    type="button"
-                    onClick={() => setShowDepartments((v) => !v)}
-                    aria-expanded={showDepartments}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-title transition-colors hover:border-text-2 hover:text-text-2"
-                >
-                    {showDepartments ? "Ocultar puntuación por departamento" : "Ver puntuación por departamento"}
-                    <FaChevronDown
-                        className={`text-xs transition-transform ${showDepartments ? "rotate-180" : ""}`}
-                        aria-hidden="true"
-                    />
-                </button>
-
-                {showDepartments && (
-                    <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
-                        {Object.entries(scoresDepartments).map(([key, value]) => (
-                            <ScoreItem
-                                key={key}
-                                name={key}
-                                number={value}
-                                multiplier={multipliers[key] ?? 1.0}
-                                isDefault={isDefault}
-                                preferences={preferences}
-                            />
-                        ))}
-                    </div>
-                )}
+            <div className="h-1 w-full bg-title/10">
+                <div
+                    className="h-full bg-text-2 transition-all duration-500 ease-out"
+                    style={{ width: `${Math.min(100, Math.max(0, number))}%` }}
+                />
             </div>
+
+            {showDepartments && (
+                <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
+                    {Object.entries(scoresDepartments).map(([key, value]) => (
+                        <ScoreItem
+                            key={key}
+                            name={key}
+                            number={value}
+                            multiplier={multipliers[key] ?? 1.0}
+                            isDefault={isDefault}
+                            preferences={preferences}
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
