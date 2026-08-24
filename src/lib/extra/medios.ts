@@ -31,8 +31,6 @@ async function run(): Promise<MasSourceResult> {
     const records: MedioRecord[] = await res.json();
     const result: MasSourceResult = {};
 
-    const MAX_MEDIOS = 5;
-
     for (const r of records) {
         const codigo = byName.get(normalizeText(r.localidad ?? ""));
         if (!codigo) continue;
@@ -46,8 +44,6 @@ async function run(): Promise<MasSourceResult> {
         const entry = (result[codigo] ??= { medios: [] as unknown[] }) as {
             medios: { nombre: string; directorio_superior: string | null; paginas_de_internet: string | null }[];
         };
-
-        if (entry.medios.length >= MAX_MEDIOS) continue;
 
         entry.medios.push({
             nombre,
