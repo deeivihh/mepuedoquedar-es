@@ -45,6 +45,13 @@ async function run(): Promise<MasSourceResult> {
             medios: { nombre: string; directorio_superior: string | null; paginas_de_internet: string | null }[];
         };
 
+        const duplicado = entry.medios.some((m) => {
+            const a = normalizeText(m.nombre);
+            const b = normalizeText(nombre);
+            return a === b || b.startsWith(`${a} -`) || a.startsWith(`${b} -`);
+        });
+        if (duplicado) continue;
+
         entry.medios.push({
             nombre,
             directorio_superior: r.directorio_superior?.trim() || null,
