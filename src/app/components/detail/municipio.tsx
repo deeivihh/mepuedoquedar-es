@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "@/app/utils/useLocation";
 import { Map } from "pigeon-maps";
 import { IoPeopleSharp } from "react-icons/io5";
-import { FaCarSide, FaMapMarkedAlt } from "react-icons/fa";
+import { FaCarSide, FaInfo, FaMapMarkedAlt } from "react-icons/fa";
 import { MdArrowOutward } from "react-icons/md";
 import { calculateScores, ScoreResult } from "@/lib/scores/calculateScores";
 import GeneralScore from "@/app/components/detail/scores";
@@ -334,6 +334,10 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                             </div>
                         ))}
                     </div>
+                    <p className="mt-3 px-0.5 flex items-center text-[10px] text-title/50 hover:text-title group relative w-fit">
+                        <span className="absolute pt-0.5 group-hover:-left-10 -left-5 blur group-hover:blur-none font-medium z-10 transition-all duration-150">Fuente:</span>
+                        <a className="mt-0.5 group-hover:text-text-2 transition-all duration-150" href="https://analisis.datosabiertos.jcyl.es/explore/dataset/guia-de-medios-de-comunicacion/information">Guía de medios de comunicación de la Junta de Castilla y León</a>
+                    </p>
                 </section>
             )}
         </article>
