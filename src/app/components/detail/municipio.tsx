@@ -185,7 +185,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                             <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-title/55 px-1">
                                 {data.provincia && data.provincia !== data.municipio ? `${capitalize(data.provincia)}, España` : "Castilla y León, España"}
                             </p>
-                            <h1 className="title-font text-6xl font-semibold text-pretty max-md:text-5xl">
+                            <h1 className="title-font text-6xl font-bold text-pretty max-md:text-5xl">
                                 {data.municipio}
                             </h1>
                             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-title/75 mt-2 px-1">
@@ -301,6 +301,42 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     <div className="overflow-hidden border-y border-title/20 bg-bg-card">
                         <Wikipedia data={wikiData} />
                     </div>
+                </section>
+            )}
+
+            {data.mas?.medios?.medios?.length > 0 && (
+                <section className="py-14 sm:py-12">
+                    <div className="mb-8">
+                        <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Prensa local</h2>
+                    </div>
+                    <div className="grid grid-cols-1 gap-px border-y border-title/20 bg-title/20 md:grid-cols-2">
+                        {data.mas.medios.medios.map((medio: { nombre: string; directorio_superior: string | null; paginas_de_internet: string | null }, i: number) => (
+                            <div key={i} className="flex flex-col gap-1.5 bg-bg-card p-5 transition-colors hover:bg-white/40">
+                                <div className="flex items-start justify-between gap-4">
+                                    <h3 className="title-font text-lg font-semibold leading-snug text-title">{medio.nombre}</h3>
+                                    {medio.paginas_de_internet && (
+                                        <a
+                                            href={medio.paginas_de_internet}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            title={`Abrir ${medio.nombre}`}
+                                            className="shrink-0 text-title/40 transition-colors hover:text-text-2"
+                                        >
+                                            <MdArrowOutward aria-hidden="true" />
+                                        </a>
+                                    )}
+                                </div>
+                                {medio.directorio_superior && (
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-title/50">
+                                        {medio.directorio_superior}
+                                    </p>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                    <p className="mt-3 text-xs text-title/45">
+                        Fuente: Guía de medios de comunicación de la Junta de Castilla y León.
+                    </p>
                 </section>
             )}
         </article>

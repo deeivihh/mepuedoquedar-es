@@ -31,6 +31,8 @@ async function run(): Promise<MasSourceResult> {
     const records: MedioRecord[] = await res.json();
     const result: MasSourceResult = {};
 
+    const MAX_MEDIOS = 5;
+
     for (const r of records) {
         const codigo = byName.get(normalizeText(r.localidad ?? ""));
         if (!codigo) continue;
@@ -38,14 +40,19 @@ async function run(): Promise<MasSourceResult> {
         const nombre = r.nombre_del_organismo?.trim();
         if (!nombre) continue;
 
+        const paginas = r.paginas_de_internet?.trim() || null;
+        if (!paginas) continue;
+
         const entry = (result[codigo] ??= { medios: [] as unknown[] }) as {
             medios: { nombre: string; directorio_superior: string | null; paginas_de_internet: string | null }[];
         };
 
+        if (entry.medios.length >= MAX_MEDIOS) continue;
+
         entry.medios.push({
             nombre,
             directorio_superior: r.directorio_superior?.trim() || null,
-            paginas_de_internet: r.paginas_de_internet?.trim() || null,
+            paginas_de_internet: paginas,
         });
     }
 
