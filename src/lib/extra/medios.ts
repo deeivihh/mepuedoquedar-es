@@ -1,11 +1,9 @@
-import { getSupabase } from "@/lib/supabase/client";
+import { fetchDataset } from "@/lib/datos/client";
+import { normalizeText } from "@/lib/datos/normalize";
+import { MUNICIPALITIES_CONFIG } from "@/lib/datos/groups";
 import type { MasSourceResult } from "./types";
 
 const EXPORT_URL = "https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets/guia-de-medios-de-comunicacion/exports/json";
-
-function normalize(s: string) {
-    return s.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-}
 
 interface MedioRecord {
     nombre_del_organismo?: string | null;
@@ -15,24 +13,26 @@ interface MedioRecord {
 }
 
 async function run(): Promise<MasSourceResult> {
-    const [res, municipiosRes] = await Promise.all([
+    const [res, municipios] = await Promise.all([
         fetch(EXPORT_URL, { signal: AbortSignal.timeout(30000) }),
-        getSupabase().from("municipios").select("codigo, municipio"),
+        fetchDataset<{ municipio: string; cod_ine: string }>(
+            MUNICIPALITIES_CONFIG.id,
+            { select: ["municipio", "cod_ine"] }
+        ),
     ]);
 
     if (!res.ok) throw new Error(`El export de medios devolvió ${res.status}`);
-    if (municipiosRes.error) throw municipiosRes.error;
 
     const byName = new Map<string, string>();
-    for (const m of municipiosRes.data ?? []) {
-        byName.set(normalize(m.municipio), m.codigo);
+    for (const m of municipios) {
+        byName.set(normalizeText(m.municipio), String(m.cod_ine).trim());
     }
 
     const records: MedioRecord[] = await res.json();
     const result: MasSourceResult = {};
 
     for (const r of records) {
-        const codigo = byName.get(normalize(r.localidad ?? ""));
+        const codigo = byName.get(normalizeText(r.localidad ?? ""));
         if (!codigo) continue;
 
         const nombre = r.nombre_del_organismo?.trim();
