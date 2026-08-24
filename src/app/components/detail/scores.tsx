@@ -17,7 +17,7 @@ import { MdLocalHospital, MdOutlineSportsMartialArts, MdOutlineTravelExplore, Md
 import { GiBowlingPin } from "react-icons/gi";
 import { FaPeopleGroup, FaArrowTrendUp, FaArrowTrendDown } from "react-icons/fa6";
 import { FaChevronDown } from "react-icons/fa";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const DEPARTMENT_ICONS: Record<string, IconType> = {
     sanidad: MdLocalHospital,
@@ -57,6 +57,8 @@ export default function GeneralScore({
         return isDefault ? {} : computeWeightMultipliers(preferences);
     }, [preferences, isDefault]);
 
+    const [showDepartments, setShowDepartments] = useState(false);
+
     return (
         <div className="flex w-full flex-col items-center justify-center gap-6 text-title">
             <div className="grid w-full gap-5 pb-2 sm:grid-cols-[auto_1fr] sm:items-end sm:gap-8">
@@ -82,19 +84,34 @@ export default function GeneralScore({
                 </div>
             </div>
 
-            <div className="w-full pt-1">
-                <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
-                    {Object.entries(scoresDepartments).map(([key, value]) => (
-                        <ScoreItem
-                            key={key}
-                            name={key}
-                            number={value}
-                            multiplier={multipliers[key] ?? 1.0}
-                            isDefault={isDefault}
-                            preferences={preferences}
-                        />
-                    ))}
-                </div>
+            <div className="flex w-full flex-col items-end gap-4 pt-1">
+                <button
+                    type="button"
+                    onClick={() => setShowDepartments((v) => !v)}
+                    aria-expanded={showDepartments}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-title transition-colors hover:border-text-2 hover:text-text-2"
+                >
+                    {showDepartments ? "Ocultar puntuación por departamento" : "Ver puntuación por departamento"}
+                    <FaChevronDown
+                        className={`text-xs transition-transform ${showDepartments ? "rotate-180" : ""}`}
+                        aria-hidden="true"
+                    />
+                </button>
+
+                {showDepartments && (
+                    <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2">
+                        {Object.entries(scoresDepartments).map(([key, value]) => (
+                            <ScoreItem
+                                key={key}
+                                name={key}
+                                number={value}
+                                multiplier={multipliers[key] ?? 1.0}
+                                isDefault={isDefault}
+                                preferences={preferences}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
