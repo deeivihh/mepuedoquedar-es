@@ -13,6 +13,7 @@ import Wikipedia, { getMunicipioWikipedia } from "./wikipedia";
 import { WikipediaData } from "@/app/actions/wikipedia";
 import Datos, { fetchAllTables } from "./datos";
 import { TABLES } from "@/app/utils/getTables";
+import BaseChart from "@/app/components/charts/BaseChart";
 
 function capitalize(value: string) {
     const firstLetter = value.charAt(0);
@@ -251,6 +252,52 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     </div>
                     <div className="overflow-hidden border-y border-title/20 bg-bg-card">
                         <Datos ineData={ineData} />
+                    </div>
+                </section>
+            )}
+
+            {data.mas?.vivienda?.alquiler && (
+                <section className="py-14 sm:py-12">
+                    <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Vivir aquí</h2>
+                        </div>
+                    </div>
+                    <div className="border-y border-title/20 bg-bg-card">
+                        <div className="flex flex-col gap-8 p-6 sm:p-8 lg:flex-row lg:items-center lg:gap-12 lg:p-10">
+                            <div className="flex shrink-0 flex-col gap-4 lg:w-64">
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-title/55">
+                                        Alquiler · precio de referencia
+                                    </p>
+                                    <div className="mt-2 flex items-baseline gap-1.5">
+                                        <span className="title-font text-6xl font-semibold leading-none text-title sm:text-7xl">
+                                            {data.mas.vivienda.alquiler.precio}
+                                        </span>
+                                        <span className="font-mono text-lg font-semibold text-text-2">€/mes</span>
+                                    </div>
+                                </div>
+                                {data.mas.vivienda.alquiler.superficie > 0 && (
+                                    <p className="text-sm text-title/70">
+                                        Viviendas de media <span className="font-semibold text-title">{data.mas.vivienda.alquiler.superficie} m²</span>
+                                    </p>
+                                )}
+                                <p className="text-xs leading-5 text-title/55">
+                                    Mediana calculada con datos fiscales del Ministerio de Vivienda ({data.mas.vivienda.actualizado}).
+                                </p>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <BaseChart
+                                    type="line"
+                                    height={220}
+                                    title="Evolución del precio (€/mes)"
+                                    data={data.mas.vivienda.alquiler.serie.map((s: { anio: number; precio: number }) => ({
+                                        Nombre: String(s.anio),
+                                        Valor: s.precio,
+                                    }))}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </section>
             )}

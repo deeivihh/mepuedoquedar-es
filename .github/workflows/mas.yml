@@ -1,0 +1,45 @@
+name: Sincronizar datos extra
+
+on:
+  schedule:
+    - cron: '17 6 1 * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Sincronizando datos extra
+        env:
+          SYNC_SECRET: ${{ secrets.INT_SYNC_SECRET_KEY }}
+        run: |
+          START=$(date +%s)
+
+          TIMESTAMP=$(date +%s)
+
+          SIGNATURE=$(echo -n "$TIMESTAMP" | openssl dgst -sha256 -hmac "$SYNC_SECRET" | awk '{print $2}')
+
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
+            -X POST \
+            https://mepuedoquedar.es/api/sync/mas \
+            -H "Authorization: Bearer $SYNC_SECRET" \
+            -H "X-Sync-Timestamp: $TIMESTAMP" \
+            -H "X-Sync-Signature: $SIGNATURE" \
+            -H "User-Agent: mepuedoquedar-sync/1.0")
+
+          BODY=$(echo "$RESPONSE" | sed '/HTTP_STATUS:/d')
+          STATUS=$(echo "$RESPONSE" | grep HTTP_STATUS | cut -d: -f2)
+
+          echo "HTTP Status: $STATUS"
+          echo "$BODY"
+
+          END=$(date +%s)
+          echo "⏱️ Duración: $((END-START)) segundos"
+
+          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 300 ]; then
+            echo "❌ Sync extra falló"
+            exit 1
+          fi
+
+          echo "✅ Sync extra completado"
