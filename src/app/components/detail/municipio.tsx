@@ -304,14 +304,14 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                 </section>
             )}
 
-            {data.mas?.medios?.medios?.length > 0 && (
+            {data.mas?.medios?.length > 0 && (
                 <section className="py-14 sm:py-12">
                     <div className="mb-8">
                         <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Prensa local</h2>
                     </div>
                     <div className="grid grid-cols-1 gap-px border-y border-title/20 bg-title/20 md:grid-cols-2">
-                        {data.mas.medios.medios.map((medio: { nombre: string; directorio_superior: string | null; paginas_de_internet: string | null }, i: number) => (
-                            <div key={i} className="flex flex-col gap-1.5 bg-bg-card p-5 transition-colors hover:bg-white/40">
+                        {data.mas.medios.map((medio: { nombre: string; directorio_superior: string | null; paginas_de_internet: string | null }, i: number) => (
+                            <div key={i} className={`flex flex-col gap-1.5 bg-bg-card p-5 transition-colors hover:bg-white/40 ${data.mas.medios.length % 2 === 1 && i === data.mas.medios.length - 1 ? "md:col-span-2" : ""}`}>
                                 <div className="flex items-start justify-between gap-4">
                                     <h3 className="title-font text-lg font-semibold leading-snug text-title">{medio.nombre}</h3>
                                     {medio.paginas_de_internet && (
@@ -334,9 +334,6 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                             </div>
                         ))}
                     </div>
-                    <p className="mt-3 text-xs text-title/45">
-                        Fuente: Guía de medios de comunicación de la Junta de Castilla y León.
-                    </p>
                 </section>
             )}
         </article>
