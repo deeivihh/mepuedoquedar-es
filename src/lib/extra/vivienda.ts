@@ -8,9 +8,14 @@ const CYL_PROVINCIAS = new Set(["05", "09", "24", "34", "37", "40", "42", "47", 
 
 type SerieItem = { anio: number; precio: number };
 
-type MunicipioAcc = {
+type TipoAcc = {
     precios: Map<number, number[]>;
     superficies: Map<number, number[]>;
+};
+
+type MunicipioAcc = {
+    colectiva: TipoAcc;
+    unifamiliar: TipoAcc;
 };
 
 async function* csvLines(res: Response) {
@@ -40,6 +45,7 @@ function parseRow(line: string) {
         codProvincia: c[0]?.trim() ?? "",
         codPostal: c[2]?.trim() ?? "",
         elemento: c[4]?.trim() ?? "",
+        tipo: c[5]?.trim() ?? "",
         medida: c[6]?.trim() ?? "",
         anio: parseInt(c[7], 10),
         valor: parseFloat(c[8]),
@@ -51,20 +57,25 @@ function average(values: number[]) {
 }
 
 function buildVivienda(acc: MunicipioAcc) {
-    const anios = [...acc.precios.keys()].sort((a, b) => a - b);
+    const tipo: TipoAcc = acc.colectiva.precios.size > 0 ? acc.colectiva : acc.unifamiliar;
+
+    const anios = [...tipo.precios.keys()].sort((a, b) => a - b);
     if (!anios.length) return null;
 
-    const serie: SerieItem[] = anios.map((anio) => ({
-        anio,
-        precio: Math.round(average(acc.precios.get(anio)!)),
-    }));
+    const serie: SerieItem[] = anios
+        .slice(-5)
+        .map((anio) => ({
+            anio,
+            precio: Math.round(average(tipo.precios.get(anio)!)),
+        }));
 
     const ultimo = anios[anios.length - 1];
-    const superficies = acc.superficies.get(ultimo);
+    const superficies = tipo.superficies.get(ultimo);
     const superficie = superficies?.length ? Math.round(average(superficies)) : null;
 
     return {
         actualizado: ultimo,
+        tipo: acc.colectiva.precios.size > 0 ? "piso" : "casa",
         alquiler: {
             precio: serie[serie.length - 1].precio,
             superficie,
@@ -89,18 +100,23 @@ async function run(): Promise<MasSourceResult> {
 
         let acc = municipios.get(row.codPostal);
         if (!acc) {
-            acc = { precios: new Map(), superficies: new Map() };
+            acc = {
+                colectiva: { precios: new Map(), superficies: new Map() },
+                unifamiliar: { precios: new Map(), superficies: new Map() },
+            };
             municipios.set(row.codPostal, acc);
         }
 
+        const target = row.tipo === "UNIFAMILIAR" ? acc.unifamiliar : acc.colectiva;
+
         if (row.elemento === "PRECIO") {
-            const list = acc.precios.get(row.anio) ?? [];
+            const list = target.precios.get(row.anio) ?? [];
             list.push(row.valor);
-            acc.precios.set(row.anio, list);
+            target.precios.set(row.anio, list);
         } else if (row.elemento === "SUPERFICIE") {
-            const list = acc.superficies.get(row.anio) ?? [];
+            const list = target.superficies.get(row.anio) ?? [];
             list.push(row.valor);
-            acc.superficies.set(row.anio, list);
+            target.superficies.set(row.anio, list);
         }
     }
 
