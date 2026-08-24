@@ -10,7 +10,6 @@ type SerieItem = { anio: number; precio: number };
 
 type TipoAcc = {
     precios: Map<number, number[]>;
-    superficies: Map<number, number[]>;
 };
 
 type MunicipioAcc = {
@@ -70,15 +69,12 @@ function buildVivienda(acc: MunicipioAcc) {
         }));
 
     const ultimo = anios[anios.length - 1];
-    const superficies = tipo.superficies.get(ultimo);
-    const superficie = superficies?.length ? Math.round(average(superficies)) : null;
 
     return {
         actualizado: ultimo,
         tipo: acc.colectiva.precios.size > 0 ? "piso" : "casa",
         alquiler: {
             precio: serie[serie.length - 1].precio,
-            superficie,
             serie,
         },
     };
@@ -101,8 +97,8 @@ async function run(): Promise<MasSourceResult> {
         let acc = municipios.get(row.codPostal);
         if (!acc) {
             acc = {
-                colectiva: { precios: new Map(), superficies: new Map() },
-                unifamiliar: { precios: new Map(), superficies: new Map() },
+                colectiva: { precios: new Map() },
+                unifamiliar: { precios: new Map() },
             };
             municipios.set(row.codPostal, acc);
         }
@@ -113,10 +109,6 @@ async function run(): Promise<MasSourceResult> {
             const list = target.precios.get(row.anio) ?? [];
             list.push(row.valor);
             target.precios.set(row.anio, list);
-        } else if (row.elemento === "SUPERFICIE") {
-            const list = target.superficies.get(row.anio) ?? [];
-            list.push(row.valor);
-            target.superficies.set(row.anio, list);
         }
     }
 
