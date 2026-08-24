@@ -9,8 +9,13 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        fuente: [vivienda, medios]
     steps:
-      - name: Sincronizando datos extra
+      - name: Sincronizando fuente "${{ matrix.fuente }}"
         env:
           SYNC_SECRET: ${{ secrets.INT_SYNC_SECRET_KEY }}
         run: |
@@ -22,7 +27,7 @@ jobs:
 
           RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
             -X POST \
-            https://mepuedoquedar.es/api/sync/mas \
+            "https://mepuedoquedar.es/api/sync/mas?fuente=${{ matrix.fuente }}" \
             -H "Authorization: Bearer $SYNC_SECRET" \
             -H "X-Sync-Timestamp: $TIMESTAMP" \
             -H "X-Sync-Signature: $SIGNATURE" \
@@ -38,8 +43,8 @@ jobs:
           echo "⏱️ Duración: $((END-START)) segundos"
 
           if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 300 ]; then
-            echo "❌ Sync extra falló"
+            echo "❌ Fuente ${{ matrix.fuente }} falló"
             exit 1
           fi
 
-          echo "✅ Sync extra completado"
+          echo "✅ Fuente ${{ matrix.fuente }} completada"

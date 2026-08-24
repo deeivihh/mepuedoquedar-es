@@ -17,11 +17,21 @@ export async function POST(req: Request) {
     const startedAt = performance.now();
     const log = createLog("sync/mas");
 
+    const solo = new URL(req.url).searchParams.get("fuente");
+    const sources = solo ? MAS_SOURCES.filter((s) => s.name === solo) : MAS_SOURCES;
+
+    if (solo && sources.length === 0) {
+        return NextResponse.json(
+            { ok: false, error: `Fuente desconocida: ${solo}` },
+            { status: 400, headers: { "Cache-Control": "no-store" } }
+        );
+    }
+
     try {
         const merged = new Map<string, Record<string, any>>();
         const sourceResults: Record<string, { ok: boolean; municipios?: number; error?: string }> = {};
 
-        for (const source of MAS_SOURCES) {
+        for (const source of sources) {
             try {
                 log.info(`Ejecutando fuente "${source.name}"...`);
                 const data = await source.run();

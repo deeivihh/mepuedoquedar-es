@@ -89,8 +89,9 @@ async function run(): Promise<MasSourceResult> {
     const municipios = new Map<string, MunicipioAcc>();
 
     for await (const line of csvLines(res)) {
+        if (line.length < 20 || !CYL_PROVINCIAS.has(line.slice(0, 2))) continue;
+
         const row = parseRow(line);
-        if (!CYL_PROVINCIAS.has(row.codProvincia)) continue;
         if (!row.codPostal || isNaN(row.anio) || isNaN(row.valor)) continue;
         if (row.medida !== "MEDIANA") continue;
 
