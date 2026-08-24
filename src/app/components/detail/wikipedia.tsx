@@ -38,7 +38,7 @@ export default function Wikipedia({ data }: { data: WikipediaData | null }) {
                 </div>
 
                 {paras.length > 2 && (
-                        <button onClick={() => setExpanded(!expanded)} className="flex items-center justify-start gap-2 text-xs uppercase text-title/60 hover:text-text-2">
+                    <button onClick={() => setExpanded(!expanded)} className="flex items-center justify-start gap-2 text-xs uppercase text-title/60 hover:text-text-2">
                         {expanded ? <>Menos <FaChevronUp size={10} className="mb-0.5" /></> : <>Más <FaChevronDown size={10} className="mb-0.5" /></>}
                     </button>
                 )}
@@ -66,7 +66,7 @@ export default function Wikipedia({ data }: { data: WikipediaData | null }) {
                         </div>
 
                         {images.length > 1 && (
-                            <div className="min-md:col-span-2 grid grid-cols-4 max-md:grid-cols-5 content-start self-start w-full max-h-[440px] overflow-y-auto gap-2">
+                            <div className="min-md:col-span-2 grid grid-cols-4 max-md:grid-cols-5 content-start self-start w-full h-full gap-2">
                                 {images.map((item, i) => (
                                     <button key={i} onClick={() => setIdx(i)} title={item.description} className={`w-full aspect-square overflow-hidden border transition-all ${i === idx ? 'border-title opacity-100' : 'border-title/20 opacity-50 hover:opacity-100'}`}>
                                         <img

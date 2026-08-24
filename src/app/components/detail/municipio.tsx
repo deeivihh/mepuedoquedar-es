@@ -120,6 +120,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         "Consultando registros del municipio...",
         "Buscando en Wikipedia y recopilando imágenes...",
         "Recibiendo estadísticas del INE...",
+        "Consultando el Ministerio de vivienda...",
         "Analizando servicios, sanidad y educación...",
         "Calculando tu puntuación personalizada...",
         "Preparando el informe final...",
@@ -179,13 +180,13 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         <article className="w-full text-title">
 
             <section className="relative isolate flex min-h-0 flex-col overflow-hidden border border-title/25 bg-bg-card lg:min-h-[30svh]">
-                <div className="flex flex-col h-full my-auto justify-center items-start gap-3 max-md:py-12">
+                <div className="flex flex-col h-full my-auto justify-center items-start gap-3.5 max-md:py-12">
                     <div className="flex z-999 w-full">
                         <div className="flex h-full w-full items-center justify-start px-12">
                             <h1 className="w-full max-w-[22ch] break-words text-left text-4xl font-bold leading-[1.05] text-balance text-title sm:text-5xl lg:max-w-3xl">{data.municipio}</h1>
                         </div>
                     </div>
-                    <div className="flex flex-col z-999 px-12 gap-8 w-full">
+                    <div className="flex flex-col z-999 px-13 gap-8 w-full">
                         <ul className="flex flex-col md:flex-row items-start md:items-center w-full text-xs lg:px-1 gap-4 list-disc list-inside md:list-none text-left">
                             {data.distance > 0 && (
                                 <li className="text-title/70">
@@ -203,7 +204,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                                     </span>
                                 </li>
                             )}
-                            {data.provincia && (
+                            {data.provincia && data.provincia !== data.municipio && (
                                 <li>
                                     <span className="inline-flex items-center gap-2">
                                         <FaMapMarkedAlt className="text-text-2" aria-hidden="true" />
@@ -283,7 +284,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                                     </p>
                                 )}
                                 <p className="text-xs leading-5 text-title/55">
-                                    Mediana calculada con datos fiscales del Ministerio de Vivienda ({data.mas.vivienda.actualizado}).
+                                    Mediana del alquiler declarado en {data.mas.vivienda.tipo === "casa" ? "casas" : "pisos"} (IRPF), no precios de anuncio. Fuente: Ministerio de Vivienda ({data.mas.vivienda.actualizado}).
                                 </p>
                             </div>
                             <div className="min-w-0 flex-1">
@@ -291,10 +292,12 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                                     type="line"
                                     height={220}
                                     title="Evolución del precio (€/mes)"
-                                    data={data.mas.vivienda.alquiler.serie.map((s: { anio: number; precio: number }) => ({
-                                        Nombre: String(s.anio),
-                                        Valor: s.precio,
-                                    }))}
+                                    data={[...data.mas.vivienda.alquiler.serie]
+                                        .reverse()
+                                        .map((s: { anio: number; precio: number }) => ({
+                                            Periodo: String(s.anio),
+                                            Valor: s.precio,
+                                        }))}
                                 />
                             </div>
                         </div>
