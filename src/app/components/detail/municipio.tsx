@@ -14,6 +14,7 @@ import { WikipediaData } from "@/app/actions/wikipedia";
 import Datos, { fetchAllTables } from "./datos";
 import { TABLES } from "@/app/utils/getTables";
 import BaseChart from "@/app/components/charts/BaseChart";
+import { SiGooglemaps } from "react-icons/si";
 
 function capitalize(value: string) {
     const firstLetter = value.charAt(0);
@@ -203,15 +204,26 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                                 )}
                             </div>
                         </div>
-                        <div className="flex items-end justify-start h-full mt-6">
+                        <div className="flex items-end justify-start h-full mt-6 gap-4 z-999">
                             <a
                                 href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-2 bg-text-2 text-text-3 font-semibold px-4 py-1 w-fit"
+                                className="flex items-center gap-2 bg-text-2 hover:opacity-90 text-text-3 font-semibold h-10 px-4 w-fit"
                             >
-                                Cómo llegar <MdArrowOutward aria-hidden="true" />
+                                Cómo llegar <SiGooglemaps aria-hidden="true" />
                             </a>
+                            {data.web && (
+                                <a
+                                    href={data.web}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 border border-title/30 hover:border-title/50 font-medium h-10 px-4 w-fit group relative hover:pr-8"
+                                >
+                                    Pagina web
+                                    <span className="absolute transition-all duration-150 blur group-hover:blur-none right-2"><MdArrowOutward aria-hidden="true" /></span>
+                                </a>
+                            )}
                         </div>
                     </div>
 
