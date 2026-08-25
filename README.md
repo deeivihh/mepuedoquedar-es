@@ -2,6 +2,8 @@
   <img src="./public/logos/banner.png" alt="Banner ¿Me puedo quedar?" width="100%" />
 </div>
 
+---
+
 **¿Y si me voy a vivir a Castilla y León?** Es una idea que muchos se plantean, pero descubrir si realmente es viable para cada persona suele ser complicado. La información necesaria existe, pero está repartida entre la web de la Junta, el INE y decenas de portales oficiales. Cada fuente usa un formato distinto. Los nombres de los municipios varían. Y muchos datos solo cubren parte del territorio. El resultado es que quien plantea mudarse termina decidiendo sin información.
 
 **¿Me puedo quedar?** es la respuesta a ese muro. Una web que analiza los **2.248 municipios de Castilla y León** y da a cada persona una puntuacion según su situación, para que pueda decidir si merece la pena mudarse con datos que se ajustan a su vida y no a la de otro. Si hay hijos, pesa más que haya un colegio. Si se teletrabaja, pesa menos el empleo local. Si no se tiene coche, pesa más el comercio del municipio. **Cada persona ve una puntuación distinta, porque cada vida es distinta.**
