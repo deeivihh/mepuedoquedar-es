@@ -37,7 +37,7 @@ export default function Home() {
                                 <FaBookOpen size={14} />
                             </Link>
                             <a
-                                href="https://github.com/deeivihh/mepuedoquedar"
+                                href="https://github.com/deeivihh/mepuedoquedar.es"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title="Repositorio"

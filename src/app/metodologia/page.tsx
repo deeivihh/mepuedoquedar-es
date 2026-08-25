@@ -364,7 +364,7 @@ export default function MetodologiaPage() {
                         Las puntuaciones e indicadores son modelos orientativos de análisis ciudadano y no constituyen una recomendación o asesoramiento vinculante.
                     </p>
                     <p className="text-xs text-black/60 leading-relaxed">
-                        <strong>¿Me puedo quedar?</strong> es un proyecto de codigo abierto donde cualquiera puede aportar sugerencias y contribuir a través de <a href="https://github.com/deeivihh/mepuedoquedar" target="_blank" rel="noopener noreferrer" className="text-text-2 hover:underline font-medium">GitHub</a>.
+                        <strong>¿Me puedo quedar?</strong> es un proyecto de codigo abierto donde cualquiera puede aportar sugerencias y contribuir a través de <a href="https://github.com/deeivihh/mepuedoquedar.es" target="_blank" rel="noopener noreferrer" className="text-text-2 hover:underline font-medium">GitHub</a>.
                     </p>
                     <p className="text-[11px] text-black/40 leading-relaxed pt-1">
                         Este documento se genera automáticamente a partir de la configuración técnica del sistema.
