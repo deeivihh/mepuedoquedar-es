@@ -148,6 +148,7 @@ export default function SearchBar() {
     const { preferences, setPreferences } = usePreferences();
 
     const abortRef = useRef<AbortController | null>(null);
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const isSearching = query.trim().length > 0;
 
@@ -167,22 +168,31 @@ export default function SearchBar() {
             );
             if (!response.ok) throw new Error("Error al buscar");
             const data: { results: Site[] } = await response.json();
+            if (abortRef.current !== controller) return;
             setResults(data.results);
+            setIsLoading(false);
         } catch (error) {
             if (error instanceof DOMException && error.name === "AbortError") return;
             console.error("Error:", error);
-        } finally {
-            setIsLoading(false);
+            if (abortRef.current === controller) {
+                setResults([]);
+                setIsLoading(false);
+            }
         }
     }, [locationParams]);
 
     useEffect(() => {
         if (!ready) return;
-        if (query.trim().length >= 3) {
-            search(query);
-        } else {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        if (query.trim().length < 3) {
+            abortRef.current?.abort();
             setResults([]);
+            return;
         }
+        debounceRef.current = setTimeout(() => search(query), 300);
+        return () => {
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+        };
     }, [query, ready, search]);
 
     return (
