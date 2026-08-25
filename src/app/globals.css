@@ -100,13 +100,13 @@ h1 {
     .image-fade {
         display: block;
 
-        mask-image: linear-gradient(90deg,
+        mask-image: linear-gradient(130deg,
                 transparent 0%,
-                black 40%);
+                black 60%);
 
-        -webkit-mask-image: linear-gradient(90deg,
+        -webkit-mask-image: linear-gradient(130deg,
                 transparent 0%,
-                black 40%);
+                black 60%);
     }
 
     .image-fade::after {
@@ -114,13 +114,13 @@ h1 {
         position: absolute;
         inset: 0;
 
-        background: linear-gradient(120deg,
-                var(--bg-card) 5%,
-                color-mix(in srgb, var(--bg-card) 20%, transparent) 30%,
-                color-mix(in srgb, var(--bg-card) 20%, transparent) 0%,
-                transparent 40%);
+        background: linear-gradient(90deg,
+                var(--bg-card) 0%,
+                var(--bg-card) 10%,
+                color-mix(in srgb, var(--bg-card) 5%, transparent) 45%,
+                transparent 20%);
 
         z-index: 0.1;
-        pointer-events: none;
+        pointer-events: none
     }
 }
