@@ -18,7 +18,7 @@ La web es autónoma. Hay procesos automáticos que descargan los datos, los limp
 
 Todo esto se apoya sobre una base técnica que mantiene el proyecto estable y barato de mantener. La interfaz usa [Next.js](https://nextjs.org/) y [React](https://react.dev/). Los datos se guardan en [Supabase](https://supabase.com/). El despliegue se realiza en [Cloudflare](https://www.cloudflare.com/). La actualización de datos funciona como una cadena de montaje programada, con registro de cada ejecución y comprobaciones en cada paso. El proyecto está pensado para escalar y crecer sin límites.
 
-Todo el proyecto [es de codigo abierto y su metodología es publica](https://github.com/mepuedoquedar/mepuedoquedar). Cualquiera puede ver de dónde sale cada dato y cómo se calcula la puntuación.
+Todo el proyecto [es de codigo abierto](https://github.com/mepuedoquedar/mepuedoquedar) y su [metodología es publica](https://mepuedoquedar.es/metodologia). Cualquiera puede ver de dónde sale cada dato y cómo se calcula la puntuación.
 
 Hoy, la web ayuda a cualquiera que se esté planteando un cambio de vida a decidir con datos en lugar de a ciegas. Y es solo el principio.
 
@@ -26,4 +26,4 @@ Hoy, la web ayuda a cualquiera que se esté planteando un cambio de vida a decid
 
 Al final, la idea es sencilla: **que nadie se marche de Castilla y León por falta de información, y que quien quiera venir a vivir, pueda comprobar con datos reales si merece la pena hacerlo**.
 
-Puedes visitar el proyecto en **https://mepuedoquedar.es**
+Puedes visitar el proyecto en **[mepuedoquedar.es](https://mepuedoquedar.es)**
