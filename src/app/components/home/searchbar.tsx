@@ -32,7 +32,7 @@ function Toggle({
             aria-checked={checked}
             aria-label={ariaLabel}
             onClick={() => onChange(!checked)}
-            className={`font-bold text-sm uppercase border-2 border-title px-3 py-1 flex items-center justify-center transition-colors min-w-[3.5rem] ${checked ? "bg-title text-[var(--bg-color)]" : "bg-transparent text-title"}`}
+            className={`font-bold text-sm uppercase border-2 border-title px-3 py-1 flex items-center justify-center transition-colors min-w-[3.5rem] ${checked ? "bg-title text-bg-card" : "bg-transparent text-title"}`}
         >
             {checked ? "SÍ" : "NO"}
         </button>
@@ -69,7 +69,7 @@ function AgeSlider({
                 value={value}
                 aria-label="¿Cuántos años tienes?"
                 onChange={(e) => onChange(Number(e.target.value))}
-                className="w-full h-2 bg-title rounded-none appearance-none cursor-pointer accent-[var(--bg-color)] mt-2 border-2 border-title"
+                className="w-full h-2 bg-title rounded-none appearance-none cursor-pointer accent-bg-card mt-2 border-2 border-title [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:bg-bg-card [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-title [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-none [&::-moz-range-thumb]:bg-bg-card [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-title [&::-moz-range-thumb]:cursor-pointer"
             />
             <div className="flex justify-between text-xs font-bold text-title w-full mt-1">
                 <span>16</span>

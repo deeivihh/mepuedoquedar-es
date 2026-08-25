@@ -1,6 +1,5 @@
 import MunicipioDetail from "@/app/components/detail/municipio";
 import SearchBar from "@/app/components/home/searchbar";
-import Link from "next/link";
 
 export default async function DetailPage({
     params,
