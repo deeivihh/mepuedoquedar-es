@@ -1,7 +1,7 @@
 import Link from "next/link";
 import DynamicHeading from "./components/home/dynamicHeading";
 import SearchBar from "./components/home/searchbar";
-import { FaBookOpen, FaGithub, FaEnvelope } from "react-icons/fa";
+import { FaBookOpen, FaGithub, FaLinkedin } from "react-icons/fa";
 
 export const dynamic = "force-static";
 export const revalidate = 86400;
@@ -47,12 +47,14 @@ export default function Home() {
                                 <FaGithub size={15} />
                             </a>
                             <a
-                                href="mailto:deeivihh3@hotmail.com"
-                                title="Contacto"
-                                aria-label="Contacto"
+                                href="https://linkedin.com/in/deeivihh"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="LinkedIn"
+                                aria-label="LinkedIn"
                                 className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-all shadow-sm flex items-center justify-center"
                             >
-                                <FaEnvelope size={14} />
+                                <FaLinkedin size={14} />
                             </a>
                         </nav>
                     </div>
