@@ -181,7 +181,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         <article className="w-full text-title">
             <div className="flex flex-col min-h-[75svh]">
                 <section className="relative isolate flex min-h-0 flex-col overflow-hidden border border-title/20 bg-bg-card min-md:h-[50svh]">
-                    <div className="relative max-md:p-6 p-16 flex flex-col justify-between items-between w-full h-full gap-2 z-999 max-w-2xl h-full">
+                    <div className="relative max-md:p-6 p-16 flex flex-col justify-between items-between w-full h-full gap-2 z-999 max-w-xl h-full">
                         <div className="flex flex-col gap-2">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-title/55 px-1">
                                 {data.provincia && data.provincia !== data.municipio ? `${capitalize(data.provincia)}, España` : "Castilla y León, España"}
@@ -218,7 +218,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                                     href={data.web}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 border border-title/30 hover:border-title/50 font-medium h-10 px-4 w-fit group relative hover:pr-8"
+                                    className="flex items-center bg-white/10 backdrop-blur-sm gap-2 border border-title/30 hover:border-title/50 font-medium h-10 px-4 w-fit group relative hover:pr-8"
                                 >
                                     Pagina web
                                     <span className="absolute transition-all duration-150 blur group-hover:blur-none right-2"><MdArrowOutward aria-hidden="true" /></span>
@@ -227,9 +227,9 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                         </div>
                     </div>
 
-                    <div ref={mapContainerRef} className="image-fade relative order-3 h-[260px] w-full cursor-move overflow-hidden bg-title/10 lg:absolute lg:inset-y-0 lg:right-0 lg:order-none lg:h-full lg:w-3/5">
+                    <div ref={mapContainerRef} className="image-fade relative order-3 h-[260px] w-full cursor-move overflow-hidden bg-title/10 lg:absolute lg:inset-y-0 lg:right-0 lg:order-none lg:h-full lg:w-4/5">
                         <Map
-                            center={[data.latitud, data.longitud]}
+                            center={[data.latitud, data.longitud - 0.008]}
                             zoom={14}
                             minZoom={5}
                             height={mapHeight}
@@ -246,31 +246,28 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                 </section>
             </div>
             {data.mas?.vivienda?.alquiler && (
-                <section className="py-14 sm:py-12">
+                <section className="py-14 sm:py-12 relative">
                     <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Vivir aquí</h2>
                         </div>
                     </div>
                     <div className="border-y border-title/20 bg-bg-card">
-                        <div className="flex flex-col gap-8 p-6 sm:p-8 lg:flex-row lg:items-center lg:gap-12 lg:p-10">
-                            <div className="flex shrink-0 flex-col gap-4 lg:w-64">
+                        <div className="flex flex-col gap-8 p-6 sm:p-8 lg:flex-row lg:justify-between lg:gap-12 lg:p-10">
+                            <div className="flex flex-col justify-between gap-4 lg:w-64">
                                 <div>
                                     <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-title/55">
                                         Alquiler · precio de referencia
                                     </p>
-                                    <div className="mt-2 flex items-baseline gap-1.5">
+                                    <div className="mt-5 flex items-baseline gap-1.5">
                                         <span className="title-font text-6xl font-semibold leading-none text-title sm:text-7xl">
                                             {data.mas.vivienda.alquiler.precio}
                                         </span>
                                         <span className="font-mono text-lg font-semibold text-text-2">€/mes</span>
                                     </div>
                                 </div>
-                                <p className="text-xs leading-5 text-title/55">
+                                <p className="text-xs leading-5 text-title/55 mb-2">
                                     Mediana del alquiler declarado en {data.mas.vivienda.tipo === "casa" ? "casas" : "pisos"} (IRPF), no precios de anuncio.
-                                </p>
-                                <p className="text-xs leading-5 text-title/55">
-                                    Fuente: Ministerio de Vivienda ({data.mas.vivienda.actualizado})
                                 </p>
                             </div>
                             <div className="min-w-0 flex-1">
@@ -288,12 +285,16 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                             </div>
                         </div>
                     </div>
+                    <p className="mt-3 px-0.5 flex items-center text-[10px] text-title/50 hover:text-title group relative w-fit">
+                        <span className="absolute pt-0.5 group-hover:-left-10 -left-5 blur group-hover:blur-none font-medium z-10 transition-all duration-150">Fuente:</span>
+                        <a target="_blank" rel="noopener noreferrer" className="mt-0.5 group-hover:text-text-2 transition-all duration-150" href="https://www.mivau.gob.es/">Ministerio de Vivienda</a>
+                    </p>
                 </section>
             )}
 
 
             {data.cod_int && ineData && (
-                <section className="py-14 sm:py-12">
+                <section className="py-14 sm:py-12 relative">
                     <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Lo que cuentan los datos</h2>
@@ -302,6 +303,10 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     <div className="overflow-hidden border-y border-title/20 bg-bg-card">
                         <Datos ineData={ineData} />
                     </div>
+                    <p className="mt-3 px-0.5 flex items-center text-[10px] text-title/50 hover:text-title group relative w-fit">
+                        <span className="absolute pt-0.5 group-hover:-left-10 -left-5 blur group-hover:blur-none font-medium z-10 transition-all duration-150">Fuente:</span>
+                        <a target="_blank" rel="noopener noreferrer" className="mt-0.5 group-hover:text-text-2 transition-all duration-150" href="https://www.ine.es/">Instituto Nacional de Estadística</a>
+                    </p>
                 </section>
             )}
 
@@ -348,7 +353,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     </div>
                     <p className="mt-3 px-0.5 flex items-center text-[10px] text-title/50 hover:text-title group relative w-fit">
                         <span className="absolute pt-0.5 group-hover:-left-10 -left-5 blur group-hover:blur-none font-medium z-10 transition-all duration-150">Fuente:</span>
-                        <a className="mt-0.5 group-hover:text-text-2 transition-all duration-150" href="https://analisis.datosabiertos.jcyl.es/explore/dataset/guia-de-medios-de-comunicacion/information">Guía de medios de comunicación de la Junta de Castilla y León</a>
+                        <a target="_blank" rel="noopener noreferrer" className="mt-0.5 group-hover:text-text-2 transition-all duration-150" href="https://analisis.datosabiertos.jcyl.es/explore/dataset/guia-de-medios-de-comunicacion/information">Guía de medios de comunicación de la Junta de Castilla y León</a>
                     </p>
                 </section>
             )}
