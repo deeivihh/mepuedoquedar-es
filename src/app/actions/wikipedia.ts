@@ -62,7 +62,7 @@ function split(t = ""): string[] {
 
 function hiRes(url = "") {
     const u = (url.startsWith("//") ? "https:" + url : url).split("?")[0];
-    return u.replace(/\/thumb\/(.+)\/\d+px-([^/]+)$/i, "/thumb/$1/1280px-$2");
+    return u.replace(/\/thumb\/(.+)\/\d+px-([^/]+)$/i, "/thumb/$1/960px-$2");
 }
 
 async function fetchPage(title: string, provincia?: string): Promise<WikipediaData | null> {

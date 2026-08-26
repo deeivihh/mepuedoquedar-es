@@ -13,8 +13,10 @@ import Wikipedia, { getMunicipioWikipedia } from "./wikipedia";
 import { WikipediaData } from "@/app/actions/wikipedia";
 import Datos, { fetchAllTables } from "./datos";
 import { TABLES } from "@/app/utils/getTables";
-import BaseChart from "@/app/components/charts/BaseChart";
+import dynamic from "next/dynamic";
 import { SiGooglemaps } from "react-icons/si";
+
+const BaseChart = dynamic(() => import("@/app/components/charts/BaseChart"), { ssr: false });
 
 function capitalize(value: string) {
     const firstLetter = value.charAt(0);
