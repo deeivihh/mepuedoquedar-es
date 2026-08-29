@@ -11,9 +11,9 @@ type IneData = Record<string, any[]> | null;
 
 const colors = {
     green: "#1F3A2E",
-    title: "#153c2f",
+    title: "#1F3A2E",
     terracotta: "#C46A4A",
-    beige: "#E7DCC3",
+    beige: "#f1e8d7",
     card: "#F4EBE2",
     ink: "#1B1B1B",
     muted: "#667068",
@@ -23,7 +23,7 @@ const chartColors = ["#C46A4A", "#1F3A2E", "#6B7F4D", "#C28B38", "#3D6053", "#D4
 
 const styles = StyleSheet.create({
     page: {
-        backgroundColor: colors.card,
+        backgroundColor: colors.beige,
         color: colors.ink,
         fontFamily: "Helvetica",
         fontSize: 9,
@@ -138,7 +138,9 @@ const styles = StyleSheet.create({
         marginBottom: 22,
     },
     fact: {
-        backgroundColor: colors.beige,
+        backgroundColor: colors.card,
+        borderWidth: 1,
+        borderColor: `${colors.green}15`,
         flexGrow: 1,
         padding: 11,
     },
@@ -154,6 +156,87 @@ const styles = StyleSheet.create({
         fontFamily: "Times-Bold",
         fontSize: 17,
         marginTop: 4,
+    },
+    globalScoreBlock: {
+        backgroundColor: colors.card,
+        borderWidth: 1,
+        borderColor: `${colors.green}22`,
+        padding: 16,
+        marginBottom: 18,
+    },
+    globalScoreHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "flex-end",
+        gap: 12,
+    },
+    globalEyebrow: {
+        color: `${colors.green}88`,
+        fontFamily: "Helvetica-Bold",
+        fontSize: 7,
+        letterSpacing: 1.4,
+        textTransform: "uppercase",
+    },
+    globalScoreRow: {
+        flexDirection: "row",
+        alignItems: "baseline",
+        gap: 4,
+        marginTop: 4,
+    },
+    globalScoreNumber: {
+        color: colors.green,
+        fontFamily: "Times-Bold",
+        fontSize: 42,
+        lineHeight: 1,
+    },
+    globalScoreMax: {
+        color: `${colors.green}66`,
+        fontFamily: "Helvetica-Bold",
+        fontSize: 10,
+    },
+    globalBar: {
+        backgroundColor: `${colors.green}18`,
+        height: 4,
+        marginTop: 8,
+        width: 160,
+    },
+    globalBarFill: {
+        backgroundColor: colors.terracotta,
+        height: 4,
+    },
+    globalLabel: {
+        color: colors.green,
+        fontFamily: "Times-Bold",
+        fontSize: 13,
+        lineHeight: 1.25,
+        textAlign: "right",
+        flex: 1,
+        paddingLeft: 12,
+    },
+    profileBox: {
+        borderTopColor: `${colors.green}12`,
+        borderTopWidth: 1,
+        marginTop: 12,
+        paddingTop: 7,
+    },
+    profileLine: {
+        color: `${colors.green}88`,
+        fontFamily: "Helvetica",
+        fontSize: 7,
+        letterSpacing: 0.15,
+        lineHeight: 1.45,
+    },
+    profilePrefix: {
+        color: `${colors.green}55`,
+        fontFamily: "Helvetica-Bold",
+        fontSize: 6.5,
+        letterSpacing: 0.9,
+        textTransform: "uppercase",
+    },
+    profileDot: {
+        color: `${colors.green}35`,
+        fontFamily: "Helvetica",
+        fontSize: 7,
     },
     department: {
         borderBottomColor: `${colors.green}22`,
@@ -221,6 +304,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 6,
         paddingBottom: 13,
         width: "50%",
+    },
+    chartGroupFull: {
+        width: "100%",
     },
     chartTitle: {
         color: colors.green,
@@ -295,6 +381,20 @@ function scorePercentage(department: DepartmentScore) {
     return Math.round((department.score / department.maxScore) * 100);
 }
 
+function getProfilePills(preferences: Record<string, any>): { label: string; active: boolean }[] {
+    const age = Number(preferences.age ?? 35);
+    const ageLabel = age < 30 ? "Joven" : age < 45 ? "Adulto/a joven" : age < 60 ? "Adulto/a" : "Mayor";
+    return [
+        { label: `${age} años · ${ageLabel}`, active: true },
+        { label: preferences.hasCar ? "Con coche" : "Sin coche", active: true },
+        { label: "Con hijos", active: !!preferences.hasSchoolChildren },
+        { label: "Busca empleo", active: !!preferences.lookingForWork },
+        { label: "Teletrabaja", active: !!preferences.remotework },
+        { label: "Jubilado/a", active: !!preferences.isRetired },
+        { label: "Con mascota", active: !!preferences.hasPet },
+    ];
+}
+
 function getValue(value: unknown) {
     const number = typeof value === "number" ? value : Number(value);
     return Number.isFinite(number) ? number : 0;
@@ -367,15 +467,27 @@ function ChartLegend({ entries }: { entries: { label: string; value: number }[] 
     );
 }
 
-function CategoricalChart({ type, entries }: { type: "pie" | "donut" | "column"; entries: { label: string; value: number }[] }) {
+function CategoricalChart({ type, entries, fullWidth }: { type: "pie" | "donut" | "column"; entries: { label: string; value: number }[]; fullWidth?: boolean }) {
     if (type === "pie" || type === "donut") {
+        const vbW = fullWidth ? 520 : 130;
+        const cx = fullWidth ? vbW / 2 : 65;
+        const scale = fullWidth ? 2.1 : 1;
+        const rOuter = 52 * scale;
+        const rInner = type === "donut" ? (fullWidth ? 62 : 29) : 0;
+        const size = fullWidth ? 168 : 142;
         return (
             <View>
-                <Svg width="100%" height={142} viewBox="0 0 130 130">
-                    {entries.map((entry, index) => (
-                        <Path key={entry.label} d={piePath(index, entries.map((item) => item.value), type === "donut" ? 29 : 0)} fill={chartColors[index % chartColors.length]} />
-                    ))}
-                    {type === "donut" && <Circle cx="65" cy="65" r="23" fill={colors.card} />}
+                <Svg width="100%" height={size} viewBox={`0 0 ${vbW} 130`}>
+                    {entries.map((entry, index) => {
+                        const total = entries.reduce((s, v) => s + v.value, 0);
+                        const start = entries.slice(0, index).reduce((s, v) => s + v.value, 0) / total * Math.PI * 2 - Math.PI / 2;
+                        const end = entries.slice(0, index + 1).reduce((s, v) => s + v.value, 0) / total * Math.PI * 2 - Math.PI / 2;
+                        const largeArc = end - start > Math.PI ? 1 : 0;
+                        const point = (r: number, a: number) => `${cx + r * Math.cos(a)} ${65 + r * Math.sin(a)}`;
+                        const d = !rInner ? `M ${cx} 65 L ${point(rOuter, start)} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${point(rOuter, end)} Z` : `M ${point(rOuter, start)} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${point(rOuter, end)} L ${point(rInner, end)} A ${rInner} ${rInner} 0 ${largeArc} 0 ${point(rInner, start)} Z`;
+                        return <Path key={entry.label} d={d} fill={chartColors[index % chartColors.length]} />;
+                    })}
+                    {type === "donut" && <Circle cx={cx} cy="65" r={rInner ? rInner - 6 : 0} fill={colors.card} />}
                 </Svg>
                 <ChartLegend entries={entries} />
             </View>
@@ -384,7 +496,7 @@ function CategoricalChart({ type, entries }: { type: "pie" | "donut" | "column";
 
     const maxValue = Math.max(...entries.map((entry) => entry.value), 1);
     const width = 500;
-    const barWidth = Math.min(42, 360 / entries.length);
+    const barWidth = Math.min(fullWidth ? 68 : 42, (fullWidth ? 460 : 360) / entries.length);
     return (
         <View>
             <Svg width="100%" height={150} viewBox={`0 0 ${width} 150`}>
@@ -406,14 +518,15 @@ function CategoricalChart({ type, entries }: { type: "pie" | "donut" | "column";
     );
 }
 
-function LineChart({ series }: { series: { label: string; points: { period: string; value: number }[] }[] }) {
+function LineChart({ series, fullWidth }: { series: { label: string; points: { period: string; value: number }[] }[]; fullWidth?: boolean }) {
     const values = series.flatMap((item) => item.points.map((point) => point.value));
     const min = Math.min(...values);
     const max = Math.max(...values);
     const range = max - min || 1;
     const longest = Math.max(...series.map((item) => item.points.length));
     const dates = series[0]?.points.map((point) => point.period) ?? [];
-    const plot = { left: 31, right: 234, top: 13, bottom: 94 };
+    const plot = fullWidth ? { left: 31, right: 468, top: 13, bottom: 94 } : { left: 31, right: 234, top: 13, bottom: 94 };
+    const vbW = fullWidth ? 500 : 250;
     const pointPosition = (point: { value: number }, index: number, length: number) => ({
         x: plot.left + (index / Math.max(length - 1, 1)) * (plot.right - plot.left),
         y: plot.bottom - ((point.value - min) / range) * (plot.bottom - plot.top),
@@ -432,7 +545,7 @@ function LineChart({ series }: { series: { label: string; points: { period: stri
     const dateIndexes = [0, Math.floor((longest - 1) / 2), longest - 1].filter((index, position, list) => list.indexOf(index) === position);
     return (
         <View>
-            <Svg width="100%" height={126} viewBox="0 0 250 126">
+            <Svg width="100%" height={126} viewBox={`0 0 ${vbW} 126`}>
                 {ticks.map((value, index) => {
                     const y = plot.top + index * ((plot.bottom - plot.top) / 2);
                     return (
@@ -462,7 +575,27 @@ function LineChart({ series }: { series: { label: string; points: { period: stri
     );
 }
 
-function IneChart({ table, data }: { table: TableConfig; data: any[] }) {
+function hasChartData(table: TableConfig, data: any[]): boolean {
+    const filtered = filterData(data, table.filter);
+    if (!filtered.length) return false;
+    const isCategorical = table.type === "pie" || table.type === "donut" || table.type === "column";
+    if (isCategorical) {
+        const entries = filtered
+            .map((item, index) => ({ label: displayName(table, item, `Dato ${index + 1}`), value: getValue(Array.isArray(item?.Data) ? item.Data[0]?.Valor : item?.Valor) }))
+            .filter((entry) => table.type === "pie" || table.type === "donut" ? entry.value > 0 : Number.isFinite(entry.value));
+        return entries.length > 0;
+    }
+    const isSeriesArray = Array.isArray(filtered) && filtered.some((item) => Array.isArray(item?.Data));
+    const series = isSeriesArray
+        ? filtered.map((item, index) => ({
+            label: displayName(table, item, `Serie ${index + 1}`),
+            points: [...item.Data].reverse().map((point) => ({ period: getPeriod(point), value: getValue(point.Valor) })),
+        })).filter((item) => item.points.length)
+        : [{ label: table.title ?? "Valor", points: [...filtered].reverse().map((item) => ({ period: getPeriod(item), value: getValue(item.Valor) })) }];
+    return series.length > 0 && series.some((item) => item.points.length > 0);
+}
+
+function IneChart({ table, data, fullWidth }: { table: TableConfig; data: any[]; fullWidth?: boolean }) {
     const filtered = filterData(data, table.filter);
     const isCategorical = table.type === "pie" || table.type === "donut" || table.type === "column";
     const isSeriesArray = Array.isArray(filtered) && filtered.some((item) => Array.isArray(item?.Data));
@@ -477,10 +610,10 @@ function IneChart({ table, data }: { table: TableConfig; data: any[] }) {
             .filter((entry) => table.type === "pie" || table.type === "donut" ? entry.value > 0 : Number.isFinite(entry.value));
         if (!entries.length) return null;
         return (
-            <View style={styles.chartGroup} wrap={false}>
+            <View style={[styles.chartGroup, fullWidth ? styles.chartGroupFull : {}]} wrap={false}>
                 <Text style={styles.chartTitle}>{table.title ?? "Indicadores INE"}</Text>
                 {latest && <Text style={styles.chartDate}>Última actualización: {latest}</Text>}
-                <CategoricalChart type={chartType} entries={entries} />
+                <CategoricalChart type={chartType} entries={entries} fullWidth={fullWidth} />
             </View>
         );
     }
@@ -493,10 +626,10 @@ function IneChart({ table, data }: { table: TableConfig; data: any[] }) {
         : [{ label: table.title ?? "Valor", points: [...filtered].reverse().map((item) => ({ period: getPeriod(item), value: getValue(item.Valor) })) }];
     if (!series.length || !series.some((item) => item.points.length)) return null;
     return (
-        <View style={styles.chartGroup} wrap={false}>
+        <View style={[styles.chartGroup, fullWidth ? styles.chartGroupFull : {}]} wrap={false}>
             <Text style={styles.chartTitle}>{table.title ?? "Indicadores INE"}</Text>
             {latest && <Text style={styles.chartDate}>Última actualización: {latest}</Text>}
-            <LineChart series={series} />
+            <LineChart series={series} fullWidth={fullWidth} />
         </View>
     );
 }
@@ -511,7 +644,7 @@ function ReportFooter() {
     );
 }
 
-function MunicipioReport({ data, scores, ineData }: { data: MunicipioData; scores: ScoreResult; ineData: IneData }) {
+function MunicipioReport({ data, scores, ineData, preferences, isDefault }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean }) {
     const departments = Object.entries(scores.departments);
 
     return (
@@ -553,6 +686,36 @@ function MunicipioReport({ data, scores, ineData }: { data: MunicipioData; score
                 </View>
 
                 <View style={styles.section}>
+                    <View style={styles.globalScoreBlock} wrap={false}>
+                        <View style={styles.globalScoreHeader}>
+                            <View>
+                                <Text style={styles.globalEyebrow}>¿Encaja contigo?</Text>
+                                <View style={styles.globalScoreRow}>
+                                    <Text style={styles.globalScoreNumber}>{scores.global}</Text>
+                                    <Text style={styles.globalScoreMax}>/ 100</Text>
+                                </View>
+                                <View style={styles.globalBar}>
+                                    <View style={[styles.globalBarFill, { width: `${Math.min(100, Math.max(0, scores.global))}%` }]} />
+                                </View>
+                            </View>
+                            <Text style={styles.globalLabel}>{(() => {
+                                if (scores.global >= 80) return "¡Es sin duda tu lugar ideal!";
+                                if (scores.global >= 65) return "Es un lugar muy recomendable";
+                                if (scores.global >= 50) return "Podría ser una buena opción";
+                                if (scores.global >= 35) return "Quizás no sea para ti";
+                                return "No parece tu lugar ideal";
+                            })()}</Text>
+                        </View>
+                        <View style={styles.profileBox}>
+                            <Text style={styles.profileLine}>
+                                <Text style={styles.profilePrefix}>Perfil  ·  </Text>
+                                {getProfilePills(preferences)
+                                    .filter((p) => p.active)
+                                    .map((p) => p.label)
+                                    .join("  ·  ")}
+                            </Text>
+                        </View>
+                    </View>
                     <Text style={styles.sectionTitle}>Puntuación por áreas</Text>
                     {departments.map(([name, department]) => {
                         const percentage = scorePercentage(department);
@@ -589,7 +752,13 @@ function MunicipioReport({ data, scores, ineData }: { data: MunicipioData; score
                         <Text style={styles.sectionTitle}>Datos estadísticos</Text>
                         <Text style={styles.intro}>Series y distribuciones del Instituto Nacional de Estadística. La leyenda identifica cada serie o categoría y muestra su último valor disponible.</Text>
                         <View style={styles.chartsGrid}>
-                            {TABLES.map((table) => <IneChart key={getTableKey(table)} table={table} data={ineData[getTableKey(table)] ?? []} />)}
+                            {(() => {
+                                const visible = TABLES.filter((table) => hasChartData(table, ineData[getTableKey(table)] ?? []));
+                                return visible.map((table, index) => {
+                                    const isLastOdd = visible.length % 2 === 1 && index === visible.length - 1;
+                                    return <IneChart key={getTableKey(table)} table={table} data={ineData[getTableKey(table)] ?? []} fullWidth={isLastOdd} />;
+                                });
+                            })()}
                         </View>
                     </View>
                 </Page>
@@ -623,10 +792,10 @@ function slugify(value: string) {
         .replace(/(^-|-$)/g, "");
 }
 
-export default function DownloadReport({ data, scores, ineData }: { data: MunicipioData; scores: ScoreResult; ineData: IneData }) {
+export default function DownloadReport({ data, scores, ineData, preferences, isDefault }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean }) {
     return (
         <PDFDownloadLink
-            document={<MunicipioReport data={data} scores={scores} ineData={ineData} />}
+            document={<MunicipioReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} />}
             fileName={`me-puedo-quedar-en-${slugify(data.municipio)}.pdf`}
             className="fixed bottom-5 right-5 z-50 inline-flex min-h-11 items-center gap-2 bg-text-2 px-4 py-3 text-sm font-semibold text-text-3 shadow-lg shadow-title/20 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-title sm:bottom-7 sm:right-7"
         >

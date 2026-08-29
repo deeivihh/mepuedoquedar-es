@@ -360,7 +360,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     </p>
                 </section>
             )}
-            {scores && <DownloadReport data={data} scores={scores} ineData={ineData} />}
+            {scores && <DownloadReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} />}
         </article>
     );
 }
