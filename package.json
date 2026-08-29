@@ -1,52 +1,53 @@
 {
-    "name":  "mepuedoquedar",
-    "version":  "0.1.0",
-    "private":  true,
-    "scripts":  {
-                    "dev":  "next dev",
-                    "build":  "next build",
-                    "start":  "next start",
-                    "lint":  "eslint .",
-                    "deploy":  "opennextjs-cloudflare build \u0026\u0026 opennextjs-cloudflare deploy",
-                    "upload":  "opennextjs-cloudflare build \u0026\u0026 opennextjs-cloudflare upload",
-                    "preview":  "opennextjs-cloudflare build \u0026\u0026 opennextjs-cloudflare preview",
-                    "cf-typegen":  "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
-                    "test":  "vitest run",
-                    "test:watch":  "vitest"
-                },
-    "dependencies":  {
-                         "@opennextjs/cloudflare":  "^1.19.9",
-                         "@supabase/supabase-js":  "^2.111.0",
-                         "@tanstack/charts":  "^0.14.0",
-                         "csv-parse":  "^7.0.1",
-                         "geolib":  "^3.3.14",
-                         "motion":  "^12.42.2",
-                         "next":  "^16.3.0",
-                         "pigeon-maps":  "^0.22.1",
-                         "react":  "^19.1.7",
-                         "react-dom":  "^19.1.7",
-                         "react-icons":  "^5.7.0",
-                         "wikipedia":  "^2.5.0"
-                     },
-    "devDependencies":  {
-                            "@eslint/eslintrc":  "^3",
-                            "@tailwindcss/postcss":  "^4",
-                            "@types/node":  "^20.19.43",
-                            "@types/react":  "^19.1.7",
-                            "@types/react-dom":  "^19.1.7",
-                            "esbuild":  "^0.28.2",
-                            "eslint":  "^9",
-                            "eslint-config-next":  "16.2.11",
-                            "tailwindcss":  "^4",
-                            "typescript":  "^5.7.4",
-                            "vitest":  "^4.1.10",
-                            "wrangler":  "^4.113.0"
-                        },
-    "browserslist":  [
-                         "chrome \u003e= 90",
-                         "edge \u003e= 90",
-                         "firefox \u003e= 90",
-                         "safari \u003e= 15",
-                         "ios_saf \u003e= 15"
-                     ]
+    "name": "mepuedoquedar",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "eslint .",
+        "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+        "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+        "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+        "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "dependencies": {
+        "@opennextjs/cloudflare": "^1.19.9",
+        "@react-pdf/renderer": "^4.9.0",
+        "@supabase/supabase-js": "^2.111.0",
+        "@tanstack/charts": "^0.14.0",
+        "csv-parse": "^7.0.1",
+        "geolib": "^3.3.14",
+        "motion": "^12.42.2",
+        "next": "^16.3.0",
+        "pigeon-maps": "^0.22.1",
+        "react": "^19.1.7",
+        "react-dom": "^19.1.7",
+        "react-icons": "^5.7.0",
+        "wikipedia": "^2.5.0"
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "^3",
+        "@tailwindcss/postcss": "^4",
+        "@types/node": "^20.19.43",
+        "@types/react": "^19.1.7",
+        "@types/react-dom": "^19.1.7",
+        "esbuild": "^0.28.2",
+        "eslint": "^9",
+        "eslint-config-next": "16.2.11",
+        "tailwindcss": "^4",
+        "typescript": "^5.7.4",
+        "vitest": "^4.1.10",
+        "wrangler": "^4.113.0"
+    },
+    "browserslist": [
+        "chrome >= 90",
+        "edge >= 90",
+        "firefox >= 90",
+        "safari >= 15",
+        "ios_saf >= 15"
+    ]
 }
