@@ -11,7 +11,7 @@ type IneData = Record<string, any[]> | null;
 
 const colors = {
     green: "#1F3A2E",
-    title: "#1F3A2E",
+    title: "#153c2f",
     terracotta: "#C46A4A",
     beige: "#E7DCC3",
     card: "#F4EBE2",
@@ -58,11 +58,11 @@ const styles = StyleSheet.create({
     },
     coverMunicipalitySubtitle: {
         color: colors.title,
-        fontFamily: "Times-Bold",
-        fontSize: 12,
+        fontFamily: "Times-BoldItalic",
+        fontSize: 15,
         lineHeight: 1.2,
         textAlign: "center",
-        marginTop: 8,
+        marginTop: 20,
     },
     header: {
         alignItems: "center",
@@ -501,15 +501,6 @@ function IneChart({ table, data }: { table: TableConfig; data: any[] }) {
     );
 }
 
-function ReportHeader({ municipio }: { municipio: string }) {
-    return (
-        <View style={styles.header} fixed>
-            <Text style={styles.headerBrand}>¿Me puedo quedar?</Text>
-            <Text style={styles.headerTitle}>Informe de {municipio}</Text>
-        </View>
-    );
-}
-
 function ReportFooter() {
     return (
         <View style={styles.footer} fixed>
@@ -527,10 +518,10 @@ function MunicipioReport({ data, scores, ineData }: { data: MunicipioData; score
         <Document title={`Informe de ${data.municipio}`} author="¿Me puedo quedar?" subject="Análisis territorial del municipio">
             <Page size="A4" style={styles.cover}>
                 <ImageBackground src="/logos/report_cover.png" style={styles.coverImage}>
-<View style={styles.coverMunicipality}>
-                    <Text style={styles.coverMunicipalityName}>{data.municipio}</Text>
-                    <Text style={styles.coverMunicipalitySubtitle}>mepuedoquedar.es</Text>
-                </View>
+                    <View style={styles.coverMunicipality}>
+                        <Text style={styles.coverMunicipalityName}>{data.municipio}</Text>
+                        <Text style={styles.coverMunicipalitySubtitle}>mepuedoquedar.es</Text>
+                    </View>
                 </ImageBackground>
             </Page>
 
@@ -591,10 +582,10 @@ function MunicipioReport({ data, scores, ineData }: { data: MunicipioData; score
                 </View>
             </Page>
 
-{ineData && TABLES.some((table) => ineData[getTableKey(table)]?.length) && (
+            {ineData && TABLES.some((table) => ineData[getTableKey(table)]?.length) && (
                 <Page size="A4" style={styles.page}>
                     <ReportFooter />
-                <View style={styles.section}>
+                    <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Datos estadísticos</Text>
                         <Text style={styles.intro}>Series y distribuciones del Instituto Nacional de Estadística. La leyenda identifica cada serie o categoría y muestra su último valor disponible.</Text>
                         <View style={styles.chartsGrid}>
@@ -636,7 +627,7 @@ export default function DownloadReport({ data, scores, ineData }: { data: Munici
     return (
         <PDFDownloadLink
             document={<MunicipioReport data={data} scores={scores} ineData={ineData} />}
-            fileName={`informe-${slugify(data.municipio)}.pdf`}
+            fileName={`me-puedo-quedar-en-${slugify(data.municipio)}.pdf`}
             className="fixed bottom-5 right-5 z-50 inline-flex min-h-11 items-center gap-2 bg-text-2 px-4 py-3 text-sm font-semibold text-text-3 shadow-lg shadow-title/20 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-title sm:bottom-7 sm:right-7"
         >
             {({ loading }) => (
