@@ -15,6 +15,7 @@ import Datos, { fetchAllTables } from "./datos";
 import { TABLES } from "@/app/utils/getTables";
 import dynamic from "next/dynamic";
 import { SiGooglemaps } from "react-icons/si";
+import DownloadReport from "./report";
 
 const BaseChart = dynamic(() => import("@/app/components/charts/BaseChart"), { ssr: false });
 
@@ -359,6 +360,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     </p>
                 </section>
             )}
+            {scores && <DownloadReport data={data} scores={scores} ineData={ineData} />}
         </article>
     );
 }
