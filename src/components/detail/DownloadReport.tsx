@@ -373,6 +373,7 @@ const dateFormatter = new Intl.DateTimeFormat("es-ES", {
     day: "2-digit",
     month: "long",
     year: "numeric",
+    timeZone: "Europe/Madrid",
 });
 function formatDate() {
     return dateFormatter.format(new Date());

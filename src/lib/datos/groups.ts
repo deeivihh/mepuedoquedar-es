@@ -259,7 +259,3 @@ export function getGroups(): GroupConfig[] {
 export function getGroupByName(name: string): GroupConfig | undefined {
   return getGroups().find(g => g.group === name);
 }
-
-export function getGroupNames(): string[] {
-  return getGroups().map(g => g.group);
-}

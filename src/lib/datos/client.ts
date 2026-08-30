@@ -26,14 +26,4 @@ export async function fetchDataset<T = Record<string, unknown>>(
   const url = `${BASE}/${id}/exports/csv?${params}`;
   const res = await safeFetch(url, `dataset "${id}"`);
   return parse(await res.text(), { columns: true, skip_empty_lines: true, delimiter: ";", trim: true }) as T[];
-}
-
-export async function fetchRecords<T = Record<string, unknown>>(
-  id: string,
-  opts?: { where?: string; orderBy?: string; limit?: number },
-): Promise<T[]> {
-  const params = buildParams({ ...opts, limit: opts?.limit ?? 100 });
-  const url = `${BASE}/${id}/records?${params}`;
-  const res = await safeFetch(url, `records "${id}"`);
-  return ((await res.json()) as { results: T[] }).results;
-}
+}

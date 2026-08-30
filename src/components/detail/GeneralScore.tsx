@@ -118,7 +118,7 @@ export default function GeneralScore({
     );
 }
 
-export function ScoreItem({
+function ScoreItem({
     name,
     number,
     multiplier,
