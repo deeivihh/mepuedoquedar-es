@@ -14,7 +14,7 @@ function filterData(data: any[], filter?: TableConfig["filter"]) {
         return data.filter((s: any) => s.Nombre?.toLowerCase().includes(q) || s.COD?.toLowerCase().includes(q));
     }
     if (Array.isArray(filter)) {
-        if (typeof filter[0] === "number") return (filter as number[]).map((i) => data[i]).filter(Boolean);
+        if (typeof filter[0] === "number") return (filter as number[]).flatMap((i) => data[i] ? [data[i]] : []);
         return data.filter((s: any) => {
             const name = (s.Nombre || "").toLowerCase();
             const cod = (s.COD || "").toLowerCase();

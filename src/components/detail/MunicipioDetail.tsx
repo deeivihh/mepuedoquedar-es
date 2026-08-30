@@ -17,7 +17,7 @@ import { fetchAllTables } from "@/lib/datos/ine";
 import { TABLES } from "@/lib/config/tables";
 import dynamic from "next/dynamic";
 import { SiGooglemaps } from "react-icons/si";
-import DownloadReport from "./DownloadReport";
+const DownloadReport = dynamic(() => import("./DownloadReport"), { ssr: false });
 
 const BaseChart = dynamic(() => import("@/components/charts/BaseChart"), { ssr: false });
 

@@ -364,16 +364,18 @@ function formatNumber(value: unknown) {
     return Number.isFinite(number) ? number.toLocaleString("es-ES") : "Sin datos";
 }
 
+const compactFormatter = new Intl.NumberFormat("es-ES", { notation: "compact", maximumFractionDigits: 1 });
 function formatCompactNumber(value: number) {
-    return new Intl.NumberFormat("es-ES", { notation: "compact", maximumFractionDigits: 1 }).format(value);
+    return compactFormatter.format(value);
 }
 
+const dateFormatter = new Intl.DateTimeFormat("es-ES", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+});
 function formatDate() {
-    return new Intl.DateTimeFormat("es-ES", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-    }).format(new Date());
+    return dateFormatter.format(new Date());
 }
 
 function scorePercentage(department: DepartmentScore) {
@@ -407,7 +409,7 @@ function getPeriod(value: any) {
 function formatSeriesName(name?: string) {
     if (!name) return "";
     const ignored = new Set(["dato base", "personas", "todas las edades"]);
-    const parts = name.split(".").map((part) => part.trim()).filter(Boolean);
+    const parts = name.split(".").flatMap((part) => { const t = part.trim(); return t ? [t] : []; });
     if (parts.length <= 1) return name.trim();
     const segments = parts.slice(1).filter((part) => !ignored.has(part.toLowerCase()));
     const nonTotal = segments.filter((part) => part.toLowerCase() !== "total");
@@ -421,7 +423,7 @@ function filterData(data: any[], filter?: TableConfig["filter"]) {
         const query = filter.toLowerCase();
         return data.filter((item) => item.Nombre?.toLowerCase().includes(query) || item.COD?.toLowerCase().includes(query));
     }
-    if (typeof filter[0] === "number") return (filter as number[]).map((index) => data[index]).filter(Boolean);
+    if (typeof filter[0] === "number") return (filter as number[]).flatMap((index) => data[index] ? [data[index]] : []);
     return data.filter((item) => {
         const name = (item.Nombre || "").toLowerCase();
         const code = (item.COD || "").toLowerCase();
