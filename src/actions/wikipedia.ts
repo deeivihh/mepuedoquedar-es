@@ -1,6 +1,7 @@
 "use server";
 
 import wiki from "wikipedia";
+import { getWikiCache, setWikiCache } from "@/lib/cache/wikiCache";
 
 export interface WikipediaImage {
     url: string;
@@ -125,15 +126,12 @@ function titleCase(t: string) {
     return t.toLowerCase().split(" ").map((w, i) => (i === 0 || !skip.has(w) ? w[0].toUpperCase() + w.slice(1) : w)).join(" ");
 }
 
-const WIKI_CACHE_TTL = 6 * 60 * 60 * 1000;
-const wikiCache = new Map<string, { data: WikipediaData | null; ts: number }>();
-
 export async function getMunicipioWikipedia(lat: number, lon: number, name: string, provincia?: string): Promise<WikipediaData | null> {
     if (!name) return null;
 
     const cacheKey = `${name}|${provincia || ""}`;
-    const hit = wikiCache.get(cacheKey);
-    if (hit && Date.now() - hit.ts < WIKI_CACHE_TTL) return hit.data;
+    const cached = getWikiCache(cacheKey);
+    if (cached !== undefined) return cached;
 
     try {
         wiki.setLang("es");
@@ -149,7 +147,7 @@ export async function getMunicipioWikipedia(lat: number, lon: number, name: stri
 
         const found = results.find((r) => r !== null) ?? null;
         if (found) {
-            wikiCache.set(cacheKey, { data: found, ts: Date.now() });
+            setWikiCache(cacheKey, found);
             return found;
         }
 
@@ -163,11 +161,11 @@ export async function getMunicipioWikipedia(lat: number, lon: number, name: stri
                 searchCandidates.map((title) => fetchPage(title, prov).catch(() => null))
             );
             const searchFound = searchResults.find((r) => r !== null) ?? null;
-            wikiCache.set(cacheKey, { data: searchFound, ts: Date.now() });
+            setWikiCache(cacheKey, searchFound);
             return searchFound;
         }
 
-        wikiCache.set(cacheKey, { data: null, ts: Date.now() });
+        setWikiCache(cacheKey, null);
         return null;
     } catch {
         return null;

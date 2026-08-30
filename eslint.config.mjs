@@ -18,12 +18,6 @@ const eslintConfig = [
 			"@next/next/no-img-element": "off",
 		},
 	},
-	{
-		files: ["src/hooks/useData.ts"],
-		rules: {
-			"react-hooks/exhaustive-deps": "off",
-		},
-	},
 ];
 
 export default eslintConfig;
