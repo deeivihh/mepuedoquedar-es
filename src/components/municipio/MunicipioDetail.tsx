@@ -7,7 +7,7 @@ import { IoPeopleSharp } from "react-icons/io5";
 import { FaCarSide } from "react-icons/fa";
 import { MdArrowOutward } from "react-icons/md";
 import { calculateScores, ScoreResult } from "@/lib/scores/calculateScores";
-import GeneralScore from "@/components/detail/GeneralScore";
+import GeneralScore from "@/components/municipio/GeneralScore";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { computeWeightMultipliers } from "@/lib/scores/userPreferences";
 import WikipediaSection, { getMunicipioWikipedia } from "./WikipediaSection";

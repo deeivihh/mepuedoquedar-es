@@ -1,4 +1,4 @@
-import MunicipioDetail from "@/components/detail/MunicipioDetail";
+import MunicipioDetail from "@/components/municipio/MunicipioDetail";
 import SearchBar from "@/components/home/SearchBar";
 
 export default async function DetailPage({
