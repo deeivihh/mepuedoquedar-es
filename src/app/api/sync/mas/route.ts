@@ -31,7 +31,7 @@ export async function POST(req: Request) {
         const merged = new Map<string, Record<string, any>>();
         const sourceResults: Record<string, { ok: boolean; municipios?: number; error?: string }> = {};
 
-        for (const source of sources) {
+        await Promise.all(sources.map(async (source) => {
             try {
                 log.info(`Ejecutando fuente "${source.name}"...`);
                 const data = await source.run();
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
                 sourceResults[source.name] = { ok: false, error: msg };
                 log.error(`Fuente "${source.name}" falló: ${msg}`);
             }
-        }
+        }));
 
         const rows = [...merged.entries()].map(([codigo, mas]) => ({ codigo, mas }));
 
@@ -57,12 +57,15 @@ export async function POST(req: Request) {
 
         if (process.env.NODE_ENV !== "development") {
             const supabase = getSupabase();
+            const batches = [];
             for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-                const batch = rows.slice(i, i + BATCH_SIZE);
+                batches.push(rows.slice(i, i + BATCH_SIZE));
+            }
+            await Promise.all(batches.map(async (batch) => {
                 const { error } = await supabase.rpc("upsert_mas", { rows: batch });
                 if (error) throw error;
-                total += batch.length;
-            }
+            }));
+            total = rows.length;
             log.info(`Guardados ${total} municipios en Supabase`);
         } else {
             total = rows.length;

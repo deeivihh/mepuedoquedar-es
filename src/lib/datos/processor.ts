@@ -48,9 +48,9 @@ export async function processDatasets(config: ProcessingConfig) {
 
   for (const groupConfig of config.groups) {
     const datasets = new Map<string, Row[]>();
-    for (const [key, ds] of Object.entries(groupConfig.datasets)) {
+    await Promise.all(Object.entries(groupConfig.datasets).map(async ([key, ds]) => {
       datasets.set(key, await fetchDataset<Row>(ds.id, { where: ds.where, select: ds.select }));
-    }
+    }));
 
     for (const [name, indicator] of Object.entries(groupConfig.indicators)) {
       processIndicator(groupConfig.group, name, indicator, datasets, muniMap, results);

@@ -40,6 +40,9 @@ export async function GET(
   const url = `${BASE_URL}/${DATASET_ID}/records?${queryParams.toString()}`;
 
   const res = await fetch(url, { headers: { Accept: "application/json" } });
+  if (!res.ok) {
+    return NextResponse.json({ error: "Failed to fetch from JCyL" }, { status: res.status });
+  }
   const data: { results: Site[] } = await res.json();
 
   if (userLat && userLon && data.results) {

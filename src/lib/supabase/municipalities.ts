@@ -9,9 +9,12 @@ export async function saveGroup(
 
     const rows = municipalities.map(toDatabase);
 
+    const batches = [];
     for (let i = 0; i < rows.length; i += batchSize) {
-        const batch = rows.slice(i, i + batchSize);
+        batches.push(rows.slice(i, i + batchSize));
+    }
 
+    await Promise.all(batches.map(async (batch) => {
         const { error } = await getSupabase().rpc(
             "upsert_municipios",
             {
@@ -22,7 +25,7 @@ export async function saveGroup(
         if (error) {
             throw error;
         }
-    }
+    }));
 
     return rows.length;
 }
