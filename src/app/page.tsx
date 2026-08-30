@@ -17,10 +17,10 @@ export default function Home() {
                         muted
                         playsInline
                         preload="auto"
-                        poster="/videos/hero_poster.webp"
+                        poster="/videos/hero-poster.webp"
                         className="w-full h-full object-cover"
                     >
-                        <source src="/videos/hero_video.mp4" type="video/mp4" />
+                        <source src="/videos/hero-video.mp4" type="video/mp4" />
                     </video>
                     <div className="absolute bottom-0 inset-x-0 h-50 backdrop-blur-[1px] bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none z-999" />
                     <div className="absolute bottom-6 left-6 right-6 flex flex-col md:flex-row items-start md:items-end justify-between gap-4 text-text-3 pointer-events-none z-999 p-4">

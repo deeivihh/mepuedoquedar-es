@@ -650,7 +650,7 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault }: { da
     return (
         <Document title={`Informe de ${data.municipio}`} author="¿Me puedo quedar?" subject="Análisis territorial del municipio">
             <Page size="A4" style={styles.cover}>
-                <ImageBackground src="/logos/report_cover.png" style={styles.coverImage}>
+                <ImageBackground src="/images/report-cover.png" style={styles.coverImage}>
                     <View style={styles.coverMunicipality}>
                         <Text style={styles.coverMunicipalityName}>{data.municipio}</Text>
                         <Text style={styles.coverMunicipalitySubtitle}>mepuedoquedar.es</Text>
