@@ -171,14 +171,14 @@ export default function SearchBar() {
             const data: { results: Site[] } = await response.json();
             if (abortRef.current !== controller) return;
             setResults(data.results);
-            setIsLoading(false);
         } catch (error) {
             if (error instanceof DOMException && error.name === "AbortError") return;
             console.error("Error:", error);
             if (abortRef.current === controller) {
                 setResults([]);
-                setIsLoading(false);
             }
+        } finally {
+            setIsLoading(prev => abortRef.current === controller ? false : prev);
         }
     }, [locationParams]);
 

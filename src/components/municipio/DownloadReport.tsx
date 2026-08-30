@@ -1,7 +1,20 @@
 "use client";
 
-import { PDFDownloadLink, Document, Page, StyleSheet, Text, View, ImageBackground, Svg, G, Line, Circle, Rect, Path } from "@react-pdf/renderer";
+import { useState } from "react";
 import { FaFileArrowDown } from "react-icons/fa6";
+import { VscLoading } from "react-icons/vsc";
+
+let Document: any;
+let Page: any;
+let Text: any;
+let View: any;
+let ImageBackground: any;
+let Svg: any;
+let G: any;
+let Line: any;
+let Circle: any;
+let Rect: any;
+let Path: any;
 import type { DepartmentScore, ScoreResult } from "@/lib/scores/calculateScores";
 import { formatIndicatorValue } from "@/lib/scores/departmentPriority";
 import { TABLES, getTableKey, type TableConfig } from "@/lib/config/tables";
@@ -21,7 +34,7 @@ const colors = {
 
 const chartColors = ["#C46A4A", "#1F3A2E", "#6B7F4D", "#C28B38", "#3D6053", "#D48B6E", "#4E6E7E", "#944C36", "#8EA675", "#9E7B56", "#825366", "#284B3D"];
 
-const styles = StyleSheet.create({
+const styles: any = {
     page: {
         backgroundColor: colors.beige,
         color: colors.ink,
@@ -353,7 +366,7 @@ const styles = StyleSheet.create({
         fontSize: 7.5,
         lineHeight: 1.45,
     },
-});
+};
 
 function capitalize(value: string) {
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
@@ -655,7 +668,7 @@ function ReportFooter() {
     return (
         <View style={styles.footer} fixed>
             <Text style={styles.footerLeft}>mepuedoquedar.es</Text>
-            <Text style={styles.footerCenter} render={({ pageNumber, totalPages }) => `${pageNumber} de ${totalPages}`} />
+            <Text style={styles.footerCenter} render={({ pageNumber, totalPages }: { pageNumber: number; totalPages: number }) => `${pageNumber} de ${totalPages}`} />
             <Text style={styles.footerRight}>{formatDate()}</Text>
         </View>
     );
@@ -812,18 +825,50 @@ function slugify(value: string) {
 }
 
 export default function DownloadReport({ data, scores, ineData, preferences, isDefault }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean }) {
+    const [loading, setLoading] = useState(false);
+
+    const handleDownload = async () => {
+        setLoading(true);
+        try {
+            const ReactPDF = await import("@react-pdf/renderer");
+            Document = ReactPDF.Document;
+            Page = ReactPDF.Page;
+            Text = ReactPDF.Text;
+            View = ReactPDF.View;
+            ImageBackground = ReactPDF.ImageBackground;
+            Svg = ReactPDF.Svg;
+            G = ReactPDF.G;
+            Line = ReactPDF.Line;
+            Circle = ReactPDF.Circle;
+            Rect = ReactPDF.Rect;
+            Path = ReactPDF.Path;
+            
+            const doc = <MunicipioReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} />;
+            const blob = await ReactPDF.pdf(doc).toBlob();
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `me-puedo-quedar-en-${slugify(data.municipio)}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Failed to generate PDF", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <PDFDownloadLink
-            document={<MunicipioReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} />}
-            fileName={`me-puedo-quedar-en-${slugify(data.municipio)}.pdf`}
-            className="fixed bottom-5 right-5 z-50 inline-flex min-h-11 items-center gap-2 bg-text-2 px-4 py-3 text-sm font-semibold text-text-3 shadow-lg shadow-title/20 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-title sm:bottom-7 sm:right-7"
+        <button
+            onClick={handleDownload}
+            disabled={loading}
+            className="fixed bottom-5 right-5 z-50 inline-flex min-h-11 items-center gap-2 bg-text-2 px-4 py-3 text-sm font-semibold text-text-3 shadow-lg shadow-title/20 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-title sm:bottom-7 sm:right-7 disabled:opacity-50"
         >
-            {({ loading }) => (
-                <>
-                    <FaFileArrowDown aria-hidden="true" />
-                    {loading ? "Generando informe..." : "Descargar informe"}
-                </>
-            )}
-        </PDFDownloadLink>
+            {loading ? <VscLoading className="animate-spin" aria-hidden="true" /> : <FaFileArrowDown aria-hidden="true" />}
+            {loading ? "Generando informe..." : "Descargar informe"}
+        </button>
     );
 }
