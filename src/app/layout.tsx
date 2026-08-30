@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Source_Serif_4, Inter } from "next/font/google";
 import "./globals.css";
 import { PreferencesProvider } from "@/app/contexts/PreferencesContext";
+import MotionProvider from "@/app/components/MotionProvider";
 
 const titleFont = Source_Serif_4({
 	subsets: ["latin"],
@@ -138,7 +139,9 @@ export default function RootLayout({
 			<body
 				className={`${titleFont.variable} ${textFont.variable} antialiased`}
 			>
-				<PreferencesProvider>{children}</PreferencesProvider>
+				<MotionProvider>
+					<PreferencesProvider>{children}</PreferencesProvider>
+				</MotionProvider>
 
 				<script
 					type="application/ld+json"
