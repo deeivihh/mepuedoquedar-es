@@ -38,7 +38,7 @@ async function cachedFetch(url: string): Promise<any[]> {
     }
 }
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const table = searchParams.get("table");
     const cod_int = searchParams.get("cod_int");

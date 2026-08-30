@@ -152,9 +152,13 @@ export async function getMunicipioWikipedia(lat: number, lon: number, name: stri
         }
 
         const searchRes = await wiki.search(`${n} ${prov} municipio`, { limit: 3 });
-        const searchCandidates = (searchRes.results || [])
-            .filter((item) => item.title && !candidates.includes(item.title))
-            .map((item) => item.title);
+        const candidatesSet = new Set(candidates);
+        const searchCandidates = (searchRes.results || []).reduce<string[]>((acc, item) => {
+            if (item.title && !candidatesSet.has(item.title)) {
+                acc.push(item.title);
+            }
+            return acc;
+        }, []);
 
         if (searchCandidates.length > 0) {
             const searchResults = await Promise.all(

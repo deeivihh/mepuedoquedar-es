@@ -580,17 +580,24 @@ function hasChartData(table: TableConfig, data: any[]): boolean {
     if (!filtered.length) return false;
     const isCategorical = table.type === "pie" || table.type === "donut" || table.type === "column";
     if (isCategorical) {
-        const entries = filtered
-            .map((item, index) => ({ label: displayName(table, item, `Dato ${index + 1}`), value: getValue(Array.isArray(item?.Data) ? item.Data[0]?.Valor : item?.Valor) }))
-            .filter((entry) => table.type === "pie" || table.type === "donut" ? entry.value > 0 : Number.isFinite(entry.value));
+        const entries = filtered.reduce<{ label: string; value: number }[]>((acc, item, index) => {
+            const entry = { label: displayName(table, item, `Dato ${index + 1}`), value: getValue(Array.isArray(item?.Data) ? item.Data[0]?.Valor : item?.Valor) };
+            if (table.type === "pie" || table.type === "donut" ? entry.value > 0 : Number.isFinite(entry.value)) {
+                acc.push(entry);
+            }
+            return acc;
+        }, []);
         return entries.length > 0;
     }
     const isSeriesArray = Array.isArray(filtered) && filtered.some((item) => Array.isArray(item?.Data));
     const series = isSeriesArray
-        ? filtered.map((item, index) => ({
-            label: displayName(table, item, `Serie ${index + 1}`),
-            points: [...item.Data].reverse().map((point) => ({ period: getPeriod(point), value: getValue(point.Valor) })),
-        })).filter((item) => item.points.length)
+        ? filtered.reduce<{ label: string; points: { period: string; value: number }[] }[]>((acc, item, index) => {
+            const points = [...item.Data].reverse().map((point) => ({ period: getPeriod(point), value: getValue(point.Valor) }));
+            if (points.length) {
+                acc.push({ label: displayName(table, item, `Serie ${index + 1}`), points });
+            }
+            return acc;
+        }, [])
         : [{ label: table.title ?? "Valor", points: [...filtered].reverse().map((item) => ({ period: getPeriod(item), value: getValue(item.Valor) })) }];
     return series.length > 0 && series.some((item) => item.points.length > 0);
 }
@@ -605,9 +612,13 @@ function IneChart({ table, data, fullWidth }: { table: TableConfig; data: any[];
 
     if (isCategorical) {
         const chartType = table.type === "pie" || table.type === "donut" || table.type === "column" ? table.type : "column";
-        const entries = filtered
-            .map((item, index) => ({ label: displayName(table, item, `Dato ${index + 1}`), value: getValue(Array.isArray(item?.Data) ? item.Data[0]?.Valor : item?.Valor) }))
-            .filter((entry) => table.type === "pie" || table.type === "donut" ? entry.value > 0 : Number.isFinite(entry.value));
+        const entries = filtered.reduce<{ label: string; value: number }[]>((acc, item, index) => {
+            const entry = { label: displayName(table, item, `Dato ${index + 1}`), value: getValue(Array.isArray(item?.Data) ? item.Data[0]?.Valor : item?.Valor) };
+            if (table.type === "pie" || table.type === "donut" ? entry.value > 0 : Number.isFinite(entry.value)) {
+                acc.push(entry);
+            }
+            return acc;
+        }, []);
         if (!entries.length) return null;
         return (
             <View style={[styles.chartGroup, fullWidth ? styles.chartGroupFull : {}]} wrap={false}>
@@ -619,10 +630,13 @@ function IneChart({ table, data, fullWidth }: { table: TableConfig; data: any[];
     }
 
     const series = isSeriesArray
-        ? filtered.map((item, index) => ({
-            label: displayName(table, item, `Serie ${index + 1}`),
-            points: [...item.Data].reverse().map((point) => ({ period: getPeriod(point), value: getValue(point.Valor) })),
-        })).filter((item) => item.points.length)
+        ? filtered.reduce<{ label: string; points: { period: string; value: number }[] }[]>((acc, item, index) => {
+            const points = [...item.Data].reverse().map((point) => ({ period: getPeriod(point), value: getValue(point.Valor) }));
+            if (points.length) {
+                acc.push({ label: displayName(table, item, `Serie ${index + 1}`), points });
+            }
+            return acc;
+        }, [])
         : [{ label: table.title ?? "Valor", points: [...filtered].reverse().map((item) => ({ period: getPeriod(item), value: getValue(item.Valor) })) }];
     if (!series.length || !series.some((item) => item.points.length)) return null;
     return (
@@ -710,8 +724,10 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault }: { da
                             <Text style={styles.profileLine}>
                                 <Text style={styles.profilePrefix}>Perfil  ·  </Text>
                                 {getProfilePills(preferences)
-                                    .filter((p) => p.active)
-                                    .map((p) => p.label)
+                                    .reduce<string[]>((acc, p) => {
+                                        if (p.active) acc.push(p.label);
+                                        return acc;
+                                    }, [])
                                     .join("  ·  ")}
                             </Text>
                         </View>

@@ -92,7 +92,7 @@ function buildJoinIndex(
   const bridgeRows = datasets.get(join.dataset);
   if (!bridgeRows) throw new Error(`Join dataset "${join.dataset}" not found`);
 
-  const index = new Map<string, string[]>();
+  const indexSet = new Map<string, Set<string>>();
   for (const row of bridgeRows) {
     const muniName = normalizeText(row[join.municipality]);
     const muni = muniName ? muniMap.get(muniName) : undefined;
@@ -101,8 +101,13 @@ function buildJoinIndex(
     const key = normalizeJoinKey(row[join.localKey]);
     if (!key) continue;
 
-    if (!index.has(key)) index.set(key, []);
-    if (!index.get(key)!.includes(muni.code)) index.get(key)!.push(muni.code);
+    if (!indexSet.has(key)) indexSet.set(key, new Set());
+    indexSet.get(key)!.add(muni.code);
+  }
+  
+  const index = new Map<string, string[]>();
+  for (const [k, v] of indexSet.entries()) {
+      index.set(k, Array.from(v));
   }
   return index;
 }
@@ -177,8 +182,9 @@ function processIndicator(
   }
 
   const excludedFields = getExcludedFields(ind);
+  const excludedFieldsSet = new Set(excludedFields);
   const activeFields = ind.fields
-    ? ind.fields.filter((f) => !excludedFields.includes(f))
+    ? ind.fields.filter((f) => !excludedFieldsSet.has(f))
     : undefined;
 
   for (const row of processedRows) {
