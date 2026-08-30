@@ -159,7 +159,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                 <div className="flex gap-3 w-full justify-center pt-2">
                     <button
                         onClick={() => fetchAllData()}
-                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm text-white bg-text-2 hover:opacity-90 transition-opacity"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 font-medium text-sm text-white bg-text-2 hover:opacity-90 transition-opacity"
                     >
                         Reintentar
                     </button>
@@ -225,7 +225,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                                     className="flex items-center bg-white/10 backdrop-blur-sm gap-2 border border-title/30 hover:border-title/50 font-medium h-10 px-4 w-fit group relative hover:pr-8"
                                 >
                                     Pagina web
-                                    <span className="absolute transition-all duration-150 blur group-hover:blur-none right-2"><MdArrowOutward aria-hidden="true" /></span>
+                                    <span className="absolute transition-all duration-150 opacity-0 group-hover:opacity-100 blur-xs group-hover:blur-none right-2"><MdArrowOutward aria-hidden="true" /></span>
                                 </a>
                             )}
                         </div>
@@ -289,9 +289,9 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                             </div>
                         </div>
                     </div>
-                    <p className="mt-3 px-0.5 flex items-center text-[10px] text-title/50 hover:text-title group relative w-fit">
-                        <span className="absolute pt-0.5 group-hover:-left-10 -left-5 blur group-hover:blur-none font-medium z-10 transition-all duration-150">Fuente:</span>
-                        <a target="_blank" rel="noopener noreferrer" className="mt-0.5 group-hover:text-text-2 transition-all duration-150" href="https://www.mivau.gob.es/">Ministerio de Vivienda</a>
+                    <p className="mt-3 px-0.5 gap-1 flex items-center text-[10px] text-title/50 group relative w-fit">
+                        <span>Fuente:</span>
+                        <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-all duration-150" href="https://www.mivau.gob.es/">Ministerio de Vivienda</a>
                     </p>
                 </section>
             )}
@@ -306,9 +306,9 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     <div className="overflow-hidden border-y border-title/20 bg-bg-card">
                         <DatosSection ineData={ineData} />
                     </div>
-                    <p className="mt-3 px-0.5 flex items-center text-[10px] text-title/50 hover:text-title group relative w-fit">
-                        <span className="absolute pt-0.5 group-hover:-left-10 -left-5 blur group-hover:blur-none font-medium z-10 transition-all duration-150">Fuente:</span>
-                        <a target="_blank" rel="noopener noreferrer" className="mt-0.5 group-hover:text-text-2 transition-all duration-150" href="https://www.ine.es/">Instituto Nacional de Estadística</a>
+                    <p className="mt-3 px-0.5 gap-1 flex items-center text-[10px] text-title/50 group relative w-fit">
+                        <span>Fuente:</span>
+                        <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-all duration-150" href="https://www.ine.es/">Instituto Nacional de Estadística</a>
                     </p>
                 </section>
             )}
@@ -354,9 +354,9 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                             </div>
                         ))}
                     </div>
-                    <p className="mt-3 px-0.5 flex items-center text-[10px] text-title/50 hover:text-title group relative w-fit">
-                        <span className="absolute pt-0.5 group-hover:-left-10 -left-5 blur group-hover:blur-none font-medium z-10 transition-all duration-150">Fuente:</span>
-                        <a target="_blank" rel="noopener noreferrer" className="mt-0.5 group-hover:text-text-2 transition-all duration-150" href="https://analisis.datosabiertos.jcyl.es/explore/dataset/guia-de-medios-de-comunicacion/information">Guía de medios de comunicación de la Junta de Castilla y León</a>
+                    <p className="mt-3 px-0.5 gap-1 flex items-center text-[10px] text-title/50 group relative w-fit">
+                        <span>Fuente:</span>
+                        <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-all duration-150" href="https://analisis.datosabiertos.jcyl.es/explore/dataset/guia-de-medios-de-comunicacion/information">Guía de medios de comunicación de la Junta de Castilla y León</a>
                     </p>
                 </section>
             )}

@@ -208,7 +208,7 @@ export default function SearchBar() {
                             <FaArrowLeft size={20} />
                         </Link>
                     )}
-                    <div className={`w-full flex gap-4 justify-center items-center h-full px-4 focus-within:bg-bg-card ${isHome ? 'bg-bg-card' : 'hover:bg-bg-card/80'} active:bg-bg-card`}>
+                    <div className={`w-full flex gap-4 justify-center items-center h-full pl-4 pr-3 focus-within:bg-bg-card ${isHome ? 'bg-bg-card' : 'hover:bg-bg-card/80'} active:bg-bg-card`}>
                         <FaSearch size={20} className="opacity-80 text-title shrink-0" />
                         <input
                             id="search-municipios"
@@ -221,8 +221,8 @@ export default function SearchBar() {
                         />
                         {isLoading && (
                             <AiOutlineLoading3Quarters
-                                size={20}
-                                className="text-title shrink-0 flex items-center justify-center animate-spin" />
+                                size={15}
+                                className="text-title shrink-0 mr-2.5 flex items-center justify-center animate-spin" />
                         )}
                         {query.length > 0 && !isLoading && (
                             <button
@@ -252,7 +252,7 @@ export default function SearchBar() {
 
                     {isSearching && (
                         <motion.div
-                            className="col-start-1 row-start-1 w-full flex flex-col gap-4 min-md:max-h-[40rem] overflow-y-auto z-10 self-start p-1"
+                            className="col-start-1 row-start-1 w-full flex flex-col gap-4 min-md:max-h-[40rem] overflow-y-auto z-10 self-start"
                         >
                             {isLoading ? (
                                 <SearchSkeleton />
@@ -261,7 +261,7 @@ export default function SearchBar() {
                                     <Link
                                         href={`/municipio/${result.cod_ine}`}
                                         key={result.cod_ine}
-                                        className="flex justify-between w-full items-center gap-4 p-2 border border-title/50 hover:bg-bg-card/50 active:bg-bg-card"
+                                        className="flex justify-between w-full items-center gap-4 px-3 py-2 border border-title/50 hover:bg-bg-card/50 active:bg-bg-card"
                                     >
                                         <p className="font-semibold text-title">{result.municipio}</p>
                                         {result.distance != null && (
