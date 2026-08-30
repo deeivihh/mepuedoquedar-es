@@ -3,8 +3,9 @@
 import {
     createContext,
     useContext,
-    useState,
-    useEffect,
+    useSyncExternalStore,
+    useMemo,
+    useCallback,
     ReactNode,
 } from "react";
 import {
@@ -19,44 +20,72 @@ interface PreferencesContextValue {
     isDefault: boolean;
 }
 
+const STORAGE_KEY = "user_preferences_v1";
+
+let memoryPrefs = DEFAULT_PREFERENCES;
+let initialized = false;
+
+const listeners = new Set<() => void>();
+
+function subscribe(listener: () => void) {
+    listeners.add(listener);
+    return () => {
+        listeners.delete(listener);
+    };
+}
+
+function getSnapshot() {
+    if (!initialized) {
+        if (typeof window !== "undefined") {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    memoryPrefs = { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
+                }
+            } catch {}
+        }
+        initialized = true;
+    }
+    return memoryPrefs;
+}
+
+function getServerSnapshot() {
+    return DEFAULT_PREFERENCES;
+}
+
+function setPreferencesAction(prefs: UserPreferences) {
+    memoryPrefs = prefs;
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+    } catch {}
+    listeners.forEach((l) => l());
+}
+
 const PreferencesContext = createContext<PreferencesContextValue>({
     preferences: DEFAULT_PREFERENCES,
-    setPreferences: () => { },
+    setPreferences: () => {},
     isDefault: true,
 });
 
-const STORAGE_KEY = "user_preferences_v1";
-
 export function PreferencesProvider({ children }: { children: ReactNode }) {
-    const [preferences, setPreferencesState] = useState<UserPreferences>(DEFAULT_PREFERENCES);
-    const [hydrated, setHydrated] = useState(false);
+    const preferences = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-    useEffect(() => {
-        try {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                setPreferencesState({ ...DEFAULT_PREFERENCES, ...JSON.parse(stored) });
-            }
-        } catch {
-
-        }
-        setHydrated(true);
+    const setPreferences = useCallback((prefs: UserPreferences) => {
+        setPreferencesAction(prefs);
     }, []);
 
-    function setPreferences(prefs: UserPreferences) {
-        setPreferencesState(prefs);
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
-        } catch {
-        }
-    }
-
-    const isDefault = hydrated && PREFERENCES_SCHEMA.every(
+    const isDefault = PREFERENCES_SCHEMA.every(
         (config) => preferences[config.id] === config.defaultValue
     );
 
+    const value = useMemo(() => ({
+        preferences,
+        setPreferences,
+        isDefault,
+    }), [preferences, setPreferences, isDefault]);
+
     return (
-        <PreferencesContext.Provider value={{ preferences, setPreferences, isDefault }}>
+        <PreferencesContext.Provider value={value}>
             {children}
         </PreferencesContext.Provider>
     );

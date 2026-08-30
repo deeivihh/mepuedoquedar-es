@@ -29,6 +29,16 @@ function capitalize(value: string) {
     return firstLetter + rest;
 }
 
+const loadingMessages = [
+    "Consultando registros del municipio...",
+    "Buscando en Wikipedia y recopilando imágenes...",
+    "Recibiendo estadísticas del INE...",
+    "Consultando el Ministerio de vivienda...",
+    "Analizando servicios, sanidad y educación...",
+    "Calculando tu puntuación personalizada...",
+    "Preparando el informe final...",
+];
+
 export default function MunicipioDetail({ cod }: { cod: string }) {
     const { locationParams, ready } = useLocation(false);
     const { preferences, isDefault } = usePreferences();
@@ -123,16 +133,6 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         const scores = calculateScores(data, multipliers, ineData);
         setScores(scores);
     }, [data, preferences, isDefault, ineData]);
-
-    const loadingMessages = [
-        "Consultando registros del municipio...",
-        "Buscando en Wikipedia y recopilando imágenes...",
-        "Recibiendo estadísticas del INE...",
-        "Consultando el Ministerio de vivienda...",
-        "Analizando servicios, sanidad y educación...",
-        "Calculando tu puntuación personalizada...",
-        "Preparando el informe final...",
-    ];
 
     const [loadingIndex, setLoadingIndex] = useState(0);
 

@@ -18,6 +18,18 @@ const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {
 	poweredByHeader: false,
+	images: {
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "upload.wikimedia.org",
+			},
+			{
+				protocol: "https",
+				hostname: "thumb.wikimedia.org",
+			},
+		],
+	},
 	async headers() {
 		const headersList = [
 			{

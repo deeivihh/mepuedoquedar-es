@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { WikipediaData } from "@/actions/wikipedia";
 import { FaExternalLinkAlt, FaChevronDown, FaChevronUp, FaWikipediaW } from "react-icons/fa";
 
@@ -46,19 +47,23 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
 
             {img && (
                 <section className="mt-2 flex flex-col gap-4">
-                    <div className="flex max-md:flex-col min-md:grid min-md:grid-cols-5 gap-4 items-start w-full">
+                    <div className="flex max-md:flex-col min-md:grid min-md:grid-cols-5 gap-4 items-stretch w-full">
                         <div className="min-md:col-span-3 h-full w-full flex flex-col items-start justify-start">
-                            <div className="relative h-full w-full flex items-start justify-center group">
-                                <img
+                            <div className="relative h-full min-h-[300px] w-full flex items-start justify-center group overflow-hidden">
+                                <Image
                                     src={img.url}
                                     alt=""
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 60vw"
                                     className="absolute inset-0 w-full h-full object-cover opacity-50 blur-2xl max-md:scale-110"
                                     onError={(e) => { e.currentTarget.style.display = "none"; }}
                                 />
-                                <img
+                                <Image
                                     src={img.url}
                                     alt={data.title}
-                                    className="relative z-10 max-h-full max-w-full object-contain object-top border border-title/20"
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 60vw"
+                                    className="relative z-10 w-full h-full object-contain object-center border border-title/20"
                                     loading="lazy"
                                     onError={(e) => { e.currentTarget.style.display = "none"; }}
                                 />
@@ -68,10 +73,12 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
                         {images.length > 1 && (
                             <div className="min-md:col-span-2 grid grid-cols-4 max-md:grid-cols-5 content-start self-start w-full h-full gap-2">
                                 {images.map((item, i) => (
-                                    <button key={item.url} onClick={() => setIdx(i)} title={item.description} className={`w-full aspect-square overflow-hidden border transition-all ${i === idx ? 'border-title opacity-100' : 'border-title/20 opacity-50 hover:opacity-100'}`}>
-                                        <img
+                                    <button key={item.url} onClick={() => setIdx(i)} title={item.description} className={`relative w-full aspect-square overflow-hidden border transition-all ${i === idx ? 'border-title opacity-100' : 'border-title/20 opacity-50 hover:opacity-100'}`}>
+                                        <Image
                                             src={item.url}
                                             alt={item.description || ""}
+                                            fill
+                                            sizes="(max-width: 768px) 33vw, 20vw"
                                             className="w-full h-full object-cover"
                                             loading="lazy"
                                             onError={(e) => { e.currentTarget.style.display = "none"; }}
