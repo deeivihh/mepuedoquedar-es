@@ -96,6 +96,13 @@ h1 {
     cursor: grab;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .animate-pulse,
+    .animate-spin {
+        animation: none !important;
+    }
+}
+
 @media (min-width: 1024px) {
     .image-fade {
         display: block;
