@@ -142,7 +142,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
             setLoadingIndex((prev) => (prev + 1) % loadingMessages.length);
         }, 1400);
         return () => clearInterval(interval);
-    }, [isLoading, loadingMessages.length]);
+    }, [isLoading]);
 
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center gap-3 w-full min-h-[50svh] px-4">

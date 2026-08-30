@@ -80,7 +80,7 @@ const evaluators: Record<string, RuleEvaluator> = {
         const r = rule as InterpolatedRule;
         let n = toNumber(value);
 
-        const anchors = [...r.points].sort((a, b) => a.at - b.at);
+        const anchors = r.points.toSorted((a, b) => a.at - b.at);
         const maxScore = Math.max(...anchors.map((p) => p.score));
 
         if (r.per_capita) {
