@@ -95,7 +95,7 @@ export default function GeneralScore({
 
             <div className="h-1 w-full bg-title/10">
                 <div
-                    className="h-full bg-text-2 transition-all duration-500 ease-out"
+                    className="h-full bg-text-2 transition-[width] duration-500 ease-out"
                     style={{ width: `${Math.min(100, Math.max(0, number))}%` }}
                 />
             </div>
@@ -162,7 +162,7 @@ export function ScoreItem({
                     </div>
                 </div>
                 <div className="mt-3 h-1 w-full overflow-hidden bg-title/10">
-                    <div className="h-full bg-text-2 transition-all duration-500" style={{ width: `${itemPercentage}%` }} />
+                    <div className="h-full bg-text-2 transition-[width] duration-500" style={{ width: `${itemPercentage}%` }} />
                 </div>
             </summary>
 
@@ -171,7 +171,7 @@ export function ScoreItem({
                     <p className="text-xs italic text-black/50">Sin registros oficiales suficientes en el término municipal</p>
                 ) : (
                     number.indicators.map((ind, idx) => (
-                        <div key={idx} className="flex items-center justify-between gap-3 bg-bg/60 px-3 py-2.5 text-[11px]">
+                        <div key={ind.label} className="flex items-center justify-between gap-3 bg-bg/60 px-3 py-2.5 text-[11px]">
                             <span className="min-w-0 truncate whitespace-nowrap font-medium text-black/80" title={ind.label}>{ind.label}</span>
                             <div className="flex shrink-0 items-center gap-2">
                                 <span className="whitespace-nowrap font-mono text-[10px] text-black/60">{formatIndicatorValue(ind)}</span>

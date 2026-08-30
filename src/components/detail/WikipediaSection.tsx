@@ -34,7 +34,7 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
 
                 <div className="space-y-4">
                     <h3 className="title-font text-3xl font-semibold leading-tight text-title">{data.title}</h3>
-                    {visibleParas.map((p, i) => <p key={i}>{p}</p>)}
+                    {visibleParas.map((p) => <p key={p.substring(0, 50)}>{p}</p>)}
                 </div>
 
                 {paras.length > 2 && (
@@ -68,7 +68,7 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
                         {images.length > 1 && (
                             <div className="min-md:col-span-2 grid grid-cols-4 max-md:grid-cols-5 content-start self-start w-full h-full gap-2">
                                 {images.map((item, i) => (
-                                    <button key={i} onClick={() => setIdx(i)} title={item.description} className={`w-full aspect-square overflow-hidden border transition-all ${i === idx ? 'border-title opacity-100' : 'border-title/20 opacity-50 hover:opacity-100'}`}>
+                                    <button key={item.url} onClick={() => setIdx(i)} title={item.description} className={`w-full aspect-square overflow-hidden border transition-all ${i === idx ? 'border-title opacity-100' : 'border-title/20 opacity-50 hover:opacity-100'}`}>
                                         <img
                                             src={item.url}
                                             alt={item.description || ""}

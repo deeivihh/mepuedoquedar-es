@@ -32,7 +32,7 @@ export default function Home() {
                                 href="/metodologia"
                                 title="Metodología"
                                 aria-label="Metodología"
-                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-all shadow-sm flex items-center justify-center"
+                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-colors shadow-sm flex items-center justify-center"
                             >
                                 <FaBookOpen size={14} />
                             </Link>
@@ -42,7 +42,7 @@ export default function Home() {
                                 rel="noopener noreferrer"
                                 title="Repositorio"
                                 aria-label="Repositorio"
-                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-all shadow-sm flex items-center justify-center"
+                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-colors shadow-sm flex items-center justify-center"
                             >
                                 <FaGithub size={15} />
                             </a>
@@ -52,7 +52,7 @@ export default function Home() {
                                 rel="noopener noreferrer"
                                 title="LinkedIn"
                                 aria-label="LinkedIn"
-                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-all shadow-sm flex items-center justify-center"
+                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-colors shadow-sm flex items-center justify-center"
                             >
                                 <FaLinkedin size={14} />
                             </a>

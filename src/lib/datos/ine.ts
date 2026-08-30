@@ -1,3 +1,5 @@
+import { getTableKey, type TableConfig } from "@/lib/config/tables";
+
 const INE_URL =
   "https://servicios.ine.es/wstempus/js/ES/VALORES_GRUPOSTABLA/29005/89616?det=2";
 
@@ -38,4 +40,22 @@ export async function getIneCodInt(codigo: string | number): Promise<number | nu
   const codeStr = String(codigo).trim();
   const map = await fetchIneCodes();
   return map.get(codeStr) ?? map.get(codeStr.padStart(5, "0")) ?? map.get(codeStr.replace(/^0+/, "")) ?? null;
+}
+
+export async function fetchAllTables(tables: TableConfig[], cod_int: string | number): Promise<Record<string, any[]>> {
+    const queries = tables.map((t) => ({
+        table: t.table,
+        nult: t.nult ?? 15,
+        key: getTableKey(t),
+        tv: t.tv,
+    }));
+
+    const res = await fetch(`/api/ine/batch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ queries, cod_int }),
+    });
+
+    if (!res.ok) return {};
+    return res.json();
 }

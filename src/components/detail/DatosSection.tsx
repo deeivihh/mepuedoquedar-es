@@ -4,23 +4,7 @@ import { useMemo } from "react";
 import { TABLES, getTableKey, type TableConfig } from "@/lib/config/tables";
 import BaseChart from "@/components/charts/BaseChart";
 
-export async function fetchAllTables(tables: TableConfig[], cod_int: string | number): Promise<Record<string, any[]>> {
-    const queries = tables.map((t) => ({
-        table: t.table,
-        nult: t.nult ?? 15,
-        key: getTableKey(t),
-        tv: t.tv,
-    }));
 
-    const res = await fetch(`/api/ine/batch`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ queries, cod_int }),
-    });
-
-    if (!res.ok) return {};
-    return res.json();
-}
 
 function filterData(data: any[], filter?: TableConfig["filter"]) {
     if (!filter || !Array.isArray(data)) return data;

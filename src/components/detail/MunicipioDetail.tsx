@@ -12,7 +12,8 @@ import { usePreferences } from "@/contexts/PreferencesContext";
 import { computeWeightMultipliers } from "@/lib/scores/userPreferences";
 import WikipediaSection, { getMunicipioWikipedia } from "./WikipediaSection";
 import { WikipediaData } from "@/actions/wikipedia";
-import DatosSection, { fetchAllTables } from "./DatosSection";
+import DatosSection from "./DatosSection";
+import { fetchAllTables } from "@/lib/datos/ine";
 import { TABLES } from "@/lib/config/tables";
 import dynamic from "next/dynamic";
 import { SiGooglemaps } from "react-icons/si";
@@ -225,7 +226,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                                     className="flex items-center bg-white/10 backdrop-blur-sm gap-2 border border-title/30 hover:border-title/50 font-medium h-10 px-4 w-fit group relative hover:pr-8"
                                 >
                                     Pagina web
-                                    <span className="absolute transition-all duration-150 opacity-0 group-hover:opacity-100 blur-xs group-hover:blur-none right-2"><MdArrowOutward aria-hidden="true" /></span>
+                                    <span className="absolute transition duration-150 opacity-0 group-hover:opacity-100 blur-xs group-hover:blur-none right-2"><MdArrowOutward aria-hidden="true" /></span>
                                 </a>
                             )}
                         </div>
@@ -291,7 +292,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     </div>
                     <p className="mt-3 px-0.5 gap-1 flex items-center text-[10px] text-title/50 group relative w-fit">
                         <span>Fuente:</span>
-                        <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-all duration-150" href="https://www.mivau.gob.es/">Ministerio de Vivienda</a>
+                        <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-colors duration-150" href="https://www.mivau.gob.es/">Ministerio de Vivienda</a>
                     </p>
                 </section>
             )}
@@ -308,7 +309,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     </div>
                     <p className="mt-3 px-0.5 gap-1 flex items-center text-[10px] text-title/50 group relative w-fit">
                         <span>Fuente:</span>
-                        <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-all duration-150" href="https://www.ine.es/">Instituto Nacional de Estadística</a>
+                        <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-colors duration-150" href="https://www.ine.es/">Instituto Nacional de Estadística</a>
                     </p>
                 </section>
             )}
@@ -331,7 +332,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     </div>
                     <div className="grid grid-cols-1 gap-px border-y border-title/20 bg-title/20 md:grid-cols-2">
                         {data.mas.medios.map((medio: { nombre: string; directorio_superior: string | null; paginas_de_internet: string | null }, i: number) => (
-                            <div key={i} className={`flex flex-col gap-1.5 bg-bg-card p-5 transition-colors hover:bg-white/40 ${data.mas.medios.length % 2 === 1 && i === data.mas.medios.length - 1 ? "md:col-span-2" : ""}`}>
+                            <div key={medio.nombre} className={`flex flex-col gap-1.5 bg-bg-card p-5 transition-colors hover:bg-white/40 ${data.mas.medios.length % 2 === 1 && i === data.mas.medios.length - 1 ? "md:col-span-2" : ""}`}>
                                 <div className="flex items-start justify-between gap-4">
                                     <h3 className="title-font text-lg font-semibold leading-snug text-title">{medio.nombre}</h3>
                                     {medio.paginas_de_internet && (
@@ -356,7 +357,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     </div>
                     <p className="mt-3 px-0.5 gap-1 flex items-center text-[10px] text-title/50 group relative w-fit">
                         <span>Fuente:</span>
-                        <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-all duration-150" href="https://analisis.datosabiertos.jcyl.es/explore/dataset/guia-de-medios-de-comunicacion/information">Guía de medios de comunicación de la Junta de Castilla y León</a>
+                        <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-colors duration-150" href="https://analisis.datosabiertos.jcyl.es/explore/dataset/guia-de-medios-de-comunicacion/information">Guía de medios de comunicación de la Junta de Castilla y León</a>
                     </p>
                 </section>
             )}

@@ -334,8 +334,8 @@ export default function MetodologiaPage() {
                                             </div>
 
                                             <ul className="flex flex-col divide-y divide-title/10">
-                                                {g.tables.map((t, idx) => (
-                                                    <li key={`${t.id}-${idx}`} className="flex items-center justify-between gap-2 py-1.5 text-xs">
+                                                {g.tables.map((t) => (
+                                                    <li key={t.id} className="flex items-center justify-between gap-2 py-1.5 text-xs">
                                                         <span className="text-black/80 font-medium leading-snug">
                                                             {t.label}
                                                         </span>

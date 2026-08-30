@@ -457,7 +457,7 @@ function ChartLegend({ entries }: { entries: { label: string; value: number }[] 
     return (
         <View style={styles.legend}>
             {entries.map((entry, index) => (
-                <View key={`${entry.label}-${index}`} style={styles.legendItem}>
+                <View key={entry.label} style={styles.legendItem}>
                     <View style={{ ...styles.legendMarker, backgroundColor: chartColors[index % chartColors.length] }} />
                     <Text style={styles.legendLabel}>{shorten(entry.label, 34)}</Text>
                     <Text style={styles.legendValue}>{formatNumber(entry.value)}</Text>

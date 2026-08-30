@@ -37,7 +37,7 @@ const BRAND_PALETTE = [
 
 const IGNORED_SEGMENTS = new Set(["dato base", "personas", "todas las edades"]);
 
-export function formatSeriesName(name?: string): string {
+function formatSeriesName(name?: string): string {
     if (!name) return "";
     const parts = name.split(".").map((p) => p.trim()).filter(Boolean);
     if (parts.length <= 1) return name.trim();
@@ -245,7 +245,7 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                                         const val = typeof d.value === "number" ? d.value : d.data?.value ?? p.yValue ?? 0;
                                         const frac = typeof d.fraction === "number" ? d.fraction : d.data?.fraction;
                                         return (
-                                            <div key={idx} className="flex items-center gap-2">
+                                            <div key={label} className="flex items-center gap-2">
                                                 {label && <span className="text-title/80 font-medium">{label}:</span>}
                                                 <span className="font-bold text-title tabular-nums">
                                                     {val.toLocaleString("es-ES")}
@@ -268,7 +268,7 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                                 {points.map((p, idx) => {
                                     const val = typeof p.yValue === "number" ? p.yValue : (p.datum as any)?.value ?? 0;
                                     return (
-                                        <span key={idx} className="font-bold text-title tabular-nums">
+                                        <span key={p.key || idx} className="font-bold text-title tabular-nums">
                                             {typeof val === "number" ? val.toLocaleString("es-ES") : String(val)}
                                         </span>
                                     );
@@ -289,7 +289,7 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                     }
                 >
                     {legends.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between gap-2 py-0.5 min-w-0">
+                        <div key={item.label} className="flex items-center justify-between gap-2 py-0.5 min-w-0">
                             <div className="flex items-center gap-2 min-w-0">
                                 <span
                                     className="w-2.5 h-2.5 rounded-full shrink-0 border border-title/20"
