@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion } from "motion/react";
+import * as m from "motion/react-m";
 import Link from "next/link";
 import { IoMdClose } from "react-icons/io";
 import { Site } from "@/types";
@@ -38,6 +38,13 @@ function Toggle({
     );
 }
 
+function ageLabel(age: number) {
+    if (age < 30) return "Joven";
+    if (age < 45) return "Adulto/a joven";
+    if (age < 60) return "Adulto/a";
+    return "Mayor";
+}
+
 function AgeSlider({
     value,
     onChange,
@@ -45,12 +52,6 @@ function AgeSlider({
     value: number;
     onChange: (v: number) => void;
 }) {
-    function ageLabel(age: number) {
-        if (age < 30) return "Joven";
-        if (age < 45) return "Adulto/a joven";
-        if (age < 60) return "Adulto/a";
-        return "Mayor";
-    }
 
     return (
         <div className="flex flex-col gap-2 w-full mt-2">
@@ -251,7 +252,7 @@ export default function SearchBar() {
                     </div>
 
                     {isSearching && (
-                        <motion.div
+                        <m.div
                             className="col-start-1 row-start-1 w-full flex flex-col gap-4 min-md:max-h-[40rem] overflow-y-auto z-10 self-start"
                         >
                             {isLoading ? (
@@ -281,13 +282,13 @@ export default function SearchBar() {
                                     No se encontraron municipios
                                 </div>
                             ) : null}
-                        </motion.div>
+                        </m.div>
                     )}
                 </div>
             ) : (
                 isSearching && (
                     <div className="bg-bg-card h-[15rem] overflow-y-auto my-2 border border-title/30">
-                        <motion.div
+                        <m.div
                             className="w-full min-h-full flex flex-col gap-2 p-4"
                         >
                             {isLoading ? (
@@ -317,7 +318,7 @@ export default function SearchBar() {
                                     No se encontraron municipios
                                 </div>
                             ) : null}
-                        </motion.div>
+                        </m.div>
                     </div>
                 )
             )}

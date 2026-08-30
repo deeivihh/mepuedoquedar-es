@@ -6,7 +6,22 @@ import { FaBookOpen, FaGithub, FaLinkedin } from "react-icons/fa";
 export const dynamic = "force-static";
 export const revalidate = 86400;
 
-export default function Home() {
+async function getRandomSites() {
+    try {
+        const offset = Math.floor(Math.random() * 2200);
+        const url = `https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets/registro-de-municipios-de-castilla-y-leon/records?limit=10&offset=${offset}`;
+        const res = await fetch(url, { headers: { Accept: "application/json" } });
+        if (!res.ok) return [];
+        const data = (await res.json()) as { results: { municipio: string }[] };
+        return data.results.map((r) => r.municipio);
+    } catch {
+        return [];
+    }
+}
+
+export default async function Home() {
+    const randomSites = await getRandomSites();
+
     return (
         <main className="flex flex-col lg:flex-row min-h-screen w-full lg:h-screen lg:overflow-hidden">
             <div className="w-full lg:w-[60%] h-[100svh] lg:h-screen lg:overflow-y-auto relative no-scrollbar flex flex-col shrink-0">
@@ -62,7 +77,7 @@ export default function Home() {
             </div>
             <div className="w-full lg:w-[40%] min-h-screen lg:h-full lg:overflow-y-auto flex flex-col items-center justify-center p-6 lg:px-12 lg:py-8">
                 <div className="w-full max-w-xl flex flex-col items-center gap-6 shrink-0">
-                    <DynamicHeading />
+                    <DynamicHeading sites={randomSites} />
                     <SearchBar />
                 </div>
             </div>
