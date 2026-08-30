@@ -1,7 +1,7 @@
 import { DepartmentScore } from "@/lib/scores/calculateScores";
 import { computeWeightMultipliers } from "@/lib/scores/userPreferences";
 import { getDepartmentPriority, formatIndicatorValue } from "@/lib/scores/departmentPriority";
-import { usePreferences } from "@/app/contexts/PreferencesContext";
+import { usePreferences } from "@/contexts/PreferencesContext";
 import {
     FaGraduationCap,
     FaBriefcase,

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { WikipediaData } from "@/app/actions/wikipedia";
+import { WikipediaData } from "@/actions/wikipedia";
 import { FaExternalLinkAlt, FaChevronDown, FaChevronUp, FaWikipediaW } from "react-icons/fa";
 
-export { getMunicipioWikipedia } from "@/app/actions/wikipedia";
+export { getMunicipioWikipedia } from "@/actions/wikipedia";
 
-export default function Wikipedia({ data }: { data: WikipediaData | null }) {
+export default function WikipediaSection({ data }: { data: WikipediaData | null }) {
     const [idx, setIdx] = useState(0);
     const [expanded, setExpanded] = useState(false);
 

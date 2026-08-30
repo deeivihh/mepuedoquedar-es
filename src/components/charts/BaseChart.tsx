@@ -8,7 +8,7 @@ import { scaleLinear } from "@tanstack/charts/scales/linear";
 import { polar, pie, radialArc } from "@tanstack/charts/polar";
 import { Chart } from "@tanstack/charts/react/tooltip";
 import { tooltip } from "@tanstack/charts/tooltip";
-import type { ChartType } from "@/app/utils/getTables";
+import type { ChartType } from "@/lib/config/tables";
 import { IoTimeSharp } from "react-icons/io5";
 import { FaListUl } from "react-icons/fa";
 

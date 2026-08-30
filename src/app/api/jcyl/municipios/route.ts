@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDistance } from "geolib";
-import { Site } from "@/app/utils/types";
+import { Site } from "@/types";
 
 const BASE_URL =
   "https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets";

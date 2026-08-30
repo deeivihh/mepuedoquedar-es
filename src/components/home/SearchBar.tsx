@@ -1,13 +1,12 @@
-"use client"
+"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { IoMdClose } from "react-icons/io";
-import { BsFillSignTurnRightFill } from "react-icons/bs";
-import { Site } from "@/app/utils/types";
-import { useLocation } from "@/app/utils/useLocation";
-import { usePreferences } from "@/app/contexts/PreferencesContext";
+import { Site } from "@/types";
+import { useLocation } from "@/hooks/useLocation";
+import { usePreferences } from "@/contexts/PreferencesContext";
 import { UserPreferences } from "@/lib/scores/userPreferences";
 import { PREFERENCES_SCHEMA } from "@/lib/scores/preferencesSchema";
 import { FaArrowLeft, FaRoute, FaSearch } from "react-icons/fa";
@@ -158,6 +157,7 @@ export default function SearchBar() {
             setResults([]);
             return;
         }
+
         const controller = new AbortController();
         abortRef.current = controller;
         setIsLoading(true);

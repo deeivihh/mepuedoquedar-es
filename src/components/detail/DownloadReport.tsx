@@ -4,7 +4,7 @@ import { PDFDownloadLink, Document, Page, StyleSheet, Text, View, ImageBackgroun
 import { FaFileArrowDown } from "react-icons/fa6";
 import type { DepartmentScore, ScoreResult } from "@/lib/scores/calculateScores";
 import { formatIndicatorValue } from "@/lib/scores/departmentPriority";
-import { TABLES, getTableKey, type TableConfig } from "@/app/utils/getTables";
+import { TABLES, getTableKey, type TableConfig } from "@/lib/config/tables";
 
 type MunicipioData = Record<string, any>;
 type IneData = Record<string, any[]> | null;

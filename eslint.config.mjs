@@ -19,7 +19,7 @@ const eslintConfig = [
 		},
 	},
 	{
-		files: ["src/app/utils/getData.ts"],
+		files: ["src/hooks/useData.ts"],
 		rules: {
 			"react-hooks/exhaustive-deps": "off",
 		},

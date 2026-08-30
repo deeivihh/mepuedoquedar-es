@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { TABLES, getTableKey, type TableConfig } from "@/app/utils/getTables";
-import BaseChart from "@/app/components/charts/BaseChart";
+import { TABLES, getTableKey, type TableConfig } from "@/lib/config/tables";
+import BaseChart from "@/components/charts/BaseChart";
 
 export async function fetchAllTables(tables: TableConfig[], cod_int: string | number): Promise<Record<string, any[]>> {
     const queries = tables.map((t) => ({
@@ -66,7 +66,7 @@ function Tabla({ table, data }: { table: TableConfig; data: any[] }) {
     );
 }
 
-export default function Datos({ ineData, tables = TABLES }: { ineData: Record<string, any[]>; tables?: TableConfig[] }) {
+export default function DatosSection({ ineData, tables = TABLES }: { ineData: Record<string, any[]>; tables?: TableConfig[] }) {
     const hasAnyData = useMemo(() => {
         return tables.some((t) => {
             const d = ineData?.[getTableKey(t)];

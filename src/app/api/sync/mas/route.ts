@@ -1,6 +1,6 @@
 import { getSupabase } from "@/lib/supabase/client";
 import { createLog } from "@/lib/logger";
-import { isAuthorized } from "@/app/utils/isAuthorized";
+import { isAuthorized } from "@/lib/auth/isAuthorized";
 import { MAS_SOURCES } from "@/lib/extra";
 import { NextResponse } from "next/server";
 

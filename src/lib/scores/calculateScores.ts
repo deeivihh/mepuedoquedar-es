@@ -1,5 +1,5 @@
 import config from "./weights.json";
-import { TABLES, getTableKey } from "@/app/utils/getTables";
+import { TABLES, getTableKey } from "@/lib/config/tables";
 
 interface ThresholdRule {
     label: string;

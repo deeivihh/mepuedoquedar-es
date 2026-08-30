@@ -1,23 +1,24 @@
-"use client"
+"use client";
+
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useLocation } from "@/app/utils/useLocation";
+import { useLocation } from "@/hooks/useLocation";
 import { Map } from "pigeon-maps";
 import { IoPeopleSharp } from "react-icons/io5";
-import { FaCarSide, FaInfo, FaMapMarkedAlt } from "react-icons/fa";
+import { FaCarSide } from "react-icons/fa";
 import { MdArrowOutward } from "react-icons/md";
 import { calculateScores, ScoreResult } from "@/lib/scores/calculateScores";
-import GeneralScore from "@/app/components/detail/scores";
-import { usePreferences } from "@/app/contexts/PreferencesContext";
+import GeneralScore from "@/components/detail/GeneralScore";
+import { usePreferences } from "@/contexts/PreferencesContext";
 import { computeWeightMultipliers } from "@/lib/scores/userPreferences";
-import Wikipedia, { getMunicipioWikipedia } from "./wikipedia";
-import { WikipediaData } from "@/app/actions/wikipedia";
-import Datos, { fetchAllTables } from "./datos";
-import { TABLES } from "@/app/utils/getTables";
+import WikipediaSection, { getMunicipioWikipedia } from "./WikipediaSection";
+import { WikipediaData } from "@/actions/wikipedia";
+import DatosSection, { fetchAllTables } from "./DatosSection";
+import { TABLES } from "@/lib/config/tables";
 import dynamic from "next/dynamic";
 import { SiGooglemaps } from "react-icons/si";
-import DownloadReport from "./report";
+import DownloadReport from "./DownloadReport";
 
-const BaseChart = dynamic(() => import("@/app/components/charts/BaseChart"), { ssr: false });
+const BaseChart = dynamic(() => import("@/components/charts/BaseChart"), { ssr: false });
 
 function capitalize(value: string) {
     const firstLetter = value.charAt(0);
@@ -295,7 +296,6 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                 </section>
             )}
 
-
             {data.cod_int && ineData && (
                 <section className="py-14 sm:py-12 relative">
                     <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -304,7 +304,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                         </div>
                     </div>
                     <div className="overflow-hidden border-y border-title/20 bg-bg-card">
-                        <Datos ineData={ineData} />
+                        <DatosSection ineData={ineData} />
                     </div>
                     <p className="mt-3 px-0.5 flex items-center text-[10px] text-title/50 hover:text-title group relative w-fit">
                         <span className="absolute pt-0.5 group-hover:-left-10 -left-5 blur group-hover:blur-none font-medium z-10 transition-all duration-150">Fuente:</span>
@@ -319,7 +319,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                         <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Conoce el lugar</h2>
                     </div>
                     <div className="overflow-hidden border-y border-title/20 bg-bg-card">
-                        <Wikipedia data={wikiData} />
+                        <WikipediaSection data={wikiData} />
                     </div>
                 </section>
             )}

@@ -1,7 +1,7 @@
 import { fetchIneCodes } from "@/lib/datos/ine";
 import { getSupabase } from "@/lib/supabase/client";
 import { NextResponse } from "next/server";
-import { isAuthorized } from "@/app/utils/isAuthorized";
+import { isAuthorized } from "@/lib/auth/isAuthorized";
 
 export async function POST(req: Request) {
   if (!isAuthorized(req)) {

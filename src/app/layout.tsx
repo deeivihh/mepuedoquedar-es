@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Source_Serif_4, Inter } from "next/font/google";
 import "./globals.css";
-import { PreferencesProvider } from "@/app/contexts/PreferencesContext";
-import MotionProvider from "@/app/components/MotionProvider";
+import { PreferencesProvider } from "@/contexts/PreferencesContext";
+import MotionProvider from "@/components/providers/MotionProvider";
 
 const titleFont = Source_Serif_4({
 	subsets: ["latin"],

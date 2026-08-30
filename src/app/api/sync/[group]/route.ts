@@ -3,7 +3,7 @@ import { getGroupByName, MUNICIPALITIES_CONFIG } from "@/lib/datos/groups";
 import { createLog } from "@/lib/logger";
 import { saveGroup } from "@/lib/supabase/municipalities";
 import { NextResponse } from "next/server";
-import { isAuthorized } from "@/app/utils/isAuthorized";
+import { isAuthorized } from "@/lib/auth/isAuthorized";
 
 export async function POST(
   req: Request,

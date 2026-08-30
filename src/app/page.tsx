@@ -1,6 +1,6 @@
 import Link from "next/link";
-import DynamicHeading from "./components/home/dynamicHeading";
-import SearchBar from "./components/home/searchbar";
+import DynamicHeading from "@/components/home/DynamicHeading";
+import SearchBar from "@/components/home/SearchBar";
 import { FaBookOpen, FaGithub, FaLinkedin } from "react-icons/fa";
 
 export const dynamic = "force-static";

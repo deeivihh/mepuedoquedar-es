@@ -2,14 +2,6 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 const MAX_CLOCK_SKEW_SECONDS = 300;
 
-function getOneMonthAgo() {
-    return new Date(
-        Date.now() - 30 * 24 * 60 * 60 * 1000
-    )
-        .toISOString()
-        .slice(0, 10);
-}
-
 function safeCompare(a: string, b: string): boolean {
     const bufferA = Buffer.from(a);
     const bufferB = Buffer.from(b);

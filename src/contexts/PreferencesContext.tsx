@@ -18,11 +18,13 @@ interface PreferencesContextValue {
     setPreferences: (prefs: UserPreferences) => void;
     isDefault: boolean;
 }
+
 const PreferencesContext = createContext<PreferencesContextValue>({
     preferences: DEFAULT_PREFERENCES,
     setPreferences: () => { },
     isDefault: true,
 });
+
 const STORAGE_KEY = "user_preferences_v1";
 
 export function PreferencesProvider({ children }: { children: ReactNode }) {

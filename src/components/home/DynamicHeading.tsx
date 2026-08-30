@@ -1,9 +1,9 @@
 "use client";
 
-import { useTypewriter } from "@/app/utils/useTypewriter";
+import { useTypewriter } from "@/hooks/useTypewriter";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
-import { Site } from "@/app/utils/types";
+import { Site } from "@/types";
 
 export default function DynamicHeading() {
     const [randomSites, setRandomSites] = useState<Site[]>([]);
