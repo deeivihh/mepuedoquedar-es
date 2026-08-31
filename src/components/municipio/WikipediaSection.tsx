@@ -54,6 +54,7 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
                                     src={img.url}
                                     alt=""
                                     fill
+                                    unoptimized
                                     sizes="(max-width: 768px) 100vw, 60vw"
                                     className="absolute inset-0 w-full h-full object-cover opacity-50 blur-2xl max-md:scale-110"
                                     onError={(e) => { e.currentTarget.style.display = "none"; }}
@@ -62,6 +63,7 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
                                     src={img.url}
                                     alt={data.title}
                                     fill
+                                    unoptimized
                                     sizes="(max-width: 768px) 100vw, 60vw"
                                     className="relative z-10 w-full h-full object-contain object-center border border-title/20"
                                     loading="lazy"
@@ -78,6 +80,7 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
                                             src={item.url}
                                             alt={item.description || ""}
                                             fill
+                                            unoptimized
                                             sizes="(max-width: 768px) 33vw, 20vw"
                                             className="w-full h-full object-cover"
                                             loading="lazy"
