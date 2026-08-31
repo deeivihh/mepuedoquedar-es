@@ -9,17 +9,15 @@ export default async function DetailPage({
     const { cod } = await params;
 
     return (
-        <main className="min-h-screen w-full bg-bg px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto flex w-full flex-col max-w-5xl">
-                <header className="pt-6 flex justify-between items-center">
-                    <div className="flex-1">
-                        <SearchBar />
-                    </div>
+        <main className="min-h-[100dvh] w-full bg-bg p-4 sm:p-8 lg:p-12 flex justify-center">
+            <div className="flex w-full max-w-5xl flex-col gap-4 sm:gap-8 lg:gap-12">
+                <header className="relative z-50 w-full">
+                    <SearchBar />
                 </header>
 
-                <div className="py-5 sm:py-8 lg:py-10">
+                <section className="w-full">
                     <MunicipioDetail cod={cod} />
-                </div>
+                </section>
             </div>
         </main>
     );

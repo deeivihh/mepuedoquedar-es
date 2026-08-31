@@ -56,7 +56,7 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
                                     fill
                                     unoptimized
                                     sizes="(max-width: 768px) 100vw, 60vw"
-                                    className="absolute inset-0 w-full h-full object-cover opacity-50 blur-2xl max-md:scale-110"
+                                    className="absolute inset-0 w-full h-full object-cover max-md:scale-120 blur-xs opacity-80"
                                     onError={(e) => { e.currentTarget.style.display = "none"; }}
                                 />
                                 <Image
