@@ -135,6 +135,7 @@ export async function getMunicipioWikipedia(lat: number, lon: number, name: stri
 
     try {
         wiki.setLang("es");
+        wiki.setUserAgent("MePuedoQuedar/1.0 (https://mepuedoquedar.es; info@mepuedoquedar.es)");
         const n = titleCase(name.trim());
         const prov = provincia ? titleCase(provincia.trim()) : "";
         const candidates = prov
