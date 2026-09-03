@@ -809,9 +809,9 @@ function AlquilerChart({
     const actualizado = vivienda.actualizado;
 
     const points = Array.isArray(serie) && serie.length > 0
-        ? serie
-            .toSorted((a: any, b: any) => Number(a.anio) - Number(b.anio))
-            .map((item: any) => ({ period: String(item.anio), value: Number(item.precio) }))
+        ? [...serie]
+            .sort((a, b) => Number(a.anio) - Number(b.anio))
+            .map((item) => ({ period: String(item.anio), value: Number(item.precio) }))
         : [{ period: String(actualizado ?? ""), value: Number(precio) }];
 
     const series = [{
@@ -866,8 +866,8 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault, wikiDa
                     <Text style={styles.sectionTitle}>Conoce el lugar</Text>
                     {wikiData && wikiData.paragraphs && wikiData.paragraphs.length > 0 ? (
                         <View wrap={false}>
-                            {wikiData.paragraphs.slice(0, 3).map((paragraph) => (
-                                <Text key={paragraph} style={{ ...styles.intro, marginBottom: 8 }}>
+                            {wikiData.paragraphs.slice(0, 3).map((paragraph, index) => (
+                                <Text key={index} style={{ ...styles.intro, marginBottom: 8 }}>
                                     {paragraph}
                                 </Text>
                             ))}
