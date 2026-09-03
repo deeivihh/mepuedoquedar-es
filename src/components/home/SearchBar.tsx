@@ -138,14 +138,10 @@ function SearchSkeleton() {
     );
 }
 
-export default function SearchBar() {
-    const { locationParams, ready } = useLocation(true);
+function useMunicipioSearch(locationParams: string, ready: boolean) {
     const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<Site[]>([]);
-    const pathname = usePathname();
-    const isHome = pathname === "/";
-    const { preferences, setPreferences } = usePreferences();
 
     const abortRef = useRef<AbortController | null>(null);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -196,48 +192,169 @@ export default function SearchBar() {
         };
     }, [query, ready, search]);
 
+    const handleQueryChange = useCallback((value: string) => {
+        setResults([]);
+        setQuery(value);
+    }, []);
+
+    const clearQuery = useCallback(() => {
+        setQuery('');
+        setResults([]);
+    }, []);
+
+    return {
+        query,
+        isLoading,
+        results,
+        isSearching,
+        handleQueryChange,
+        clearQuery,
+    };
+}
+
+function SearchResultItem({ result, isHome }: { result: Site; isHome: boolean }) {
+    const itemClassName = isHome
+        ? "flex justify-between w-full items-center gap-4 px-3 py-2 border border-title/50 hover:bg-bg-card/50 active:bg-bg-card"
+        : "flex justify-between w-full items-center gap-4 p-2 border border-title/30 hover:bg-white/50 active:bg-white";
+
     return (
-        <div className={`relative flex flex-col w-full`} style={{ zIndex: 100 }}>
-            <div className="flex flex-col gap-1 w-full">
-                <div className="flex justify-center items-center divide-x divide-title/30 border border-title/30 h-12 overflow-hidden">
-                    {!isHome && (
-                        <Link
-                            href="/"
-                            title="Volver"
-                            className={`justify-center items-center flex p-4 px-4.5 opacity-80 hover:opacity-100 text-title hover:bg-bg-card`}
-                        >
-                            <FaArrowLeft size={20} />
-                        </Link>
-                    )}
-                    <div className={`w-full flex gap-4 justify-center items-center h-full pl-4 pr-3 focus-within:bg-bg-card ${isHome ? 'bg-bg-card' : 'hover:bg-bg-card/80'} active:bg-bg-card`}>
-                        <FaSearch size={20} className="opacity-80 text-title shrink-0" />
-                        <input
-                            id="search-municipios"
-                            aria-label="Buscar municipio"
-                            placeholder="Busca tu municipio..."
-                            {...(isHome && { autoFocus: true })}
-                            onChange={(e) => { setResults([]); setQuery(e.target.value); }}
-                            value={query}
-                            className="w-full flex-1 min-w-0 h-full outline-none text-title font-medium bg-transparent"
+        <Link
+            href={`/municipio/${result.cod_ine}`}
+            className={itemClassName}
+        >
+            <p className="font-semibold text-title">{result.municipio}</p>
+            {result.distance != null ? (
+                <div className="flex items-center justify-center gap-1.5 shrink-0 text-title/80">
+                    <span className="font-medium text-sm text-right" title="Distancia desde tu ubicación actual"><FaRoute /></span>
+                    <span className="text-sm font-medium tabular-nums text-right">
+                        {result.distance >= 1000
+                            ? `${(result.distance / 1000).toFixed(1)} km`
+                            : `${result.distance} m`}
+                    </span>
+                </div>
+            ) : null}
+        </Link>
+    );
+}
+
+function SearchResultsList({
+    isLoading,
+    results,
+    query,
+    isHome,
+}: {
+    isLoading: boolean;
+    results: Site[];
+    query: string;
+    isHome: boolean;
+}) {
+    if (isLoading) {
+        return <SearchSkeleton />;
+    }
+
+    if (results.length > 0) {
+        return (
+            <>
+                {results.map((result) => (
+                    <SearchResultItem key={result.cod_ine} result={result} isHome={isHome} />
+                ))}
+            </>
+        );
+    }
+
+    if (query.trim().length >= 3) {
+        return (
+            <div className="flex items-center justify-center h-48 text-sm text-title/60 font-medium">
+                No se encontraron municipios
+            </div>
+        );
+    }
+
+    return null;
+}
+
+function SearchInput({
+    isHome,
+    query,
+    isLoading,
+    onChange,
+    onClear,
+}: {
+    isHome: boolean;
+    query: string;
+    isLoading: boolean;
+    onChange: (val: string) => void;
+    onClear: () => void;
+}) {
+    return (
+        <div className="flex flex-col gap-1 w-full">
+            <div className="flex justify-center items-center divide-x divide-title/30 border border-title/30 h-12 overflow-hidden">
+                {!isHome ? (
+                    <Link
+                        href="/"
+                        title="Volver"
+                        className="justify-center items-center flex p-4 px-4.5 opacity-80 hover:opacity-100 text-title hover:bg-bg-card"
+                    >
+                        <FaArrowLeft size={20} />
+                    </Link>
+                ) : null}
+                <div className={`w-full flex gap-4 justify-center items-center h-full pl-4 pr-3 focus-within:bg-bg-card ${isHome ? 'bg-bg-card' : 'hover:bg-bg-card/80'} active:bg-bg-card`}>
+                    <FaSearch size={20} className="opacity-80 text-title shrink-0" />
+                    <input
+                        id="search-municipios"
+                        aria-label="Buscar municipio"
+                        placeholder="Busca tu municipio..."
+                        {...(isHome && { autoFocus: true })}
+                        onChange={(e) => onChange(e.target.value)}
+                        value={query}
+                        className="w-full flex-1 min-w-0 h-full outline-none text-title font-medium bg-transparent"
+                    />
+                    {isLoading ? (
+                        <AiOutlineLoading3Quarters
+                            size={15}
+                            className="text-title shrink-0 mr-2.5 flex items-center justify-center animate-spin"
                         />
-                        {isLoading && (
-                            <AiOutlineLoading3Quarters
-                                size={15}
-                                className="text-title shrink-0 mr-2.5 flex items-center justify-center animate-spin" />
-                        )}
-                        {query.length > 0 && !isLoading && (
-                            <button
-                                type="button"
-                                aria-label="Limpiar búsqueda"
-                                onClick={() => { setQuery(''); setResults([]); }}
-                                className="text-title hover:opacity-70 transition-opacity shrink-0 w-8 h-8 flex items-center justify-center"
-                            >
-                                <IoMdClose size={20} />
-                            </button>
-                        )}
-                    </div>
+                    ) : null}
+                    {query.length > 0 && !isLoading ? (
+                        <button
+                            type="button"
+                            aria-label="Limpiar búsqueda"
+                            onClick={onClear}
+                            className="text-title hover:opacity-70 transition-opacity shrink-0 w-8 h-8 flex items-center justify-center"
+                        >
+                            <IoMdClose size={20} />
+                        </button>
+                    ) : null}
                 </div>
             </div>
+        </div>
+    );
+}
+
+export default function SearchBar() {
+    const { locationParams, ready } = useLocation(true);
+    const pathname = usePathname();
+    const isHome = pathname === "/";
+    const { preferences, setPreferences } = usePreferences();
+
+    const {
+        query,
+        isLoading,
+        results,
+        isSearching,
+        handleQueryChange,
+        clearQuery,
+    } = useMunicipioSearch(locationParams, ready);
+
+    return (
+        <div className="relative flex flex-col w-full" style={{ zIndex: 100 }}>
+            <SearchInput
+                isHome={isHome}
+                query={query}
+                isLoading={isLoading}
+                onChange={handleQueryChange}
+                onClear={clearQuery}
+            />
 
             {isHome ? (
                 <div className="grid grid-cols-1 grid-rows-1 h-full w-full mt-2 items-start">
@@ -251,76 +368,32 @@ export default function SearchBar() {
                         />
                     </div>
 
-                    {isSearching && (
+                    {isSearching ? (
                         <m.div
                             className="col-start-1 row-start-1 w-full flex flex-col gap-4 min-md:max-h-[40rem] overflow-y-auto z-10 self-start"
                         >
-                            {isLoading ? (
-                                <SearchSkeleton />
-                            ) : results.length > 0 ? (
-                                results.map((result) => (
-                                    <Link
-                                        href={`/municipio/${result.cod_ine}`}
-                                        key={result.cod_ine}
-                                        className="flex justify-between w-full items-center gap-4 px-3 py-2 border border-title/50 hover:bg-bg-card/50 active:bg-bg-card"
-                                    >
-                                        <p className="font-semibold text-title">{result.municipio}</p>
-                                        {result.distance != null && (
-                                            <div className="flex items-center justify-center gap-1.5 shrink-0 text-title/80">
-                                                <span className="font-medium text-sm text-right" title="Distancia desde tu ubicación actual"><FaRoute /></span>
-                                                <span className="text-sm font-medium tabular-nums text-right">
-                                                    {result.distance >= 1000
-                                                        ? `${(result.distance / 1000).toFixed(1)} km`
-                                                        : `${result.distance} m`}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </Link>
-                                ))
-                            ) : query.trim().length >= 3 ? (
-                                <div className="flex items-center justify-center h-48 text-sm text-title/60 font-medium">
-                                    No se encontraron municipios
-                                </div>
-                            ) : null}
+                            <SearchResultsList
+                                isLoading={isLoading}
+                                results={results}
+                                query={query}
+                                isHome={isHome}
+                            />
                         </m.div>
-                    )}
+                    ) : null}
                 </div>
             ) : (
-                isSearching && (
+                isSearching ? (
                     <div className="bg-bg-card h-[15rem] overflow-y-auto my-2 border border-title/30">
-                        <m.div
-                            className="w-full min-h-full flex flex-col gap-2 p-4"
-                        >
-                            {isLoading ? (
-                                <SearchSkeleton />
-                            ) : results.length > 0 ? (
-                                results.map((result) => (
-                                    <Link
-                                        href={`/municipio/${result.cod_ine}`}
-                                        key={result.cod_ine}
-                                        className="flex justify-between w-full items-center gap-4 p-2 border border-title/30 hover:bg-white/50 active:bg-white"
-                                    >
-                                        <p className="font-semibold text-title">{result.municipio}</p>
-                                        {result.distance != null && (
-                                            <div className="flex items-center justify-center gap-1.5 shrink-0 text-title/80">
-                                                <span className="font-medium text-sm text-right" title="Distancia desde tu ubicación actual"><FaRoute /></span>
-                                                <span className="text-sm font-medium tabular-nums text-right">
-                                                    {result.distance >= 1000
-                                                        ? `${(result.distance / 1000).toFixed(1)} km`
-                                                        : `${result.distance} m`}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </Link>
-                                ))
-                            ) : query.trim().length >= 3 ? (
-                                <div className="flex items-center justify-center h-48 text-sm text-title/60 font-medium">
-                                    No se encontraron municipios
-                                </div>
-                            ) : null}
+                        <m.div className="w-full min-h-full flex flex-col gap-2 p-4">
+                            <SearchResultsList
+                                isLoading={isLoading}
+                                results={results}
+                                query={query}
+                                isHome={isHome}
+                            />
                         </m.div>
                     </div>
-                )
+                ) : null
             )}
         </div>
     );
