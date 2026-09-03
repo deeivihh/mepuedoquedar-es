@@ -8,6 +8,7 @@ let Document: any;
 let Page: any;
 let Text: any;
 let View: any;
+let Image: any;
 let ImageBackground: any;
 let Svg: any;
 let G: any;
@@ -18,6 +19,7 @@ let Path: any;
 import type { DepartmentScore, ScoreResult } from "@/lib/scores/calculateScores";
 import { formatIndicatorValue } from "@/lib/scores/departmentPriority";
 import { TABLES, getTableKey, type TableConfig } from "@/lib/config/tables";
+import type { WikipediaData } from "@/actions/wikipedia";
 
 type MunicipioData = Record<string, any>;
 type IneData = Record<string, any[]> | null;
@@ -145,30 +147,41 @@ const styles: any = {
         lineHeight: 1.5,
         marginBottom: 16,
     },
-    facts: {
+    summaryImageCard: {
+        backgroundColor: colors.card,
+        borderColor: `${colors.green}22`,
+        borderWidth: 1,
+        marginTop: 12,
+        overflow: "hidden",
+    },
+    summaryImage: {
+        height: 220,
+        objectFit: "cover",
+        width: "100%",
+    },
+    summaryImageCaption: {
+        color: colors.muted,
+        fontSize: 7.5,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        textAlign: "center",
+    },
+    summaryImagesRow: {
         flexDirection: "row",
         gap: 10,
-        marginBottom: 22,
+        marginTop: 12,
     },
-    fact: {
+    summaryImageCol: {
         backgroundColor: colors.card,
+        borderColor: `${colors.green}22`,
         borderWidth: 1,
-        borderColor: `${colors.green}15`,
-        flexGrow: 1,
-        padding: 11,
+        flex: 1,
+        overflow: "hidden",
     },
-    factLabel: {
-        color: colors.muted,
-        fontFamily: "Helvetica-Bold",
-        fontSize: 7,
-        letterSpacing: 0.8,
-        textTransform: "uppercase",
-    },
-    factValue: {
-        color: colors.green,
-        fontFamily: "Times-Bold",
-        fontSize: 17,
-        marginTop: 4,
+    summaryImageHalf: {
+        height: 160,
+        objectFit: "cover",
+        width: "100%",
     },
     globalScoreBlock: {
         backgroundColor: colors.card,
@@ -305,21 +318,26 @@ const styles: any = {
         textAlign: "right",
         width: "14%",
     },
-    chartsGrid: {
+    chartsContainer: {
+        width: "100%",
+    },
+    chartRow: {
+        backgroundColor: colors.card,
+        borderColor: `${colors.green}22`,
+        borderWidth: 1,
         flexDirection: "row",
-        flexWrap: "wrap",
-        marginHorizontal: -6,
     },
     chartGroup: {
-        borderBottomColor: `${colors.green}22`,
-        borderBottomWidth: 1,
-        marginBottom: 16,
-        paddingHorizontal: 6,
-        paddingBottom: 13,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         width: "50%",
     },
     chartGroupFull: {
         width: "100%",
+    },
+    chartBorderRight: {
+        borderRightColor: `${colors.green}22`,
+        borderRightWidth: 1,
     },
     chartTitle: {
         color: colors.green,
@@ -360,6 +378,95 @@ const styles: any = {
         fontSize: 7,
         textAlign: "right",
         width: "24%",
+    },
+    sourceGrid: {
+        flexDirection: "row",
+        marginHorizontal: -4,
+        marginBottom: 12,
+    },
+    sourceItem: {
+        paddingHorizontal: 4,
+        width: "33.33%",
+    },
+    sourceCard: {
+        backgroundColor: colors.card,
+        borderColor: `${colors.green}22`,
+        borderWidth: 1,
+        padding: 8,
+    },
+    sourceTag: {
+        color: colors.terracotta,
+        fontFamily: "Helvetica-Bold",
+        fontSize: 5.5,
+        letterSpacing: 0.5,
+        marginBottom: 3,
+        textTransform: "uppercase",
+    },
+    sourceTitle: {
+        color: colors.green,
+        fontFamily: "Times-Bold",
+        fontSize: 8.5,
+        marginBottom: 2,
+    },
+    sourceDesc: {
+        color: colors.muted,
+        fontSize: 6.5,
+        lineHeight: 1.35,
+    },
+    guideSectionTitle: {
+        color: colors.green,
+        fontFamily: "Times-Bold",
+        fontSize: 13,
+        marginBottom: 8,
+    },
+    guideList: {
+        marginBottom: 12,
+    },
+    guideItem: {
+        backgroundColor: colors.card,
+        borderColor: `${colors.green}22`,
+        borderWidth: 1,
+        flexDirection: "row",
+        alignItems: "flex-start",
+        padding: 7,
+        marginBottom: 5,
+    },
+    guideNumber: {
+        backgroundColor: `${colors.terracotta}18`,
+        color: colors.terracotta,
+        fontFamily: "Helvetica-Bold",
+        fontSize: 7.5,
+        height: 15,
+        lineHeight: 15,
+        marginRight: 7,
+        textAlign: "center",
+        width: 15,
+        borderRadius: 2,
+    },
+    guideContent: {
+        flex: 1,
+    },
+    guideItemTitle: {
+        color: colors.green,
+        fontFamily: "Helvetica-Bold",
+        fontSize: 7.5,
+        marginBottom: 2,
+    },
+    guideItemDesc: {
+        color: colors.muted,
+        fontSize: 6.8,
+        lineHeight: 1.35,
+    },
+    legalBox: {
+        backgroundColor: colors.card,
+        borderColor: `${colors.green}22`,
+        borderWidth: 1,
+        padding: 8,
+    },
+    legalText: {
+        color: colors.muted,
+        fontSize: 6.8,
+        lineHeight: 1.4,
     },
     note: {
         color: colors.muted,
@@ -618,13 +725,29 @@ function hasChartData(table: TableConfig, data: any[]): boolean {
     return series.length > 0 && series.some((item) => item.points.length > 0);
 }
 
-function IneChart({ table, data, fullWidth }: { table: TableConfig; data: any[]; fullWidth?: boolean }) {
+function IneChart({
+    table,
+    data,
+    fullWidth,
+    borderRight,
+}: {
+    table: TableConfig;
+    data: any[];
+    fullWidth?: boolean;
+    borderRight?: boolean;
+}) {
     const filtered = filterData(data, table.filter);
     const isCategorical = table.type === "pie" || table.type === "donut" || table.type === "column";
     const isSeriesArray = Array.isArray(filtered) && filtered.some((item) => Array.isArray(item?.Data));
     const latest = isSeriesArray ? getPeriod(filtered[0]?.Data?.[0]) : getPeriod(filtered[0]);
 
     if (!filtered.length) return null;
+
+    const groupStyle = [
+        styles.chartGroup,
+        fullWidth ? styles.chartGroupFull : {},
+        borderRight ? styles.chartBorderRight : {},
+    ];
 
     if (isCategorical) {
         const chartType = table.type === "pie" || table.type === "donut" || table.type === "column" ? table.type : "column";
@@ -637,7 +760,7 @@ function IneChart({ table, data, fullWidth }: { table: TableConfig; data: any[];
         }, []);
         if (!entries.length) return null;
         return (
-            <View style={[styles.chartGroup, fullWidth ? styles.chartGroupFull : {}]} wrap={false}>
+            <View style={groupStyle} wrap={false}>
                 <Text style={styles.chartTitle}>{table.title ?? "Indicadores INE"}</Text>
                 {latest && <Text style={styles.chartDate}>Última actualización: {latest}</Text>}
                 <CategoricalChart type={chartType} entries={entries} fullWidth={fullWidth} />
@@ -656,8 +779,57 @@ function IneChart({ table, data, fullWidth }: { table: TableConfig; data: any[];
         : [{ label: table.title ?? "Valor", points: [...filtered].reverse().map((item) => ({ period: getPeriod(item), value: getValue(item.Valor) })) }];
     if (!series.length || !series.some((item) => item.points.length)) return null;
     return (
-        <View style={[styles.chartGroup, fullWidth ? styles.chartGroupFull : {}]} wrap={false}>
+        <View style={groupStyle} wrap={false}>
             <Text style={styles.chartTitle}>{table.title ?? "Indicadores INE"}</Text>
+            {latest && <Text style={styles.chartDate}>Última actualización: {latest}</Text>}
+            <LineChart series={series} fullWidth={fullWidth} />
+        </View>
+    );
+}
+
+function hasAlquilerData(vivienda?: any): boolean {
+    if (!vivienda?.alquiler) return false;
+    if (Array.isArray(vivienda.alquiler.serie) && vivienda.alquiler.serie.length > 0) return true;
+    return Boolean(vivienda.alquiler.precio);
+}
+
+function AlquilerChart({
+    vivienda,
+    fullWidth,
+    borderRight,
+}: {
+    vivienda: any;
+    fullWidth?: boolean;
+    borderRight?: boolean;
+}) {
+    if (!hasAlquilerData(vivienda)) return null;
+
+    const serie = vivienda.alquiler.serie;
+    const precio = vivienda.alquiler.precio;
+    const actualizado = vivienda.actualizado;
+
+    const points = Array.isArray(serie) && serie.length > 0
+        ? [...serie]
+            .sort((a, b) => Number(a.anio) - Number(b.anio))
+            .map((item) => ({ period: String(item.anio), value: Number(item.precio) }))
+        : [{ period: String(actualizado ?? ""), value: Number(precio) }];
+
+    const series = [{
+        label: vivienda.tipo === "casa" ? "Casas (mediana €/mes)" : vivienda.tipo === "piso" ? "Pisos (mediana €/mes)" : "Alquiler de referencia (€/mes)",
+        points,
+    }];
+
+    const latest = String(actualizado ?? points[points.length - 1]?.period ?? "");
+
+    const groupStyle = [
+        styles.chartGroup,
+        fullWidth ? styles.chartGroupFull : {},
+        borderRight ? styles.chartBorderRight : {},
+    ];
+
+    return (
+        <View style={groupStyle} wrap={false}>
+            <Text style={styles.chartTitle}>Alquiler de referencia</Text>
             {latest && <Text style={styles.chartDate}>Última actualización: {latest}</Text>}
             <LineChart series={series} fullWidth={fullWidth} />
         </View>
@@ -674,7 +846,7 @@ function ReportFooter() {
     );
 }
 
-function MunicipioReport({ data, scores, ineData, preferences, isDefault }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean }) {
+function MunicipioReport({ data, scores, ineData, preferences, isDefault, wikiData }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean; wikiData?: WikipediaData | null }) {
     const departments = Object.entries(scores.departments);
 
     return (
@@ -691,31 +863,52 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault }: { da
             <Page size="A4" style={styles.page}>
                 <ReportFooter />
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Resumen</Text>
-                    <Text style={styles.intro}>
-                        Este informe reúne la información mostrada para {data.municipio} y calcula la afinidad del municipio según los servicios, indicadores territoriales y preferencias seleccionadas.
-                    </Text>
-                    <View style={styles.facts}>
-                        <View style={styles.fact}>
-                            <Text style={styles.factLabel}>Población</Text>
-                            <Text style={styles.factValue}>{formatNumber(data.poblacion)}</Text>
+                    <Text style={styles.sectionTitle}>Conoce el lugar</Text>
+                    {wikiData && wikiData.paragraphs && wikiData.paragraphs.length > 0 ? (
+                        <View wrap={false}>
+                            {wikiData.paragraphs.slice(0, 3).map((paragraph, index) => (
+                                <Text key={index} style={{ ...styles.intro, marginBottom: 8 }}>
+                                    {paragraph}
+                                </Text>
+                            ))}
                         </View>
-                        {data.distance > 0 && (
-                            <View style={styles.fact}>
-                                <Text style={styles.factLabel}>Distancia</Text>
-                                <Text style={styles.factValue}>{data.distance >= 1000 ? `${(data.distance / 1000).toFixed(0)} km` : `${data.distance} m`}</Text>
+                    ) : (
+                        <Text style={styles.intro}>
+                            {data.municipio} es un municipio perteneciente a la provincia de {data.provincia} (Castilla y León), con una población censada de {formatNumber(data.poblacion)} habitantes.
+                        </Text>
+                    )}
+                    {wikiData && wikiData.images && wikiData.images.length > 0 && (
+                        wikiData.images.length === 1 ? (
+                            <View style={styles.summaryImageCard} wrap={false}>
+                                <Image src={wikiData.images[0].url} style={styles.summaryImage} />
+                                {wikiData.images[0].description && (
+                                    <Text style={styles.summaryImageCaption}>{wikiData.images[0].description}</Text>
+                                )}
                             </View>
-                        )}
-                        {data.mas?.vivienda?.alquiler?.precio && (
-                            <View style={styles.fact}>
-                                <Text style={styles.factLabel}>Alquiler de referencia</Text>
-                                <Text style={styles.factValue}>{data.mas.vivienda.alquiler.precio} EUR</Text>
+                        ) : (
+                            <View style={styles.summaryImagesRow} wrap={false}>
+                                <View style={styles.summaryImageCol}>
+                                    <Image src={wikiData.images[0].url} style={styles.summaryImageHalf} />
+                                    {wikiData.images[0].description && (
+                                        <Text style={styles.summaryImageCaption}>{shorten(wikiData.images[0].description, 50)}</Text>
+                                    )}
+                                </View>
+                                <View style={styles.summaryImageCol}>
+                                    <Image src={wikiData.images[1].url} style={styles.summaryImageHalf} />
+                                    {wikiData.images[1].description && (
+                                        <Text style={styles.summaryImageCaption}>{shorten(wikiData.images[1].description, 50)}</Text>
+                                    )}
+                                </View>
                             </View>
-                        )}
-                    </View>
+                        )
+                    )}
                 </View>
+            </Page>
 
+            <Page size="A4" style={styles.page}>
+                <ReportFooter />
                 <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Puntuación</Text>
                     <View style={styles.globalScoreBlock} wrap={false}>
                         <View style={styles.globalScoreHeader}>
                             <View>
@@ -777,38 +970,159 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault }: { da
                 </View>
             </Page>
 
-            {ineData && TABLES.some((table) => ineData[getTableKey(table)]?.length) && (
-                <Page size="A4" style={styles.page}>
-                    <ReportFooter />
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Datos estadísticos</Text>
-                        <Text style={styles.intro}>Series y distribuciones del Instituto Nacional de Estadística. La leyenda identifica cada serie o categoría y muestra su último valor disponible.</Text>
-                        <View style={styles.chartsGrid}>
-                            {(() => {
-                                const visible = TABLES.filter((table) => hasChartData(table, ineData[getTableKey(table)] ?? []));
-                                return visible.map((table, index) => {
-                                    const isLastOdd = visible.length % 2 === 1 && index === visible.length - 1;
-                                    return <IneChart key={getTableKey(table)} table={table} data={ineData[getTableKey(table)] ?? []} fullWidth={isLastOdd} />;
-                                });
-                            })()}
+            {(() => {
+                const visibleTables = ineData ? TABLES.filter((table) => hasChartData(table, ineData[getTableKey(table)] ?? [])) : [];
+                const showAlquiler = hasAlquilerData(data.mas?.vivienda);
+
+                type ChartItem =
+                    | { type: "ine"; table: TableConfig; data: any[] }
+                    | { type: "alquiler"; vivienda: any };
+
+                const chartItems: ChartItem[] = [
+                    ...visibleTables.map((table) => ({
+                        type: "ine" as const,
+                        table,
+                        data: ineData?.[getTableKey(table)] ?? [],
+                    })),
+                    ...(showAlquiler ? [{ type: "alquiler" as const, vivienda: data.mas.vivienda }] : []),
+                ];
+
+                if (!chartItems.length) return null;
+
+                const rows: ChartItem[][] = [];
+                for (let i = 0; i < chartItems.length; i += 2) {
+                    if (i === chartItems.length - 1) {
+                        rows.push([chartItems[i]]);
+                    } else {
+                        rows.push([chartItems[i], chartItems[i + 1]]);
+                    }
+                }
+
+                return (
+                    <Page size="A4" style={styles.page}>
+                        <ReportFooter />
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Datos estadísticos</Text>
+                            <Text style={styles.intro}>Series y distribuciones del Instituto Nacional de Estadística y del Ministerio de Vivienda. La leyenda identifica cada serie o categoría y muestra su último valor disponible.</Text>
+                            <View style={styles.chartsContainer}>
+                                {rows.map((row, rowIndex) => {
+                                    const isSingle = row.length === 1;
+                                    return (
+                                        <View
+                                            key={rowIndex}
+                                            style={[
+                                                styles.chartRow,
+                                                rowIndex > 0 ? { marginTop: -1 } : {},
+                                            ]}
+                                            wrap={false}
+                                        >
+                                            {row.map((item, colIndex) => {
+                                                const fullWidth = isSingle;
+                                                const isLeftCol = !isSingle && colIndex === 0;
+
+                                                if (item.type === "ine") {
+                                                    return (
+                                                        <IneChart
+                                                            key={getTableKey(item.table)}
+                                                            table={item.table}
+                                                            data={item.data}
+                                                            fullWidth={fullWidth}
+                                                            borderRight={isLeftCol}
+                                                        />
+                                                    );
+                                                }
+                                                return (
+                                                    <AlquilerChart
+                                                        key="alquiler"
+                                                        vivienda={item.vivienda}
+                                                        fullWidth={fullWidth}
+                                                        borderRight={isLeftCol}
+                                                    />
+                                                );
+                                            })}
+                                        </View>
+                                    );
+                                })}
+                            </View>
                         </View>
-                    </View>
-                </Page>
-            )}
+                    </Page>
+                );
+            })()}
 
             <Page size="A4" style={styles.page}>
                 <ReportFooter />
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Fuentes y alcance</Text>
+                    <Text style={styles.sectionTitle}>Fuentes y actualización</Text>
                     <Text style={styles.intro}>
-                        La puntuación combina datos abiertos de la Junta de Castilla y León con estadísticas del Instituto Nacional de Estadística. Los pesos pueden variar si se han definido preferencias personales en la plataforma.
+                        ¿Me puedo quedar? integra y unifica de forma autónoma los registros públicos de los 2.248 municipios de Castilla y León mediante procesos automáticos con diferentes ciclos de refresco:
                     </Text>
-                    <Text style={styles.note}>
-                        Este documento se genera automáticamente y tiene carácter informativo. Las puntuaciones e indicadores son modelos orientativos de análisis ciudadano y no constituyen una recomendación o asesoramiento vinculante.
-                    </Text>
-                    <Text style={{ ...styles.note, marginTop: 12 }}>
-                        ¿Me puedo quedar? es un proyecto independiente y de código abierto. Fuentes: Datos Abiertos de Castilla y León, Instituto Nacional de Estadística y Ministerio de Vivienda cuando hay información de alquiler disponible.
-                    </Text>
+
+                    <View style={styles.sourceGrid} wrap={false}>
+                        <View style={styles.sourceItem}>
+                            <View style={styles.sourceCard}>
+                                <Text style={styles.sourceTag}>Actualización diaria</Text>
+                                <Text style={styles.sourceTitle}>Datos Abiertos CyL</Text>
+                                <Text style={styles.sourceDesc}>
+                                    Descarga y limpieza diaria de más de una docena de conjuntos: sanidad, farmacias, colegios, transporte, comercio, servicios sociales y patrimonio.
+                                </Text>
+                            </View>
+                        </View>
+                        <View style={styles.sourceItem}>
+                            <View style={styles.sourceCard}>
+                                <Text style={styles.sourceTag}>Tiempo real (API)</Text>
+                                <Text style={styles.sourceTitle}>INE Estadísticas</Text>
+                                <Text style={styles.sourceDesc}>
+                                    Consultas en tiempo real a tablas oficiales: Padrón continuo (29005), empresas activas DIRCE (4721), empleo y niveles de estudio.
+                                </Text>
+                            </View>
+                        </View>
+                        <View style={styles.sourceItem}>
+                            <View style={styles.sourceCard}>
+                                <Text style={styles.sourceTag}>Actualización mensual</Text>
+                                <Text style={styles.sourceTitle}>Vivienda y Medios</Text>
+                                <Text style={styles.sourceDesc}>
+                                    Índice de precios de alquiler residencial del Ministerio de Vivienda (MIVAU basado en IRPF) y directorio verificado de medios de comunicación.
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    <Text style={styles.guideSectionTitle}>Cómo funciona la puntuación</Text>
+                    <View style={styles.guideList} wrap={false}>
+                        <View style={styles.guideItem}>
+                            <Text style={styles.guideNumber}>1</Text>
+                            <View style={styles.guideContent}>
+                                <Text style={styles.guideItemTitle}>Puntuación personalizada según tu situación</Text>
+                                <Text style={styles.guideItemDesc}>
+                                    Cada persona ve una nota distinta (0 a 100). Si teletrabajas pesa menos el empleo local, si no tienes coche pesa más el comercio del municipio y si tienes hijos pesan más los colegios.
+                                </Text>
+                            </View>
+                        </View>
+                        <View style={styles.guideItem}>
+                            <Text style={styles.guideNumber}>2</Text>
+                            <View style={styles.guideContent}>
+                                <Text style={styles.guideItemTitle}>Factor de corrección para el medio rural</Text>
+                                <Text style={styles.guideItemDesc}>
+                                    Los pueblos pequeños no son penalizados por carecer de servicios propios de grandes urbes (como hospitales), aplicando un factor de ajuste progresivo hasta los 5.000 habitantes.
+                                </Text>
+                            </View>
+                        </View>
+                        <View style={styles.guideItem}>
+                            <Text style={styles.guideNumber}>3</Text>
+                            <View style={styles.guideContent}>
+                                <Text style={styles.guideItemTitle}>Tolerancia a datos incompletos</Text>
+                                <Text style={styles.guideItemDesc}>
+                                    Cuando a un municipio le falta algún dato oficial, el sistema oculta esa parte y recalcula de forma limpia sin generar errores ni distorsionar la evaluación global.
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    <View style={styles.legalBox} wrap={false}>
+                        <Text style={styles.legalText}>
+                            ¿Me puedo quedar? (mepuedoquedar.es) es un proyecto de código abierto (github.com/deeivihh/mepuedoquedar.es). Toda la información se recopila de fuentes públicas abiertas amparadas por la Ley 37/2007 del sector público. Las puntuaciones son modelos orientativos de análisis ciudadano.
+                        </Text>
+                    </View>
                 </View>
             </Page>
         </Document>
@@ -824,7 +1138,7 @@ function slugify(value: string) {
         .replace(/(^-|-$)/g, "");
 }
 
-export default function DownloadReport({ data, scores, ineData, preferences, isDefault }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean }) {
+export default function DownloadReport({ data, scores, ineData, preferences, isDefault, wikiData }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean; wikiData?: WikipediaData | null }) {
     const [loading, setLoading] = useState(false);
 
     const handleDownload = async () => {
@@ -835,6 +1149,7 @@ export default function DownloadReport({ data, scores, ineData, preferences, isD
             Page = ReactPDF.Page;
             Text = ReactPDF.Text;
             View = ReactPDF.View;
+            Image = ReactPDF.Image;
             ImageBackground = ReactPDF.ImageBackground;
             Svg = ReactPDF.Svg;
             G = ReactPDF.G;
@@ -842,10 +1157,10 @@ export default function DownloadReport({ data, scores, ineData, preferences, isD
             Circle = ReactPDF.Circle;
             Rect = ReactPDF.Rect;
             Path = ReactPDF.Path;
-            
-            const doc = <MunicipioReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} />;
+
+            const doc = <MunicipioReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} wikiData={wikiData} />;
             const blob = await ReactPDF.pdf(doc).toBlob();
-            
+
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;

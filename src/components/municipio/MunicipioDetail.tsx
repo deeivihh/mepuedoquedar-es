@@ -282,7 +282,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
             )}
 
             <PrensaSection data={data} />
-            {scores && <DownloadReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} />}
+            {scores && <DownloadReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} wikiData={wikiData} />}
         </article>
     );
 }
