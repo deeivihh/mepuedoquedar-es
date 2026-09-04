@@ -590,33 +590,66 @@ function ChartLegend({ entries }: { entries: { label: string; value: number }[] 
     );
 }
 
-function CategoricalChart({ type, entries, fullWidth }: { type: "pie" | "donut" | "column"; entries: { label: string; value: number }[]; fullWidth?: boolean }) {
-    if (type === "pie" || type === "donut") {
-        const vbW = fullWidth ? 520 : 130;
-        const cx = fullWidth ? vbW / 2 : 65;
-        const scale = fullWidth ? 2.1 : 1;
-        const rOuter = 52 * scale;
-        const rInner = type === "donut" ? (fullWidth ? 62 : 29) : 0;
-        const size = fullWidth ? 168 : 142;
-        return (
-            <View>
-                <Svg width="100%" height={size} viewBox={`0 0 ${vbW} 130`}>
-                    {entries.map((entry, index) => {
-                        const total = entries.reduce((s, v) => s + v.value, 0);
-                        const start = entries.slice(0, index).reduce((s, v) => s + v.value, 0) / total * Math.PI * 2 - Math.PI / 2;
-                        const end = entries.slice(0, index + 1).reduce((s, v) => s + v.value, 0) / total * Math.PI * 2 - Math.PI / 2;
-                        const largeArc = end - start > Math.PI ? 1 : 0;
-                        const point = (r: number, a: number) => `${cx + r * Math.cos(a)} ${65 + r * Math.sin(a)}`;
-                        const d = !rInner ? `M ${cx} 65 L ${point(rOuter, start)} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${point(rOuter, end)} Z` : `M ${point(rOuter, start)} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${point(rOuter, end)} L ${point(rInner, end)} A ${rInner} ${rInner} 0 ${largeArc} 0 ${point(rInner, start)} Z`;
-                        return <Path key={entry.label} d={d} fill={chartColors[index % chartColors.length]} />;
-                    })}
-                    {type === "donut" && <Circle cx={cx} cy="65" r={rInner ? rInner - 6 : 0} fill={colors.card} />}
-                </Svg>
-                <ChartLegend entries={entries} />
-            </View>
-        );
-    }
+function getPieDimensions(type: "pie" | "donut", fullWidth?: boolean) {
+    const vbW = fullWidth ? 520 : 130;
+    const cx = fullWidth ? vbW / 2 : 65;
+    const scale = fullWidth ? 2.1 : 1;
+    const rOuter = 52 * scale;
+    const rInner = type === "donut" ? (fullWidth ? 62 : 29) : 0;
+    const size = fullWidth ? 168 : 142;
+    return { vbW, cx, rOuter, rInner, size };
+}
 
+function getPieSlicePath(
+    cx: number,
+    rOuter: number,
+    rInner: number,
+    start: number,
+    end: number
+): string {
+    const largeArc = end - start > Math.PI ? 1 : 0;
+    const point = (r: number, a: number) => `${cx + r * Math.cos(a)} ${65 + r * Math.sin(a)}`;
+    if (!rInner) {
+        return `M ${cx} 65 L ${point(rOuter, start)} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${point(rOuter, end)} Z`;
+    }
+    return `M ${point(rOuter, start)} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${point(rOuter, end)} L ${point(rInner, end)} A ${rInner} ${rInner} 0 ${largeArc} 0 ${point(rInner, start)} Z`;
+}
+
+function PieDonutChart({
+    type,
+    entries,
+    fullWidth,
+}: {
+    type: "pie" | "donut";
+    entries: { label: string; value: number }[];
+    fullWidth?: boolean;
+}) {
+    const { vbW, cx, rOuter, rInner, size } = getPieDimensions(type, fullWidth);
+    const total = entries.reduce((s, v) => s + v.value, 0);
+
+    return (
+        <View>
+            <Svg width="100%" height={size} viewBox={`0 0 ${vbW} 130`}>
+                {entries.map((entry, index) => {
+                    const start = (entries.slice(0, index).reduce((s, v) => s + v.value, 0) / total) * Math.PI * 2 - Math.PI / 2;
+                    const end = (entries.slice(0, index + 1).reduce((s, v) => s + v.value, 0) / total) * Math.PI * 2 - Math.PI / 2;
+                    const d = getPieSlicePath(cx, rOuter, rInner, start, end);
+                    return <Path key={entry.label} d={d} fill={chartColors[index % chartColors.length]} />;
+                })}
+                {type === "donut" && <Circle cx={cx} cy="65" r={rInner ? rInner - 6 : 0} fill={colors.card} />}
+            </Svg>
+            <ChartLegend entries={entries} />
+        </View>
+    );
+}
+
+function ColumnChart({
+    entries,
+    fullWidth,
+}: {
+    entries: { label: string; value: number }[];
+    fullWidth?: boolean;
+}) {
     const maxValue = Math.max(...entries.map((entry) => entry.value), 1);
     const width = 500;
     const barWidth = Math.min(fullWidth ? 68 : 42, (fullWidth ? 460 : 360) / entries.length);
@@ -639,6 +672,14 @@ function CategoricalChart({ type, entries, fullWidth }: { type: "pie" | "donut" 
             <ChartLegend entries={entries} />
         </View>
     );
+}
+
+function CategoricalChart({ type, entries, fullWidth }: { type: "pie" | "donut" | "column"; entries: { label: string; value: number }[]; fullWidth?: boolean }) {
+    if (type === "pie" || type === "donut") {
+        return <PieDonutChart type={type} entries={entries} fullWidth={fullWidth} />;
+    }
+
+    return <ColumnChart entries={entries} fullWidth={fullWidth} />;
 }
 
 function LineChart({ series, fullWidth }: { series: { label: string; points: { period: string; value: number }[] }[]; fullWidth?: boolean }) {
@@ -698,31 +739,145 @@ function LineChart({ series, fullWidth }: { series: { label: string; points: { p
     );
 }
 
+function ChartContainer({
+    title,
+    latest,
+    fullWidth,
+    borderRight,
+    children,
+}: {
+    title: string;
+    latest?: string;
+    fullWidth?: boolean;
+    borderRight?: boolean;
+    children: React.ReactNode;
+}) {
+    const groupStyle = [
+        styles.chartGroup,
+        fullWidth ? styles.chartGroupFull : {},
+        borderRight ? styles.chartBorderRight : {},
+    ];
+
+    return (
+        <View style={groupStyle} wrap={false}>
+            <Text style={styles.chartTitle}>{title}</Text>
+            {latest && <Text style={styles.chartDate}>Última actualización: {latest}</Text>}
+            {children}
+        </View>
+    );
+}
+
+function getIneCategoricalEntries(table: TableConfig, filtered: any[]) {
+    const isPieOrDonut = table.type === "pie" || table.type === "donut";
+    return filtered.reduce<{ label: string; value: number }[]>((acc, item, index) => {
+        const rawValue = Array.isArray(item?.Data) ? item.Data[0]?.Valor : item?.Valor;
+        const entry = {
+            label: displayName(table, item, `Dato ${index + 1}`),
+            value: getValue(rawValue),
+        };
+        const isValid = isPieOrDonut ? entry.value > 0 : Number.isFinite(entry.value);
+        if (isValid) {
+            acc.push(entry);
+        }
+        return acc;
+    }, []);
+}
+
+function getIneLineSeries(table: TableConfig, filtered: any[]) {
+    const isSeriesArray = Array.isArray(filtered) && filtered.some((item) => Array.isArray(item?.Data));
+    if (isSeriesArray) {
+        return filtered.reduce<{ label: string; points: { period: string; value: number }[] }[]>((acc, item, index) => {
+            const points = [...item.Data].reverse().map((point) => ({
+                period: getPeriod(point),
+                value: getValue(point.Valor),
+            }));
+            if (points.length) {
+                acc.push({ label: displayName(table, item, `Serie ${index + 1}`), points });
+            }
+            return acc;
+        }, []);
+    }
+
+    return [{
+        label: table.title ?? "Valor",
+        points: [...filtered].reverse().map((item) => ({
+            period: getPeriod(item),
+            value: getValue(item.Valor),
+        })),
+    }];
+}
+
+function getIneLatestPeriod(filtered: any[]) {
+    const isSeriesArray = Array.isArray(filtered) && filtered.some((item) => Array.isArray(item?.Data));
+    return isSeriesArray ? getPeriod(filtered[0]?.Data?.[0]) : getPeriod(filtered[0]);
+}
+
 function hasChartData(table: TableConfig, data: any[]): boolean {
     const filtered = filterData(data, table.filter);
     if (!filtered.length) return false;
     const isCategorical = table.type === "pie" || table.type === "donut" || table.type === "column";
     if (isCategorical) {
-        const entries = filtered.reduce<{ label: string; value: number }[]>((acc, item, index) => {
-            const entry = { label: displayName(table, item, `Dato ${index + 1}`), value: getValue(Array.isArray(item?.Data) ? item.Data[0]?.Valor : item?.Valor) };
-            if (table.type === "pie" || table.type === "donut" ? entry.value > 0 : Number.isFinite(entry.value)) {
-                acc.push(entry);
-            }
-            return acc;
-        }, []);
-        return entries.length > 0;
+        return getIneCategoricalEntries(table, filtered).length > 0;
     }
-    const isSeriesArray = Array.isArray(filtered) && filtered.some((item) => Array.isArray(item?.Data));
-    const series = isSeriesArray
-        ? filtered.reduce<{ label: string; points: { period: string; value: number }[] }[]>((acc, item, index) => {
-            const points = [...item.Data].reverse().map((point) => ({ period: getPeriod(point), value: getValue(point.Valor) }));
-            if (points.length) {
-                acc.push({ label: displayName(table, item, `Serie ${index + 1}`), points });
-            }
-            return acc;
-        }, [])
-        : [{ label: table.title ?? "Valor", points: [...filtered].reverse().map((item) => ({ period: getPeriod(item), value: getValue(item.Valor) })) }];
+    const series = getIneLineSeries(table, filtered);
     return series.length > 0 && series.some((item) => item.points.length > 0);
+}
+
+function IneCategoricalChart({
+    table,
+    filtered,
+    fullWidth,
+    borderRight,
+}: {
+    table: TableConfig;
+    filtered: any[];
+    fullWidth?: boolean;
+    borderRight?: boolean;
+}) {
+    const entries = getIneCategoricalEntries(table, filtered);
+    if (!entries.length) return null;
+
+    const chartType = table.type === "pie" || table.type === "donut" ? table.type : "column";
+    const latest = getIneLatestPeriod(filtered);
+
+    return (
+        <ChartContainer
+            title={table.title ?? "Indicadores INE"}
+            latest={latest}
+            fullWidth={fullWidth}
+            borderRight={borderRight}
+        >
+            <CategoricalChart type={chartType} entries={entries} fullWidth={fullWidth} />
+        </ChartContainer>
+    );
+}
+
+function IneTimeSeriesChart({
+    table,
+    filtered,
+    fullWidth,
+    borderRight,
+}: {
+    table: TableConfig;
+    filtered: any[];
+    fullWidth?: boolean;
+    borderRight?: boolean;
+}) {
+    const series = getIneLineSeries(table, filtered);
+    if (!series.length || !series.some((item) => item.points.length)) return null;
+
+    const latest = getIneLatestPeriod(filtered);
+
+    return (
+        <ChartContainer
+            title={table.title ?? "Indicadores INE"}
+            latest={latest}
+            fullWidth={fullWidth}
+            borderRight={borderRight}
+        >
+            <LineChart series={series} fullWidth={fullWidth} />
+        </ChartContainer>
+    );
 }
 
 function IneChart({
@@ -737,53 +892,27 @@ function IneChart({
     borderRight?: boolean;
 }) {
     const filtered = filterData(data, table.filter);
-    const isCategorical = table.type === "pie" || table.type === "donut" || table.type === "column";
-    const isSeriesArray = Array.isArray(filtered) && filtered.some((item) => Array.isArray(item?.Data));
-    const latest = isSeriesArray ? getPeriod(filtered[0]?.Data?.[0]) : getPeriod(filtered[0]);
-
     if (!filtered.length) return null;
 
-    const groupStyle = [
-        styles.chartGroup,
-        fullWidth ? styles.chartGroupFull : {},
-        borderRight ? styles.chartBorderRight : {},
-    ];
-
+    const isCategorical = table.type === "pie" || table.type === "donut" || table.type === "column";
     if (isCategorical) {
-        const chartType = table.type === "pie" || table.type === "donut" || table.type === "column" ? table.type : "column";
-        const entries = filtered.reduce<{ label: string; value: number }[]>((acc, item, index) => {
-            const entry = { label: displayName(table, item, `Dato ${index + 1}`), value: getValue(Array.isArray(item?.Data) ? item.Data[0]?.Valor : item?.Valor) };
-            if (table.type === "pie" || table.type === "donut" ? entry.value > 0 : Number.isFinite(entry.value)) {
-                acc.push(entry);
-            }
-            return acc;
-        }, []);
-        if (!entries.length) return null;
         return (
-            <View style={groupStyle} wrap={false}>
-                <Text style={styles.chartTitle}>{table.title ?? "Indicadores INE"}</Text>
-                {latest && <Text style={styles.chartDate}>Última actualización: {latest}</Text>}
-                <CategoricalChart type={chartType} entries={entries} fullWidth={fullWidth} />
-            </View>
+            <IneCategoricalChart
+                table={table}
+                filtered={filtered}
+                fullWidth={fullWidth}
+                borderRight={borderRight}
+            />
         );
     }
 
-    const series = isSeriesArray
-        ? filtered.reduce<{ label: string; points: { period: string; value: number }[] }[]>((acc, item, index) => {
-            const points = [...item.Data].reverse().map((point) => ({ period: getPeriod(point), value: getValue(point.Valor) }));
-            if (points.length) {
-                acc.push({ label: displayName(table, item, `Serie ${index + 1}`), points });
-            }
-            return acc;
-        }, [])
-        : [{ label: table.title ?? "Valor", points: [...filtered].reverse().map((item) => ({ period: getPeriod(item), value: getValue(item.Valor) })) }];
-    if (!series.length || !series.some((item) => item.points.length)) return null;
     return (
-        <View style={groupStyle} wrap={false}>
-            <Text style={styles.chartTitle}>{table.title ?? "Indicadores INE"}</Text>
-            {latest && <Text style={styles.chartDate}>Última actualización: {latest}</Text>}
-            <LineChart series={series} fullWidth={fullWidth} />
-        </View>
+        <IneTimeSeriesChart
+            table={table}
+            filtered={filtered}
+            fullWidth={fullWidth}
+            borderRight={borderRight}
+        />
     );
 }
 
@@ -809,8 +938,8 @@ function AlquilerChart({
     const actualizado = vivienda.actualizado;
 
     const points = Array.isArray(serie) && serie.length > 0
-        ? [...serie]
-            .sort((a, b) => Number(a.anio) - Number(b.anio))
+        ? serie
+            .toSorted((a, b) => Number(a.anio) - Number(b.anio))
             .map((item) => ({ period: String(item.anio), value: Number(item.precio) }))
         : [{ period: String(actualizado ?? ""), value: Number(precio) }];
 
@@ -821,18 +950,15 @@ function AlquilerChart({
 
     const latest = String(actualizado ?? points[points.length - 1]?.period ?? "");
 
-    const groupStyle = [
-        styles.chartGroup,
-        fullWidth ? styles.chartGroupFull : {},
-        borderRight ? styles.chartBorderRight : {},
-    ];
-
     return (
-        <View style={groupStyle} wrap={false}>
-            <Text style={styles.chartTitle}>Alquiler de referencia</Text>
-            {latest && <Text style={styles.chartDate}>Última actualización: {latest}</Text>}
+        <ChartContainer
+            title="Alquiler de referencia"
+            latest={latest}
+            fullWidth={fullWidth}
+            borderRight={borderRight}
+        >
             <LineChart series={series} fullWidth={fullWidth} />
-        </View>
+        </ChartContainer>
     );
 }
 
@@ -866,8 +992,8 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault, wikiDa
                     <Text style={styles.sectionTitle}>Conoce el lugar</Text>
                     {wikiData && wikiData.paragraphs && wikiData.paragraphs.length > 0 ? (
                         <View wrap={false}>
-                            {wikiData.paragraphs.slice(0, 3).map((paragraph, index) => (
-                                <Text key={index} style={{ ...styles.intro, marginBottom: 8 }}>
+                            {wikiData.paragraphs.slice(0, 3).map((paragraph) => (
+                                <Text key={paragraph.substring(0, 50)} style={{ ...styles.intro, marginBottom: 8 }}>
                                     {paragraph}
                                 </Text>
                             ))}
