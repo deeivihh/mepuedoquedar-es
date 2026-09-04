@@ -231,7 +231,7 @@ function MunicipioHero({ data }: { data: any }) {
                 </div>
             </div>
 
-            <div ref={mapContainerRef} className="image-fade relative order-3 h-[260px] w-full cursor-move overflow-hidden bg-title/10 lg:absolute lg:inset-y-0 lg:right-0 lg:order-none lg:h-full lg:w-4/5">
+            <div ref={mapContainerRef} className="image-fade relative order-3 h-[260px] w-full cursor-move overflow-hidden bg-title/10 md:absolute md:inset-y-0 md:right-0 md:order-none md:h-full md:w-4/5">
                 <Map
                     center={[data.latitud, data.longitud - 0.008]}
                     zoom={14}

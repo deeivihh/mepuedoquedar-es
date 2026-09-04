@@ -392,6 +392,7 @@ const styles: any = {
         backgroundColor: colors.card,
         borderColor: `${colors.green}22`,
         borderWidth: 1,
+        height: 100,
         padding: 8,
     },
     sourceTag: {
@@ -413,49 +414,27 @@ const styles: any = {
         fontSize: 6.5,
         lineHeight: 1.35,
     },
-    guideSectionTitle: {
+    methodologySectionTitle: {
         color: colors.green,
         fontFamily: "Times-Bold",
-        fontSize: 13,
-        marginBottom: 8,
+        fontSize: 10.5,
+        marginBottom: 7,
+        paddingBottom: 2,
+        borderBottomColor: `${colors.green}22`,
+        borderBottomWidth: 1,
     },
-    guideList: {
-        marginBottom: 12,
-    },
-    guideItem: {
-        backgroundColor: colors.card,
-        borderColor: `${colors.green}22`,
+    formulaBox: {
+        backgroundColor: `${colors.green}0a`,
+        borderColor: `${colors.green}18`,
         borderWidth: 1,
-        flexDirection: "row",
-        alignItems: "flex-start",
-        padding: 7,
-        marginBottom: 5,
+        marginTop: 4,
+        padding: 3.5,
     },
-    guideNumber: {
-        backgroundColor: `${colors.terracotta}18`,
-        color: colors.terracotta,
-        fontFamily: "Helvetica-Bold",
-        fontSize: 7.5,
-        height: 15,
-        lineHeight: 15,
-        marginRight: 7,
-        textAlign: "center",
-        width: 15,
-        borderRadius: 2,
-    },
-    guideContent: {
-        flex: 1,
-    },
-    guideItemTitle: {
+    formulaText: {
         color: colors.green,
-        fontFamily: "Helvetica-Bold",
-        fontSize: 7.5,
-        marginBottom: 2,
-    },
-    guideItemDesc: {
-        color: colors.muted,
-        fontSize: 6.8,
-        lineHeight: 1.35,
+        fontFamily: "Courier",
+        fontSize: 5.4,
+        lineHeight: 1.25,
     },
     legalBox: {
         backgroundColor: colors.card,
@@ -1178,67 +1157,83 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault, wikiDa
             <Page size="A4" style={styles.page}>
                 <ReportFooter />
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Fuentes y actualización</Text>
+                    <Text style={styles.sectionTitle}>Metodología y fuentes</Text>
                     <Text style={styles.intro}>
-                        ¿Me puedo quedar? integra y unifica de forma autónoma los registros públicos de los 2.248 municipios de Castilla y León mediante procesos automáticos con diferentes ciclos de refresco:
+                        ¿Me puedo quedar? evalúa y compara de forma objetiva la calidad de vida y servicios en los 2.248 municipios de Castilla y León, combinando registros públicos oficiales con las prioridades ciudadanas en un índice transparente de 0 a 100%.
                     </Text>
 
+                    <Text style={styles.methodologySectionTitle}>1. Sistema de puntuación y normalización</Text>
                     <View style={styles.sourceGrid} wrap={false}>
                         <View style={styles.sourceItem}>
                             <View style={styles.sourceCard}>
-                                <Text style={styles.sourceTag}>Actualización diaria</Text>
-                                <Text style={styles.sourceTitle}>Datos Abiertos CyL</Text>
+                                <Text style={styles.sourceTag}>A. Normalización</Text>
+                                <Text style={styles.sourceTitle}>Escala 0 a 100</Text>
                                 <Text style={styles.sourceDesc}>
-                                    Descarga y limpieza diaria de más de una docena de conjuntos: sanidad, farmacias, colegios, transporte, comercio, servicios sociales y patrimonio.
+                                    Conversión de cada servicio mediante tres funciones matemáticas:
+                                </Text>
+                                <View style={styles.formulaBox}>
+                                    <Text style={styles.formulaText}>Umbral: V ≥ Mín ? 100 : 0</Text>
+                                    <Text style={styles.formulaText}>Log: min(100, ln(V)/ln(Opt)×100)</Text>
+                                    <Text style={styles.formulaText}>Interp: (V-Min)/(Opt-Min)×100</Text>
+                                </View>
+                            </View>
+                        </View>
+                        <View style={styles.sourceItem}>
+                            <View style={styles.sourceCard}>
+                                <Text style={styles.sourceTag}>B. Equidad rural</Text>
+                                <Text style={styles.sourceTitle}>Factor de corrección</Text>
+                                <Text style={styles.sourceDesc}>
+                                    Evita penalizar a pueblos por carecer de servicios de grandes urbes:
+                                </Text>
+                                <View style={styles.formulaBox}>
+                                    <Text style={styles.formulaText}>Factor = 0.10 + 0.90 × min(1, Pob/5.000)</Text>
+                                </View>
+                                <Text style={[styles.sourceDesc, { marginTop: 3 }]}>
+                                    &lt;100 hab: penaliza 10%. &gt;5.000 hab: penaliza 100%.
                                 </Text>
                             </View>
                         </View>
                         <View style={styles.sourceItem}>
                             <View style={styles.sourceCard}>
-                                <Text style={styles.sourceTag}>Tiempo real (API)</Text>
-                                <Text style={styles.sourceTitle}>INE Estadísticas</Text>
+                                <Text style={styles.sourceTag}>C. Personalización</Text>
+                                <Text style={styles.sourceTitle}>Puntuación global</Text>
                                 <Text style={styles.sourceDesc}>
-                                    Consultas en tiempo real a tablas oficiales: Padrón continuo (29005), empresas activas DIRCE (4721), empleo y niveles de estudio.
+                                    Media ponderada según prioridades (teletrabajo, transporte, familia):
                                 </Text>
-                            </View>
-                        </View>
-                        <View style={styles.sourceItem}>
-                            <View style={styles.sourceCard}>
-                                <Text style={styles.sourceTag}>Actualización mensual</Text>
-                                <Text style={styles.sourceTitle}>Vivienda y Medios</Text>
-                                <Text style={styles.sourceDesc}>
-                                    Índice de precios de alquiler residencial del Ministerio de Vivienda (MIVAU basado en IRPF) y directorio verificado de medios de comunicación.
-                                </Text>
+                                <View style={styles.formulaBox}>
+                                    <Text style={styles.formulaText}>Global = [Σ(Score_k × Peso_k × Fac_k)</Text>
+                                    <Text style={styles.formulaText}>         / Σ(Peso_k × Fac_k)] × 100</Text>
+                                </View>
                             </View>
                         </View>
                     </View>
 
-                    <Text style={styles.guideSectionTitle}>Cómo funciona la puntuación</Text>
-                    <View style={styles.guideList} wrap={false}>
-                        <View style={styles.guideItem}>
-                            <Text style={styles.guideNumber}>1</Text>
-                            <View style={styles.guideContent}>
-                                <Text style={styles.guideItemTitle}>Puntuación personalizada según tu situación</Text>
-                                <Text style={styles.guideItemDesc}>
-                                    Cada persona ve una nota distinta (0 a 100). Si teletrabajas pesa menos el empleo local, si no tienes coche pesa más el comercio del municipio y si tienes hijos pesan más los colegios.
+                    <Text style={styles.methodologySectionTitle}>2. Fuentes de información pública</Text>
+                    <View style={styles.sourceGrid} wrap={false}>
+                        <View style={styles.sourceItem}>
+                            <View style={styles.sourceCard}>
+                                <Text style={styles.sourceTag}>Junta de Castilla y León</Text>
+                                <Text style={styles.sourceTitle}>Datos Abiertos</Text>
+                                <Text style={styles.sourceDesc}>
+                                    Datos actualizados diariamente sobre centros de salud, colegios, empleo, comercio, seguridad, etc.
                                 </Text>
                             </View>
                         </View>
-                        <View style={styles.guideItem}>
-                            <Text style={styles.guideNumber}>2</Text>
-                            <View style={styles.guideContent}>
-                                <Text style={styles.guideItemTitle}>Factor de corrección para el medio rural</Text>
-                                <Text style={styles.guideItemDesc}>
-                                    Los pueblos pequeños no son penalizados por carecer de servicios propios de grandes urbes (como hospitales), aplicando un factor de ajuste progresivo hasta los 5.000 habitantes.
+                        <View style={styles.sourceItem}>
+                            <View style={styles.sourceCard}>
+                                <Text style={styles.sourceTag}>Estadísticas</Text>
+                                <Text style={styles.sourceTitle}>INE</Text>
+                                <Text style={styles.sourceDesc}>
+                                    Indicadores y series históricas sobre empresas activas, empleo, ocupación, etc., actualizados en tiempo real mediante la API oficial.
                                 </Text>
                             </View>
                         </View>
-                        <View style={styles.guideItem}>
-                            <Text style={styles.guideNumber}>3</Text>
-                            <View style={styles.guideContent}>
-                                <Text style={styles.guideItemTitle}>Tolerancia a datos incompletos</Text>
-                                <Text style={styles.guideItemDesc}>
-                                    Cuando a un municipio le falta algún dato oficial, el sistema oculta esa parte y recalcula de forma limpia sin generar errores ni distorsionar la evaluación global.
+                        <View style={styles.sourceItem}>
+                            <View style={styles.sourceCard}>
+                                <Text style={styles.sourceTag}>Datos extra</Text>
+                                <Text style={styles.sourceTitle}>Otras fuentes</Text>
+                                <Text style={styles.sourceDesc}>
+                                    Datos como precios de alquiler (Ministerio de Vivienda) o medios de comunicación (Junta de Castilla y León).
                                 </Text>
                             </View>
                         </View>
@@ -1246,7 +1241,7 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault, wikiDa
 
                     <View style={styles.legalBox} wrap={false}>
                         <Text style={styles.legalText}>
-                            ¿Me puedo quedar? (mepuedoquedar.es) es un proyecto de código abierto (github.com/deeivihh/mepuedoquedar.es). Toda la información se recopila de fuentes públicas abiertas amparadas por la Ley 37/2007 del sector público. Las puntuaciones son modelos orientativos de análisis ciudadano.
+                            ¿Me puedo quedar? (mepuedoquedar.es) es un proyecto de código abierto (github.com/deeivihh/mepuedoquedar.es). Toda la información se recopila de fuentes públicas abiertas amparadas por la Ley 37/2007 sobre reutilización de la información del sector público. Las puntuaciones son modelos cuantitativos orientativos de análisis ciudadano.
                         </Text>
                     </View>
                 </View>
