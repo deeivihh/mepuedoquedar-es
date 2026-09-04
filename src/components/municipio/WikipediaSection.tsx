@@ -14,6 +14,7 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
     if (!data) return null;
 
     const images = data.images || [];
+    const hasMultipleImages = images.length > 1;
     const img = images[idx] || images[0];
     const paras = data.paragraphs || [];
     const visibleParas = expanded ? paras : paras.slice(0, 2);
@@ -47,15 +48,15 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
 
             {img && (
                 <section className="mt-2 flex flex-col gap-4">
-                    <div className="flex max-md:flex-col min-md:grid min-md:grid-cols-5 gap-4 items-stretch w-full">
-                        <div className="min-md:col-span-3 h-full w-full flex flex-col items-start justify-start">
-                            <div className="relative h-full min-h-[300px] w-full flex items-start justify-center group overflow-hidden">
+                    <div className={`flex max-md:flex-col ${hasMultipleImages ? "min-md:grid min-md:grid-cols-5" : ""} gap-4 items-stretch w-full`}>
+                        <div className={`${hasMultipleImages ? "min-md:col-span-3" : "w-full"} h-full w-full flex flex-col items-start justify-start`}>
+                            <div className={`relative h-full ${hasMultipleImages ? "min-h-[300px]" : "min-h-[300px] md:min-h-[420px]"} w-full flex items-start justify-center group overflow-hidden`}>
                                 <Image
                                     src={img.url}
                                     alt=""
                                     fill
                                     unoptimized
-                                    sizes="(max-width: 768px) 100vw, 60vw"
+                                    sizes={hasMultipleImages ? "(max-width: 768px) 100vw, 60vw" : "100vw"}
                                     className="absolute inset-0 w-full h-full object-cover max-md:scale-120 blur-xs opacity-80"
                                     onError={(e) => { e.currentTarget.style.display = "none"; }}
                                 />
@@ -64,7 +65,7 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
                                     alt={data.title}
                                     fill
                                     unoptimized
-                                    sizes="(max-width: 768px) 100vw, 60vw"
+                                    sizes={hasMultipleImages ? "(max-width: 768px) 100vw, 60vw" : "100vw"}
                                     className="relative z-10 w-full h-full object-contain object-center border border-title/20"
                                     loading="lazy"
                                     onError={(e) => { e.currentTarget.style.display = "none"; }}
@@ -72,7 +73,7 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
                             </div>
                         </div>
 
-                        {images.length > 1 && (
+                        {hasMultipleImages && (
                             <div className="min-md:col-span-2 grid grid-cols-4 max-md:grid-cols-5 content-start self-start w-full h-full gap-2">
                                 {images.map((item, i) => (
                                     <button key={item.url} onClick={() => setIdx(i)} title={item.description} className={`relative w-full aspect-square overflow-hidden border transition-all ${i === idx ? 'border-title opacity-100' : 'border-title/20 opacity-50 hover:opacity-100'}`}>
