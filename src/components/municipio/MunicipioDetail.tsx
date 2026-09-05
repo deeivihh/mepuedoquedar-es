@@ -15,6 +15,7 @@ import { WikipediaData } from "@/actions/wikipedia";
 import DatosSection from "./DatosSection";
 import AlquilerSection from "./AlquilerSection";
 import PrensaSection from "./PrensaSection";
+import GobiernoSection from "./GobiernoSection";
 import { fetchAllTables } from "@/lib/datos/ine";
 import { TABLES } from "@/lib/config/tables";
 import dynamic from "next/dynamic";
@@ -226,6 +227,8 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     </div>
                 </section>
             )}
+
+            <GobiernoSection data={data} />
 
             <PrensaSection data={data} />
             {scores && <DownloadReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} wikiData={wikiData} />}

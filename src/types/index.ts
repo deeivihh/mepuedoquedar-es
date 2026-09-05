@@ -19,3 +19,34 @@ export interface Site {
     presencia_de_comercio: string;
     distance?: number;
 }
+
+export interface EleccionesPartido {
+    siglas: string;
+    nombre?: string;
+    concejales: number;
+    pct: number;
+    color: string;
+    votos?: number;
+}
+
+export interface EleccionesAlcaldia {
+    nombre?: string | null;
+    partido: string;
+    fecha_posesion?: string;
+}
+
+export interface EleccionesGobierno {
+    regimen: string;
+    etiqueta: string;
+    mayoria_absoluta: boolean;
+    partido_alcaldia: string;
+}
+
+export interface EleccionesData {
+    anio: number;
+    legislatura: string;
+    concejales_totales: number;
+    alcaldia?: EleccionesAlcaldia | null;
+    gobierno?: EleccionesGobierno | null;
+    partidos: EleccionesPartido[];
+}
