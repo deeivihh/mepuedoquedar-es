@@ -16,7 +16,6 @@ export async function POST(req: Request) {
 
     const startedAt = performance.now();
     const log = createLog("sync/mas");
-
     const solo = new URL(req.url).searchParams.get("fuente");
     const sources = solo ? MAS_SOURCES.filter((s) => s.name === solo) : MAS_SOURCES;
 
@@ -44,16 +43,15 @@ export async function POST(req: Request) {
 
                 sourceResults[source.name] = { ok: true, municipios: count };
                 log.info(`Fuente "${source.name}": ${count} municipios`);
-            } catch (error) {
-                const msg = (error as Error).message;
+            } catch (error: any) {
+                const msg = error.message;
                 sourceResults[source.name] = { ok: false, error: msg };
                 log.error(`Fuente "${source.name}" falló: ${msg}`);
             }
         }));
 
         const rows = [...merged.entries()].map(([codigo, mas]) => ({ codigo, mas }));
-
-        let total = 0;
+        let total = rows.length;
 
         if (process.env.NODE_ENV !== "development") {
             const supabase = getSupabase();
@@ -65,10 +63,8 @@ export async function POST(req: Request) {
                 const { error } = await supabase.rpc("upsert_mas", { rows: batch });
                 if (error) throw error;
             }));
-            total = rows.length;
             log.info(`Guardados ${total} municipios en Supabase`);
         } else {
-            total = rows.length;
             log.info("Modo de desarrollo activado, no se guardaron los datos");
         }
 
@@ -83,23 +79,13 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json(
-            {
-                ok: anyOk,
-                time: `${seconds}s`,
-                municipios: total,
-                fuentes: sourceResults,
-            },
+            { ok: anyOk, time: `${seconds}s`, municipios: total, fuentes: sourceResults },
             { headers: { "Cache-Control": "no-store" } }
         );
-    } catch (error) {
-        const msg = (error as Error).message;
+    } catch (error: any) {
+        const msg = error.message;
         log.error(msg);
-
         await log.save({ status: "error", error: msg });
-
-        return NextResponse.json(
-            { ok: false, error: msg },
-            { status: 500, headers: { "Cache-Control": "no-store" } }
-        );
+        return NextResponse.json({ ok: false, error: msg }, { status: 500, headers: { "Cache-Control": "no-store" } });
     }
 }

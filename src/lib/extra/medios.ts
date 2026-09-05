@@ -36,31 +36,24 @@ async function run(): Promise<MasSourceResult> {
         if (!codigo) continue;
 
         const nombre = r.nombre_del_organismo?.trim();
-        if (!nombre) continue;
-
-        const paginas = r.paginas_de_internet?.trim() || null;
-        if (!paginas) continue;
+        const paginas = r.paginas_de_internet?.trim();
+        if (!nombre || !paginas) continue;
 
         const entry = (result[codigo] ??= { medios: [] as unknown[] }) as {
             medios: { nombre: string; directorio_superior: string | null; paginas_de_internet: string | null }[];
         };
 
         const locN = normalizeText(r.localidad ?? "");
-        const duplicado = entry.medios.some((m) => {
+        const dup = entry.medios.some((m) => {
             const a = normalizeText(m.nombre);
             const b = normalizeText(nombre);
-
-            if (a === b) return true;
-            if (b.startsWith(`${a} -`) || a.startsWith(`${b} -`)) return true;
+            if (a === b || b.startsWith(`${a} -`) || a.startsWith(`${b} -`)) return true;
             if (locN && (b === `${a} ${locN}` || a === `${b} ${locN}`)) return true;
-
             const ma = a.match(/^(.+?) - /);
             const mb = b.match(/^(.+?) - /);
-            if (ma && mb && ma[1] === mb[1]) return true;
-
-            return false;
+            return !!(ma && mb && ma[1] === mb[1]);
         });
-        if (duplicado) continue;
+        if (dup) continue;
 
         entry.medios.push({
             nombre,

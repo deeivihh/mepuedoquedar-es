@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const INE_API = "https://servicios.ine.es/wstempus/js/ES/DATOS_TABLA";
-
 const INE_HEADERS = {
-    "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
     Accept: "application/json",
 };
-
-const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 horas
+const CACHE_TTL = 6 * 60 * 60 * 1000;
 const cache = new Map<string, { data: any[]; ts: number }>();
 const inflight = new Map<string, Promise<any[]>>();
 
@@ -21,10 +18,7 @@ async function cachedFetch(url: string): Promise<any[]> {
 
     const promise = (async () => {
         const response = await fetch(url, { headers: INE_HEADERS });
-        if (!response.ok) {
-            console.warn(`INE API error: ${url} → ${response.status}`);
-            return [];
-        }
+        if (!response.ok) return [];
         const data: any[] = await response.json();
         cache.set(url, { data, ts: Date.now() });
         return data;
@@ -55,9 +49,7 @@ export async function POST(request: NextRequest) {
                 const tvList = Array.isArray(q.tv) ? q.tv : [q.tv];
                 for (const item of tvList) {
                     const cleanTv = String(item).replace(/^&?tv=/, "").trim();
-                    if (cleanTv) {
-                        tvParams += `&tv=${cleanTv}`;
-                    }
+                    if (cleanTv) tvParams += `&tv=${cleanTv}`;
                 }
             }
             const url = `${INE_API}/${q.table}?nult=${nult}${tvParams}`;
@@ -70,16 +62,7 @@ export async function POST(request: NextRequest) {
         }
 
         const entries = Array.from(urlMap.values());
-        console.log(`[INE Batch] Fetching ${entries.length} URLs for cod_int=${cod_int}`);
-
-        const responses = await Promise.all(
-            entries.map(async (e) => {
-                const res = await cachedFetch(e.url);
-                console.log(`[INE Batch] ${e.url} -> ${res?.length || 0} items`);
-                return res;
-            })
-        );
-
+        const responses = await Promise.all(entries.map((e) => cachedFetch(e.url)));
         const results: Record<string, any[]> = {};
         for (let i = 0; i < entries.length; i++) {
             for (const key of entries[i].keys) {
@@ -88,11 +71,9 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json(results, {
-            headers: {
-                "Cache-Control": "public, s-maxage=21600, stale-while-revalidate=86400",
-            },
+            headers: { "Cache-Control": "public, s-maxage=21600, stale-while-revalidate=86400" },
         });
-    } catch (err) {
+    } catch {
         return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 }

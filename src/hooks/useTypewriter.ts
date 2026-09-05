@@ -6,11 +6,11 @@ export function useTypewriter(words: string[], typingSpeed = 80, deletingSpeed =
     const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
-        if (!words || words.length === 0) return;
+        if (!words?.length) return;
 
         const currentWord = words[wordIndex % words.length] || "";
         let delay = isDeleting ? deletingSpeed : typingSpeed;
-        let action = () => { };
+        let action = () => {};
 
         if (!isDeleting && displayed === currentWord) {
             delay = pauseMs;
@@ -28,7 +28,6 @@ export function useTypewriter(words: string[], typingSpeed = 80, deletingSpeed =
         }
 
         const timeout = setTimeout(action, delay);
-
         return () => clearTimeout(timeout);
     }, [displayed, isDeleting, wordIndex, words, typingSpeed, deletingSpeed, pauseMs]);
 

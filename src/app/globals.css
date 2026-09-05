@@ -80,7 +80,6 @@ h1 {
     letter-spacing: -0.025em;
 }
 
-/* scrollbar */
 ::-webkit-scrollbar {
     width: 4px;
     height: 4px;

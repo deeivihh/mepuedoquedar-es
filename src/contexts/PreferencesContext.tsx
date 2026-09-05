@@ -24,33 +24,22 @@ const STORAGE_KEY = "user_preferences_v1";
 
 let memoryPrefs = DEFAULT_PREFERENCES;
 let initialized = false;
-
 const listeners = new Set<() => void>();
 
 function subscribe(listener: () => void) {
     listeners.add(listener);
-    return () => {
-        listeners.delete(listener);
-    };
+    return () => { listeners.delete(listener); };
 }
 
 function getSnapshot() {
-    if (!initialized) {
-        if (typeof window !== "undefined") {
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) {
-                    memoryPrefs = { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
-                }
-            } catch {}
-        }
+    if (!initialized && typeof window !== "undefined") {
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) memoryPrefs = { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
+        } catch {}
         initialized = true;
     }
     return memoryPrefs;
-}
-
-function getServerSnapshot() {
-    return DEFAULT_PREFERENCES;
 }
 
 function setPreferencesAction(prefs: UserPreferences) {
@@ -68,21 +57,10 @@ const PreferencesContext = createContext<PreferencesContextValue>({
 });
 
 export function PreferencesProvider({ children }: { children: ReactNode }) {
-    const preferences = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-
-    const setPreferences = useCallback((prefs: UserPreferences) => {
-        setPreferencesAction(prefs);
-    }, []);
-
-    const isDefault = PREFERENCES_SCHEMA.every(
-        (config) => preferences[config.id] === config.defaultValue
-    );
-
-    const value = useMemo(() => ({
-        preferences,
-        setPreferences,
-        isDefault,
-    }), [preferences, setPreferences, isDefault]);
+    const preferences = useSyncExternalStore(subscribe, getSnapshot, () => DEFAULT_PREFERENCES);
+    const setPreferences = useCallback((prefs: UserPreferences) => setPreferencesAction(prefs), []);
+    const isDefault = PREFERENCES_SCHEMA.every((c) => preferences[c.id] === c.defaultValue);
+    const value = useMemo(() => ({ preferences, setPreferences, isDefault }), [preferences, setPreferences, isDefault]);
 
     return (
         <PreferencesContext.Provider value={value}>

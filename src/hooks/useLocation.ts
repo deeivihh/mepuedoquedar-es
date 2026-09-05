@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export function useLocation(hasExistingParams: boolean = false) {
+export function useLocation(hasExistingParams = false) {
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
     const [ready, setReady] = useState(false);
 
@@ -10,10 +10,7 @@ export function useLocation(hasExistingParams: boolean = false) {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    setUserLocation({
-                        latitude: pos.coords.latitude,
-                        longitude: pos.coords.longitude,
-                    });
+                    setUserLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
                     setReady(true);
                 },
                 (err) => {
@@ -27,8 +24,6 @@ export function useLocation(hasExistingParams: boolean = false) {
     }, []);
 
     const prefix = hasExistingParams ? "&" : "?";
-    const locationParams = userLocation
-        ? `${prefix}lat=${userLocation.latitude}&lon=${userLocation.longitude}`
-        : "";
+    const locationParams = userLocation ? `${prefix}lat=${userLocation.latitude}&lon=${userLocation.longitude}` : "";
     return { locationParams, ready };
 }

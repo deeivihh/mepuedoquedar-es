@@ -1,15 +1,6 @@
 import type { GroupConfig } from "./types";
 
-function getOneMonthAgo() {
-  return new Date(
-    Date.now() - 30 * 24 * 60 * 60 * 1000
-  ).toISOString().slice(0, 10);
-}
-
-
-function lastYear() {
-  return new Date().getFullYear() - 1;
-}
+const lastYear = () => new Date().getFullYear() - 1;
 
 export const MUNICIPALITIES_CONFIG = {
   id: "registro-de-municipios-de-castilla-y-leon",
@@ -18,8 +9,6 @@ export const MUNICIPALITIES_CONFIG = {
 } as const;
 
 export function getGroups(): GroupConfig[] {
-  const oneMonthAgo = getOneMonthAgo();
-
   return [
     {
       group: "seguridad",
@@ -27,12 +16,7 @@ export function getGroups(): GroupConfig[] {
         policiaLocal: { id: "datos-plantillas-cuerpos-policia-local", where: `ano = date'${lastYear()}'` },
       },
       indicators: {
-        policiaLocal: {
-          dataset: "policiaLocal",
-          municipality: "ayuntamiento",
-          operation: "sum",
-          fields: ["total"],
-        },
+        policiaLocal: { dataset: "policiaLocal", municipality: "ayuntamiento", operation: "sum", fields: ["total"] },
       },
     },
     {
@@ -42,75 +26,39 @@ export function getGroups(): GroupConfig[] {
         ofertaFP: { id: "oferta-de-formacion-profesional", select: ["localidad", "centro_educativo", "modalidad", "tipo_ensenanza", "nivel_educativo", "familia_profesional"] },
       },
       indicators: {
-        centrosDocentes: {
-          dataset: "centrosDocentes",
-          municipality: "municipio",
-          operation: "count",
-        },
-        ofertaFP: {
-          dataset: "ofertaFP",
-          municipality: "localidad",
-          operation: "count",
-        },
+        centrosDocentes: { dataset: "centrosDocentes", municipality: "municipio", operation: "count" },
+        ofertaFP: { dataset: "ofertaFP", municipality: "localidad", operation: "count" },
       },
     },
     {
       group: "comercio",
       datasets: {
         empresasTIERRADESABOR: { id: "empresas-acogidas-a-la-marca-tierra-de-sabor", select: ["localidad"] },
-        serviciosProximidad: { id: "servicios-proximidad", select: ["municipio"] }
+        serviciosProximidad: { id: "servicios-proximidad", select: ["municipio"] },
       },
       indicators: {
-        empresasTIERRADESABOR: {
-          dataset: "empresasTIERRADESABOR",
-          municipality: "localidad",
-          operation: "count",
-          details: false,
-        },
-        serviciosProximidad: {
-          dataset: "serviciosProximidad",
-          municipality: "municipio",
-          operation: "count",
-          details: false,
-        },
+        empresasTIERRADESABOR: { dataset: "empresasTIERRADESABOR", municipality: "localidad", operation: "count", details: false },
+        serviciosProximidad: { dataset: "serviciosProximidad", municipality: "municipio", operation: "count", details: false },
       },
     },
     {
       group: "turismo",
       datasets: {
-        establecimientosTuristicos: {
-          id: "registro-de-turismo-de-castilla-y-leon",
-          select: ["municipio"]
-        }
+        establecimientosTuristicos: { id: "registro-de-turismo-de-castilla-y-leon", select: ["municipio"] },
       },
       indicators: {
-        establecimientosTuristicos: {
-          dataset: "establecimientosTuristicos",
-          municipality: "municipio",
-          operation: "count",
-          details: false
-        },
+        establecimientosTuristicos: { dataset: "establecimientosTuristicos", municipality: "municipio", operation: "count", details: false },
       },
     },
     {
       group: "economia",
       datasets: {
         establecimientosComerciales: { id: "establecimientos-comerciales", select: ["municipio"] },
-        cooperativas: { id: "registrocooperativas", select: ["localidad"] }
+        cooperativas: { id: "registrocooperativas", select: ["localidad"] },
       },
       indicators: {
-        establecimientosComerciales: {
-          dataset: "establecimientosComerciales",
-          municipality: "municipio",
-          operation: "count",
-          details: false,
-        },
-        cooperativas: {
-          dataset: "cooperativas",
-          municipality: "localidad",
-          operation: "count",
-          details: false,
-        },
+        establecimientosComerciales: { dataset: "establecimientosComerciales", municipality: "municipio", operation: "count", details: false },
+        cooperativas: { dataset: "cooperativas", municipality: "localidad", operation: "count", details: false },
       },
     },
     {
@@ -120,16 +68,8 @@ export function getGroups(): GroupConfig[] {
         ofertasEMPLEO: { id: "ofertas-de-empleo", select: ["localidad"] },
       },
       indicators: {
-        oficinasECYL: {
-          dataset: "oficinasECYL",
-          municipality: "localidad",
-          operation: "count",
-        },
-        ofertasEMPLEO: {
-          dataset: "ofertasEMPLEO",
-          municipality: "localidad",
-          operation: "count",
-        },
+        oficinasECYL: { dataset: "oficinasECYL", municipality: "localidad", operation: "count" },
+        ofertasEMPLEO: { dataset: "ofertasEMPLEO", municipality: "localidad", operation: "count" },
       },
     },
     {
@@ -138,25 +78,17 @@ export function getGroups(): GroupConfig[] {
         centrosSalud: {
           id: "registro-de-centros-sanitarios-de-castilla-y-leon",
           where: `tipo_de_centro = 'CENTROS DE ATENCION PRIMARIA: CENTROS DE SALUD' OR tipo_de_centro = 'CONSULTORIOS DE ATENCION PRIMARIA'`,
-          select: ["localidad", "nombre_del_centro", "direccion", "telefono", "finalidad_asistencial"]
+          select: ["localidad", "nombre_del_centro", "direccion", "telefono", "finalidad_asistencial"],
         },
         centrosSanitarios: {
           id: "registro-de-centros-sanitarios-de-castilla-y-leon",
           where: `tipo_de_centro = 'HOSPITALES GENERALES'`,
-          select: ["localidad", "nombre_del_centro", "posicion", "telefono", "finalidad_asistencial"]
+          select: ["localidad", "nombre_del_centro", "posicion", "telefono", "finalidad_asistencial"],
         },
       },
       indicators: {
-        centrosSalud: {
-          dataset: "centrosSalud",
-          municipality: "localidad",
-          operation: "count",
-        },
-        hospitales: {
-          dataset: "centrosSanitarios",
-          municipality: "localidad",
-          operation: "count",
-        },
+        centrosSalud: { dataset: "centrosSalud", municipality: "localidad", operation: "count" },
+        hospitales: { dataset: "centrosSanitarios", municipality: "localidad", operation: "count" },
       },
     },
     {
@@ -164,24 +96,12 @@ export function getGroups(): GroupConfig[] {
       datasets: {
         bibiliotecas: { id: "bibliotecas-bibliobuses-y-puntos-de-servicio-movil-geolocalizados", select: ["nombre_entidad", "tipo", "enlace_contenido", "localidad"] },
         museos: { id: "museos", select: ["nombreentidad", "localidad", "enlace_al_contenido"] },
-        teatros: { id: "red_teatros", select: ["municipio", "sala", "direccion", "email"] }
+        teatros: { id: "red_teatros", select: ["municipio", "sala", "direccion", "email"] },
       },
       indicators: {
-        bibiliotecas: {
-          dataset: "bibiliotecas",
-          municipality: "localidad",
-          operation: "count",
-        },
-        museos: {
-          dataset: "museos",
-          municipality: "localidad",
-          operation: "count",
-        },
-        teatros: {
-          dataset: "teatros",
-          municipality: "municipio",
-          operation: "count",
-        },
+        bibiliotecas: { dataset: "bibiliotecas", municipality: "localidad", operation: "count" },
+        museos: { dataset: "museos", municipality: "localidad", operation: "count" },
+        teatros: { dataset: "teatros", municipality: "municipio", operation: "count" },
       },
     },
     {
@@ -190,26 +110,16 @@ export function getGroups(): GroupConfig[] {
         clubesDeportivos: { id: "registro-clubes-deportivos", select: ["localidad"] },
       },
       indicators: {
-        clubesDeportivos: {
-          dataset: "clubesDeportivos",
-          municipality: "localidad",
-          operation: "count",
-          details: false,
-        },
+        clubesDeportivos: { dataset: "clubesDeportivos", municipality: "localidad", operation: "count", details: false },
       },
     },
     {
       group: "juventud",
       datasets: {
-        asociacionesJuveniles: { id: "asociaciones-juveniles", select: ["localidad"] }, // , "denominacion", "tipo_de_asociacion", "ambito", "direccion", "no_inscripcion"
+        asociacionesJuveniles: { id: "asociaciones-juveniles", select: ["localidad"] },
       },
       indicators: {
-        asociacionesJuveniles: {
-          dataset: "asociacionesJuveniles",
-          municipality: "localidad",
-          operation: "count",
-          details: false,
-        },
+        asociacionesJuveniles: { dataset: "asociacionesJuveniles", municipality: "localidad", operation: "count", details: false },
       },
     },
     {
@@ -218,11 +128,7 @@ export function getGroups(): GroupConfig[] {
         monumentos: { id: "relacion-monumentos", select: ["poblacion_municipio", "nombre", "tipomonumento", "periodohistorico", "identificadorbieninterescultural", "coordenadas"] },
       },
       indicators: {
-        monumentos: {
-          dataset: "monumentos",
-          municipality: "poblacion_municipio",
-          operation: "count",
-        },
+        monumentos: { dataset: "monumentos", municipality: "poblacion_municipio", operation: "count" },
       },
     },
     {
@@ -230,32 +136,17 @@ export function getGroups(): GroupConfig[] {
       datasets: {
         entidadesSociales: { id: "entidades-de-caracter-social", select: ["localidad"] },
         serviciosSociales: { id: "servicios-de-caracter-social", select: ["localidad"] },
-        centrosSociales: { id: "centros-de-caracter-social", select: ["localidad"] }
+        centrosSociales: { id: "centros-de-caracter-social", select: ["localidad"] },
       },
       indicators: {
-        entidadesSociales: {
-          dataset: "entidadesSociales",
-          municipality: "localidad",
-          operation: "count",
-          details: false,
-        },
-        serviciosSociales: {
-          dataset: "serviciosSociales",
-          municipality: "localidad",
-          operation: "count",
-          details: false,
-        },
-        centrosSociales: {
-          dataset: "centrosSociales",
-          municipality: "localidad",
-          operation: "count",
-          details: false,
-        },
-      }
-    }
+        entidadesSociales: { dataset: "entidadesSociales", municipality: "localidad", operation: "count", details: false },
+        serviciosSociales: { dataset: "serviciosSociales", municipality: "localidad", operation: "count", details: false },
+        centrosSociales: { dataset: "centrosSociales", municipality: "localidad", operation: "count", details: false },
+      },
+    },
   ];
 }
 
 export function getGroupByName(name: string): GroupConfig | undefined {
-  return getGroups().find(g => g.group === name);
+  return getGroups().find((g) => g.group === name);
 }

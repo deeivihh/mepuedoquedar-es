@@ -1,21 +1,11 @@
 import type { MasSourceResult } from "./types";
 
 const CSV_URL = "https://cdn.mivau.gob.es/portal-web-mivau/Datos_MIVAU/CSV/VDP001_01.csv";
-
-// 05 Ávila, 09 Burgos, 24 León, 34 Palencia, 37 Salamanca,
-// 40 Segovia, 42 Soria, 47 Valladolid, 49 Zamora
 const CYL_PROVINCIAS = new Set(["05", "09", "24", "34", "37", "40", "42", "47", "49"]);
 
 type SerieItem = { anio: number; precio: number };
-
-type TipoAcc = {
-    precios: Map<number, number[]>;
-};
-
-type MunicipioAcc = {
-    colectiva: TipoAcc;
-    unifamiliar: TipoAcc;
-};
+type TipoAcc = { precios: Map<number, number[]> };
+type MunicipioAcc = { colectiva: TipoAcc; unifamiliar: TipoAcc };
 
 async function* csvLines(res: Response) {
     const reader = res.body!.getReader();
@@ -51,30 +41,23 @@ function parseRow(line: string) {
     };
 }
 
-function average(values: number[]) {
-    return values.reduce((a, b) => a + b, 0) / values.length;
-}
+const average = (values: number[]) => values.reduce((a, b) => a + b, 0) / values.length;
 
 function buildVivienda(acc: MunicipioAcc) {
-    const tipo: TipoAcc = acc.colectiva.precios.size > 0 ? acc.colectiva : acc.unifamiliar;
-
+    const tipo = acc.colectiva.precios.size > 0 ? acc.colectiva : acc.unifamiliar;
     const anios = [...tipo.precios.keys()].sort((a, b) => a - b);
     if (!anios.length) return null;
 
-    const serie: SerieItem[] = anios
-        .slice(-5)
-        .map((anio) => ({
-            anio,
-            precio: Math.round(average(tipo.precios.get(anio)!)),
-        }));
-
-    const ultimo = anios[anios.length - 1];
+    const serie: SerieItem[] = anios.slice(-5).map((anio) => ({
+        anio,
+        precio: Math.round(average(tipo.precios.get(anio)!)),
+    }));
 
     return {
-        actualizado: ultimo,
+        actualizado: anios.at(-1)!,
         tipo: acc.colectiva.precios.size > 0 ? "piso" : "casa",
         alquiler: {
-            precio: serie[serie.length - 1].precio,
+            precio: serie.at(-1)!.precio,
             serie,
         },
     };
@@ -90,22 +73,16 @@ async function run(): Promise<MasSourceResult> {
 
     for await (const line of csvLines(res)) {
         if (line.length < 20 || !CYL_PROVINCIAS.has(line.slice(0, 2))) continue;
-
         const row = parseRow(line);
-        if (!row.codPostal || isNaN(row.anio) || isNaN(row.valor)) continue;
-        if (row.medida !== "MEDIANA") continue;
+        if (!row.codPostal || isNaN(row.anio) || isNaN(row.valor) || row.medida !== "MEDIANA") continue;
 
         let acc = municipios.get(row.codPostal);
         if (!acc) {
-            acc = {
-                colectiva: { precios: new Map() },
-                unifamiliar: { precios: new Map() },
-            };
+            acc = { colectiva: { precios: new Map() }, unifamiliar: { precios: new Map() } };
             municipios.set(row.codPostal, acc);
         }
 
         const target = row.tipo === "UNIFAMILIAR" ? acc.unifamiliar : acc.colectiva;
-
         if (row.elemento === "PRECIO") {
             const list = target.precios.get(row.anio) ?? [];
             list.push(row.valor);

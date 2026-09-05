@@ -1,68 +1,30 @@
 "use client";
 
 import { useMemo } from "react";
-import { TABLES, getTableKey, type TableConfig } from "@/lib/config/tables";
+import { TABLES, getTableKey, filterData, type TableConfig } from "@/lib/config/tables";
 import BaseChart from "@/components/charts/BaseChart";
 
-
-
-function filterData(data: any[], filter?: TableConfig["filter"]) {
-    if (!filter || !Array.isArray(data)) return data;
-    if (typeof filter === "function") return data.filter(filter);
-    if (typeof filter === "string") {
-        const q = filter.toLowerCase();
-        return data.filter((s: any) => s.Nombre?.toLowerCase().includes(q) || s.COD?.toLowerCase().includes(q));
-    }
-    if (Array.isArray(filter)) {
-        if (typeof filter[0] === "number") return (filter as number[]).flatMap((i) => data[i] ? [data[i]] : []);
-        return data.filter((s: any) => {
-            const name = (s.Nombre || "").toLowerCase();
-            const cod = (s.COD || "").toLowerCase();
-            return (filter as any[]).some((f) => {
-                if (Array.isArray(f)) {
-                    return f.every((w) => name.includes(String(w).toLowerCase()) || cod.includes(String(w).toLowerCase()));
-                }
-                return name.includes(String(f).toLowerCase()) || cod.includes(String(f).toLowerCase());
-            });
-        });
-    }
-    return data;
+function hasSeriesData(filtered: any[]) {
+    if (!filtered || !Array.isArray(filtered) || !filtered.length) return false;
+    return filtered.some((s: any) => s.Data !== undefined) ? filtered.some((s: any) => Array.isArray(s.Data) && s.Data.length > 0) : true;
 }
 
 function Tabla({ table, data }: { table: TableConfig; data: any[] }) {
-    const filteredData = useMemo(() => filterData(data, table.filter), [data, table.filter]);
-
-    const hasData = useMemo(() => {
-        if (!filteredData || !Array.isArray(filteredData) || filteredData.length === 0) return false;
-        const isSeriesArray = filteredData.some((s: any) => s.Data !== undefined);
-        if (isSeriesArray) {
-            return filteredData.some((s: any) => Array.isArray(s.Data) && s.Data.length > 0);
-        }
-        return true;
-    }, [filteredData]);
-
-    if (!hasData) return null;
+    const filtered = useMemo(() => filterData(data, table.filter), [data, table.filter]);
+    if (!hasSeriesData(filtered)) return null;
 
     return (
         <div className="p-4 md:p-6 md:col-span-1 md:odd:last:col-span-2 md:odd:border-r md:odd:last:border-r-0 md:border-b md:last:border-b-0 md:[&:nth-last-child(2):nth-child(odd)]:border-b-0 border-title/20">
-            <BaseChart type={table.type} data={filteredData} title={table.title} formatName={table.formatName} />
+            <BaseChart type={table.type} data={filtered} title={table.title} formatName={table.formatName} />
         </div>
     );
 }
 
 export default function DatosSection({ ineData, tables = TABLES }: { ineData: Record<string, any[]>; tables?: TableConfig[] }) {
-    const hasAnyData = useMemo(() => {
-        return tables.some((t) => {
-            const d = ineData?.[getTableKey(t)];
-            const f = filterData(d ?? [], t.filter);
-            if (!f || !Array.isArray(f) || f.length === 0) return false;
-            const isSeriesArray = f.some((s: any) => s.Data !== undefined);
-            if (isSeriesArray) {
-                return f.some((s: any) => Array.isArray(s.Data) && s.Data.length > 0);
-            }
-            return true;
-        });
-    }, [ineData, tables]);
+    const hasAnyData = useMemo(
+        () => tables.some((t) => hasSeriesData(filterData(ineData?.[getTableKey(t)] ?? [], t.filter))),
+        [ineData, tables]
+    );
 
     if (!hasAnyData) {
         return (

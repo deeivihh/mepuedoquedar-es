@@ -19,12 +19,3 @@ export interface Site {
     presencia_de_comercio: string;
     distance?: number;
 }
-
-export interface CentroSalud {
-    nombre_gerencia: string;
-    codigo_zona: string;
-    nombre_zona: string;
-    nombre_centro_salud: string;
-    municipio: string;
-    pac: string;
-}

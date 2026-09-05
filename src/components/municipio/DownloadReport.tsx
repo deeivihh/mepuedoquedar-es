@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { FaFileArrowDown } from "react-icons/fa6";
 import { VscLoading } from "react-icons/vsc";
+import type { DepartmentScore, ScoreResult } from "@/lib/scores/calculateScores";
+import { getGlobalLabel } from "@/lib/scores/calculateScores";
+import { formatIndicatorValue } from "@/lib/scores/departmentPriority";
+import { TABLES, getTableKey, filterData, getPeriod, formatSeriesName, CHART_PALETTE, type TableConfig } from "@/lib/config/tables";
+import type { WikipediaData } from "@/actions/wikipedia";
 
 let Document: any;
 let Page: any;
@@ -16,10 +21,6 @@ let Line: any;
 let Circle: any;
 let Rect: any;
 let Path: any;
-import type { DepartmentScore, ScoreResult } from "@/lib/scores/calculateScores";
-import { formatIndicatorValue } from "@/lib/scores/departmentPriority";
-import { TABLES, getTableKey, type TableConfig } from "@/lib/config/tables";
-import type { WikipediaData } from "@/actions/wikipedia";
 
 type MunicipioData = Record<string, any>;
 type IneData = Record<string, any[]> | null;
@@ -34,533 +35,86 @@ const colors = {
     muted: "#667068",
 };
 
-const chartColors = ["#C46A4A", "#1F3A2E", "#6B7F4D", "#C28B38", "#3D6053", "#D48B6E", "#4E6E7E", "#944C36", "#8EA675", "#9E7B56", "#825366", "#284B3D"];
-
 const styles: any = {
-    page: {
-        backgroundColor: colors.beige,
-        color: colors.ink,
-        fontFamily: "Helvetica",
-        fontSize: 9,
-        paddingTop: 54,
-        paddingHorizontal: 48,
-        paddingBottom: 44,
-    },
-    cover: {
-        backgroundColor: colors.beige,
-    },
-    coverImage: {
-        alignItems: "center",
-        height: "100%",
-        justifyContent: "center",
-        objectFit: "cover",
-        width: "100%",
-    },
-    coverMunicipality: {
-        alignItems: "center",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        marginHorizontal: 58,
-        marginTop: -12,
-    },
-    coverMunicipalityName: {
-        color: colors.terracotta,
-        fontFamily: "Times-Bold",
-        fontSize: 64,
-        lineHeight: 1.05,
-        textAlign: "center",
-    },
-    coverMunicipalitySubtitle: {
-        color: colors.title,
-        fontFamily: "Times-BoldItalic",
-        fontSize: 15,
-        lineHeight: 1.2,
-        textAlign: "center",
-        marginTop: 20,
-    },
-    header: {
-        alignItems: "center",
-        borderBottomColor: `${colors.green}33`,
-        borderBottomWidth: 1,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingBottom: 10,
-        position: "absolute",
-        top: 28,
-        left: 48,
-        right: 48,
-    },
-    headerBrand: {
-        color: colors.green,
-        fontFamily: "Times-Bold",
-        fontSize: 11,
-    },
-    headerTitle: {
-        color: colors.muted,
-        fontSize: 7,
-        letterSpacing: 1,
-        textTransform: "uppercase",
-    },
-    footer: {
-        bottom: 20,
-        left: 48,
-        position: "absolute",
-        right: 48,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-    },
-    footerLeft: {
-        color: colors.muted,
-        fontSize: 7,
-        flex: 1,
-        textAlign: "left",
-    },
-    footerCenter: {
-        color: colors.muted,
-        fontSize: 7,
-        flex: 1,
-        textAlign: "center",
-    },
-    footerRight: {
-        color: colors.muted,
-        fontSize: 7,
-        flex: 1,
-        textAlign: "right",
-    },
-    section: {
-        marginBottom: 20,
-    },
-    sectionTitle: {
-        borderBottomColor: `${colors.green}44`,
-        borderBottomWidth: 1,
-        color: colors.green,
-        fontFamily: "Times-Bold",
-        fontSize: 22,
-        marginBottom: 12,
-        paddingBottom: 7,
-    },
-    intro: {
-        color: colors.muted,
-        fontSize: 10,
-        lineHeight: 1.5,
-        marginBottom: 16,
-    },
-    summaryImageCard: {
-        backgroundColor: colors.card,
-        borderColor: `${colors.green}22`,
-        borderWidth: 1,
-        marginTop: 12,
-        overflow: "hidden",
-    },
-    summaryImage: {
-        height: 220,
-        objectFit: "cover",
-        width: "100%",
-    },
-    summaryImageCaption: {
-        color: colors.muted,
-        fontSize: 7.5,
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        textAlign: "center",
-    },
-    summaryImagesRow: {
-        flexDirection: "row",
-        gap: 10,
-        marginTop: 12,
-    },
-    summaryImageCol: {
-        backgroundColor: colors.card,
-        borderColor: `${colors.green}22`,
-        borderWidth: 1,
-        flex: 1,
-        overflow: "hidden",
-    },
-    summaryImageHalf: {
-        height: 160,
-        objectFit: "cover",
-        width: "100%",
-    },
-    globalScoreBlock: {
-        backgroundColor: colors.card,
-        borderWidth: 1,
-        borderColor: `${colors.green}22`,
-        padding: 16,
-        marginBottom: 18,
-    },
-    globalScoreHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "flex-end",
-        gap: 12,
-    },
-    globalEyebrow: {
-        color: `${colors.green}88`,
-        fontFamily: "Helvetica-Bold",
-        fontSize: 7,
-        letterSpacing: 1.4,
-        textTransform: "uppercase",
-    },
-    globalScoreRow: {
-        flexDirection: "row",
-        alignItems: "baseline",
-        gap: 4,
-        marginTop: 4,
-    },
-    globalScoreNumber: {
-        color: colors.green,
-        fontFamily: "Times-Bold",
-        fontSize: 42,
-        lineHeight: 1,
-    },
-    globalScoreMax: {
-        color: `${colors.green}66`,
-        fontFamily: "Helvetica-Bold",
-        fontSize: 10,
-    },
-    globalBar: {
-        backgroundColor: `${colors.green}18`,
-        height: 4,
-        marginTop: 8,
-        width: 160,
-    },
-    globalBarFill: {
-        backgroundColor: colors.terracotta,
-        height: 4,
-    },
-    globalLabel: {
-        color: colors.green,
-        fontFamily: "Times-Bold",
-        fontSize: 13,
-        lineHeight: 1.25,
-        textAlign: "right",
-        flex: 1,
-        paddingLeft: 12,
-    },
-    profileBox: {
-        borderTopColor: `${colors.green}12`,
-        borderTopWidth: 1,
-        marginTop: 12,
-        paddingTop: 7,
-    },
-    profileLine: {
-        color: `${colors.green}88`,
-        fontFamily: "Helvetica",
-        fontSize: 7,
-        letterSpacing: 0.15,
-        lineHeight: 1.45,
-    },
-    profilePrefix: {
-        color: `${colors.green}55`,
-        fontFamily: "Helvetica-Bold",
-        fontSize: 6.5,
-        letterSpacing: 0.9,
-        textTransform: "uppercase",
-    },
-    profileDot: {
-        color: `${colors.green}35`,
-        fontFamily: "Helvetica",
-        fontSize: 7,
-    },
-    department: {
-        borderBottomColor: `${colors.green}22`,
-        borderBottomWidth: 1,
-        marginBottom: 10,
-        paddingBottom: 10,
-    },
-    departmentHeader: {
-        alignItems: "baseline",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 6,
-    },
-    departmentName: {
-        color: colors.green,
-        fontFamily: "Times-Bold",
-        fontSize: 13,
-        textTransform: "capitalize",
-    },
-    departmentScore: {
-        color: colors.terracotta,
-        fontFamily: "Helvetica-Bold",
-        fontSize: 9,
-    },
-    bar: {
-        backgroundColor: `${colors.green}18`,
-        height: 4,
-        marginBottom: 7,
-        width: "100%",
-    },
-    barFill: {
-        backgroundColor: colors.terracotta,
-        height: 4,
-    },
-    indicator: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginTop: 3,
-    },
-    indicatorLabel: {
-        color: colors.ink,
-        paddingRight: 14,
-        width: "58%",
-    },
-    indicatorValue: {
-        color: colors.muted,
-        textAlign: "right",
-        width: "28%",
-    },
-    indicatorScore: {
-        color: colors.terracotta,
-        fontFamily: "Helvetica-Bold",
-        textAlign: "right",
-        width: "14%",
-    },
-    chartsContainer: {
-        width: "100%",
-    },
-    chartRow: {
-        backgroundColor: colors.card,
-        borderColor: `${colors.green}22`,
-        borderWidth: 1,
-        flexDirection: "row",
-    },
-    chartGroup: {
-        paddingHorizontal: 10,
-        paddingVertical: 10,
-        width: "50%",
-    },
-    chartGroupFull: {
-        width: "100%",
-    },
-    chartBorderRight: {
-        borderRightColor: `${colors.green}22`,
-        borderRightWidth: 1,
-    },
-    chartTitle: {
-        color: colors.green,
-        fontFamily: "Times-Bold",
-        fontSize: 13,
-        marginBottom: 2,
-    },
-    chartDate: {
-        color: colors.muted,
-        fontSize: 7,
-        marginBottom: 8,
-    },
-    legend: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        marginTop: 7,
-    },
-    legendItem: {
-        alignItems: "center",
-        flexDirection: "row",
-        marginBottom: 4,
-        paddingRight: 8,
-        width: "50%",
-    },
-    legendMarker: {
-        height: 6,
-        marginRight: 4,
-        width: 6,
-    },
-    legendLabel: {
-        color: colors.ink,
-        fontSize: 7,
-        paddingRight: 4,
-        width: "76%",
-    },
-    legendValue: {
-        color: colors.muted,
-        fontSize: 7,
-        textAlign: "right",
-        width: "24%",
-    },
-    sourceGrid: {
-        flexDirection: "row",
-        marginHorizontal: -4,
-        marginBottom: 12,
-    },
-    sourceItem: {
-        paddingHorizontal: 4,
-        width: "33.33%",
-    },
-    sourceCard: {
-        backgroundColor: colors.card,
-        borderColor: `${colors.green}22`,
-        borderWidth: 1,
-        height: 100,
-        padding: 8,
-    },
-    sourceTag: {
-        color: colors.terracotta,
-        fontFamily: "Helvetica-Bold",
-        fontSize: 5.5,
-        letterSpacing: 0.5,
-        marginBottom: 3,
-        textTransform: "uppercase",
-    },
-    sourceTitle: {
-        color: colors.green,
-        fontFamily: "Times-Bold",
-        fontSize: 8.5,
-        marginBottom: 2,
-    },
-    sourceDesc: {
-        color: colors.muted,
-        fontSize: 6.5,
-        lineHeight: 1.35,
-    },
-    methodologySectionTitle: {
-        color: colors.green,
-        fontFamily: "Times-Bold",
-        fontSize: 10.5,
-        marginBottom: 7,
-        paddingBottom: 2,
-        borderBottomColor: `${colors.green}22`,
-        borderBottomWidth: 1,
-    },
-    formulaBox: {
-        backgroundColor: `${colors.green}0a`,
-        borderColor: `${colors.green}18`,
-        borderWidth: 1,
-        marginTop: 4,
-        padding: 3.5,
-    },
-    formulaText: {
-        color: colors.green,
-        fontFamily: "Courier",
-        fontSize: 5.4,
-        lineHeight: 1.25,
-    },
-    legalBox: {
-        backgroundColor: colors.card,
-        borderColor: `${colors.green}22`,
-        borderWidth: 1,
-        padding: 8,
-    },
-    legalText: {
-        color: colors.muted,
-        fontSize: 6.8,
-        lineHeight: 1.4,
-    },
-    note: {
-        color: colors.muted,
-        fontSize: 7.5,
-        lineHeight: 1.45,
-    },
+    page: { backgroundColor: colors.beige, color: colors.ink, fontFamily: "Helvetica", fontSize: 9, paddingTop: 54, paddingHorizontal: 48, paddingBottom: 44 },
+    cover: { backgroundColor: colors.beige },
+    coverImage: { alignItems: "center", height: "100%", justifyContent: "center", objectFit: "cover", width: "100%" },
+    coverMunicipality: { alignItems: "center", display: "flex", flexDirection: "column", justifyContent: "center", marginHorizontal: 58, marginTop: -12 },
+    coverMunicipalityName: { color: colors.terracotta, fontFamily: "Times-Bold", fontSize: 64, lineHeight: 1.05, textAlign: "center" },
+    coverMunicipalitySubtitle: { color: colors.title, fontFamily: "Times-BoldItalic", fontSize: 15, lineHeight: 1.2, textAlign: "center", marginTop: 20 },
+    footer: { bottom: 20, left: 48, position: "absolute", right: 48, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+    footerText: { color: colors.muted, fontSize: 7, flex: 1 },
+    section: { marginBottom: 20 },
+    sectionTitle: { borderBottomColor: `${colors.green}44`, borderBottomWidth: 1, color: colors.green, fontFamily: "Times-Bold", fontSize: 22, marginBottom: 12, paddingBottom: 7 },
+    intro: { color: colors.muted, fontSize: 10, lineHeight: 1.5, marginBottom: 16 },
+    summaryImageCard: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, marginTop: 12, overflow: "hidden" },
+    summaryImage: { height: 220, objectFit: "cover", width: "100%" },
+    summaryImageHalf: { height: 160, objectFit: "cover", width: "100%" },
+    summaryImageCaption: { color: colors.muted, fontSize: 7.5, paddingHorizontal: 10, paddingVertical: 6, textAlign: "center" },
+    summaryImagesRow: { flexDirection: "row", gap: 10, marginTop: 12 },
+    summaryImageCol: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, flex: 1, overflow: "hidden" },
+    globalScoreBlock: { backgroundColor: colors.card, borderWidth: 1, borderColor: `${colors.green}22`, padding: 16, marginBottom: 18 },
+    globalScoreHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", gap: 12 },
+    globalEyebrow: { color: `${colors.green}88`, fontFamily: "Helvetica-Bold", fontSize: 7, letterSpacing: 1.4, textTransform: "uppercase" },
+    globalScoreRow: { flexDirection: "row", alignItems: "baseline", gap: 4, marginTop: 4 },
+    globalScoreNumber: { color: colors.green, fontFamily: "Times-Bold", fontSize: 42, lineHeight: 1 },
+    globalScoreMax: { color: `${colors.green}66`, fontFamily: "Helvetica-Bold", fontSize: 10 },
+    globalBar: { backgroundColor: `${colors.green}18`, height: 4, marginTop: 8, width: 160 },
+    globalBarFill: { backgroundColor: colors.terracotta, height: 4 },
+    globalLabel: { color: colors.green, fontFamily: "Times-Bold", fontSize: 13, lineHeight: 1.25, textAlign: "right", flex: 1, paddingLeft: 12 },
+    profileBox: { borderTopColor: `${colors.green}12`, borderTopWidth: 1, marginTop: 12, paddingTop: 7 },
+    profileLine: { color: `${colors.green}88`, fontFamily: "Helvetica", fontSize: 7.5, letterSpacing: 0.3 },
+    profilePrefix: { fontFamily: "Helvetica-Bold", color: colors.green },
+    department: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, marginBottom: 10, padding: 10 },
+    departmentHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+    departmentName: { color: colors.green, fontFamily: "Times-Bold", fontSize: 11 },
+    departmentScore: { color: colors.terracotta, fontFamily: "Helvetica-Bold", fontSize: 10 },
+    bar: { backgroundColor: `${colors.green}18`, height: 4, marginBottom: 8, width: "100%" },
+    barFill: { backgroundColor: colors.green, height: 4 },
+    indicator: { flexDirection: "row", justifyContent: "space-between", marginTop: 4 },
+    indicatorLabel: { color: colors.ink, fontSize: 8, width: "52%" },
+    indicatorValue: { color: colors.muted, fontSize: 8, textAlign: "right", width: "28%" },
+    indicatorScore: { color: colors.green, fontFamily: "Helvetica-Bold", fontSize: 8, textAlign: "right", width: "20%" },
+    chartsContainer: { borderColor: `${colors.green}22`, borderWidth: 1 },
+    chartRow: { flexDirection: "row", borderTopColor: `${colors.green}22`, borderTopWidth: 1 },
+    chartGroup: { backgroundColor: colors.card, flex: 1, padding: 8 },
+    chartGroupFull: { width: "100%" },
+    chartBorderRight: { borderRightColor: `${colors.green}22`, borderRightWidth: 1 },
+    chartTitle: { color: colors.green, fontFamily: "Times-Bold", fontSize: 9.5, marginBottom: 2 },
+    chartDate: { color: colors.muted, fontSize: 7, marginBottom: 8 },
+    legend: { flexDirection: "row", flexWrap: "wrap", marginTop: 7 },
+    legendItem: { alignItems: "center", flexDirection: "row", marginBottom: 4, paddingRight: 8, width: "50%" },
+    legendMarker: { height: 6, marginRight: 4, width: 6 },
+    legendLabel: { color: colors.ink, fontSize: 7, paddingRight: 4, width: "76%" },
+    legendValue: { color: colors.muted, fontSize: 7, textAlign: "right", width: "24%" },
+    sourceGrid: { flexDirection: "row", marginHorizontal: -4, marginBottom: 12 },
+    sourceItem: { paddingHorizontal: 4, width: "33.33%" },
+    sourceCard: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, height: 100, padding: 8 },
+    sourceTag: { color: colors.terracotta, fontFamily: "Helvetica-Bold", fontSize: 5.5, letterSpacing: 0.5, marginBottom: 3, textTransform: "uppercase" },
+    sourceTitle: { color: colors.green, fontFamily: "Times-Bold", fontSize: 8.5, marginBottom: 2 },
+    sourceDesc: { color: colors.muted, fontSize: 6.5, lineHeight: 1.35 },
+    methodologySectionTitle: { color: colors.green, fontFamily: "Times-Bold", fontSize: 10.5, marginBottom: 7, paddingBottom: 2, borderBottomColor: `${colors.green}22`, borderBottomWidth: 1 },
+    formulaBox: { backgroundColor: `${colors.green}0a`, borderColor: `${colors.green}18`, borderWidth: 1, marginTop: 4, padding: 3.5 },
+    formulaText: { color: colors.green, fontFamily: "Courier", fontSize: 5.4, lineHeight: 1.25 },
+    legalBox: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, padding: 8 },
+    legalText: { color: colors.muted, fontSize: 6.8, lineHeight: 1.4 },
+    note: { color: colors.muted, fontSize: 7.5, lineHeight: 1.45 },
 };
 
-function capitalize(value: string) {
-    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-}
-
-function formatNumber(value: unknown) {
-    const number = Number(value);
-    return Number.isFinite(number) ? number.toLocaleString("es-ES") : "Sin datos";
-}
-
-const compactFormatter = new Intl.NumberFormat("es-ES", { notation: "compact", maximumFractionDigits: 1 });
-function formatCompactNumber(value: number) {
-    return compactFormatter.format(value);
-}
-
-const dateFormatter = new Intl.DateTimeFormat("es-ES", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    timeZone: "Europe/Madrid",
-});
-function formatDate() {
-    return dateFormatter.format(new Date());
-}
-
-function scorePercentage(department: DepartmentScore) {
-    if (!department.maxScore) return 0;
-    return Math.round((department.score / department.maxScore) * 100);
-}
-
-function getProfilePills(preferences: Record<string, any>): { label: string; active: boolean }[] {
-    const age = Number(preferences.age ?? 35);
-    const ageLabel = age < 30 ? "Joven" : age < 45 ? "Adulto/a joven" : age < 60 ? "Adulto/a" : "Mayor";
-    return [
-        { label: `${age} años · ${ageLabel}`, active: true },
-        { label: preferences.hasCar ? "Con coche" : "Sin coche", active: true },
-        { label: "Con hijos", active: !!preferences.hasSchoolChildren },
-        { label: "Busca empleo", active: !!preferences.lookingForWork },
-        { label: "Teletrabaja", active: !!preferences.remotework },
-        { label: "Jubilado/a", active: !!preferences.isRetired },
-        { label: "Con mascota", active: !!preferences.hasPet },
-    ];
-}
-
-function getValue(value: unknown) {
-    const number = typeof value === "number" ? value : Number(value);
-    return Number.isFinite(number) ? number : 0;
-}
-
-function getPeriod(value: any) {
-    return String(value?.Anyo ?? value?.T3_Periodo ?? value?.Periodo ?? value?.Fecha ?? value?.period ?? "");
-}
-
-function formatSeriesName(name?: string) {
-    if (!name) return "";
-    const ignored = new Set(["dato base", "personas", "todas las edades"]);
-    const parts = name.split(".").flatMap((part) => { const t = part.trim(); return t ? [t] : []; });
-    if (parts.length <= 1) return name.trim();
-    const segments = parts.slice(1).filter((part) => !ignored.has(part.toLowerCase()));
-    const nonTotal = segments.filter((part) => part.toLowerCase() !== "total");
-    return (nonTotal.length ? nonTotal : segments).join(" - ") || name.trim();
-}
-
-function filterData(data: any[], filter?: TableConfig["filter"]) {
-    if (!filter || !Array.isArray(data)) return data;
-    if (typeof filter === "function") return data.filter(filter);
-    if (typeof filter === "string") {
-        const query = filter.toLowerCase();
-        return data.filter((item) => item.Nombre?.toLowerCase().includes(query) || item.COD?.toLowerCase().includes(query));
-    }
-    if (typeof filter[0] === "number") return (filter as number[]).flatMap((index) => data[index] ? [data[index]] : []);
-    return data.filter((item) => {
-        const name = (item.Nombre || "").toLowerCase();
-        const code = (item.COD || "").toLowerCase();
-        return (filter as (string | string[])[]).some((rule) => Array.isArray(rule)
-            ? rule.every((word) => name.includes(word.toLowerCase()) || code.includes(word.toLowerCase()))
-            : name.includes(rule.toLowerCase()) || code.includes(rule.toLowerCase())
-        );
-    });
-}
-
-function displayName(table: TableConfig, item: any, fallback: string) {
-    const name = String(item?.Nombre ?? item?.COD ?? fallback);
-    return (table.formatName?.(name) ?? formatSeriesName(name)) || fallback;
-}
-
-function shorten(value: string, max = 18) {
-    return value.length > max ? `${value.slice(0, max - 1)}…` : value;
-}
-
-function piePath(index: number, values: number[], innerRadius = 0) {
-    const total = values.reduce((sum, value) => sum + value, 0);
-    const start = values.slice(0, index).reduce((sum, value) => sum + value, 0) / total * Math.PI * 2 - Math.PI / 2;
-    const end = (values.slice(0, index + 1).reduce((sum, value) => sum + value, 0) / total * Math.PI * 2) - Math.PI / 2;
-    const outerRadius = 52;
-    const center = 65;
-    const point = (radius: number, angle: number) => `${center + radius * Math.cos(angle)} ${center + radius * Math.sin(angle)}`;
-    const largeArc = end - start > Math.PI ? 1 : 0;
-    if (!innerRadius) return `M ${center} ${center} L ${point(outerRadius, start)} A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${point(outerRadius, end)} Z`;
-    return `M ${point(outerRadius, start)} A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${point(outerRadius, end)} L ${point(innerRadius, end)} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${point(innerRadius, start)} Z`;
-}
+const capitalize = (v: string) => v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
+const shorten = (v: string, max = 18) => (v.length > max ? `${v.slice(0, max - 1)}…` : v);
+const numVal = (v: unknown) => { const n = typeof v === "number" ? v : Number(v); return Number.isFinite(n) ? n : 0; };
+const formatNumber = (v: unknown) => { const n = Number(v); return Number.isFinite(n) ? n.toLocaleString("es-ES") : "Sin datos"; };
+const compactFmt = new Intl.NumberFormat("es-ES", { notation: "compact", maximumFractionDigits: 1 });
+const formatCompact = (v: number) => compactFmt.format(v);
+const dateFmt = new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "long", year: "numeric", timeZone: "Europe/Madrid" });
 
 function ChartLegend({ entries }: { entries: { label: string; value: number }[] }) {
     return (
         <View style={styles.legend}>
-            {entries.map((entry, index) => (
+            {entries.map((entry, i) => (
                 <View key={entry.label} style={styles.legendItem}>
-                    <View style={{ ...styles.legendMarker, backgroundColor: chartColors[index % chartColors.length] }} />
+                    <View style={{ ...styles.legendMarker, backgroundColor: CHART_PALETTE[i % CHART_PALETTE.length] }} />
                     <Text style={styles.legendLabel}>{shorten(entry.label, 34)}</Text>
                     <Text style={styles.legendValue}>{formatNumber(entry.value)}</Text>
                 </View>
@@ -569,51 +123,28 @@ function ChartLegend({ entries }: { entries: { label: string; value: number }[] 
     );
 }
 
-function getPieDimensions(type: "pie" | "donut", fullWidth?: boolean) {
+function PieDonutChart({ type, entries, fullWidth }: { type: "pie" | "donut"; entries: { label: string; value: number }[]; fullWidth?: boolean }) {
     const vbW = fullWidth ? 520 : 130;
     const cx = fullWidth ? vbW / 2 : 65;
-    const scale = fullWidth ? 2.1 : 1;
-    const rOuter = 52 * scale;
+    const rOuter = 52 * (fullWidth ? 2.1 : 1);
     const rInner = type === "donut" ? (fullWidth ? 62 : 29) : 0;
     const size = fullWidth ? 168 : 142;
-    return { vbW, cx, rOuter, rInner, size };
-}
+    const total = entries.reduce((s, v) => s + v.value, 0) || 1;
 
-function getPieSlicePath(
-    cx: number,
-    rOuter: number,
-    rInner: number,
-    start: number,
-    end: number
-): string {
-    const largeArc = end - start > Math.PI ? 1 : 0;
-    const point = (r: number, a: number) => `${cx + r * Math.cos(a)} ${65 + r * Math.sin(a)}`;
-    if (!rInner) {
-        return `M ${cx} 65 L ${point(rOuter, start)} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${point(rOuter, end)} Z`;
-    }
-    return `M ${point(rOuter, start)} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${point(rOuter, end)} L ${point(rInner, end)} A ${rInner} ${rInner} 0 ${largeArc} 0 ${point(rInner, start)} Z`;
-}
-
-function PieDonutChart({
-    type,
-    entries,
-    fullWidth,
-}: {
-    type: "pie" | "donut";
-    entries: { label: string; value: number }[];
-    fullWidth?: boolean;
-}) {
-    const { vbW, cx, rOuter, rInner, size } = getPieDimensions(type, fullWidth);
-    const total = entries.reduce((s, v) => s + v.value, 0);
+    const slicePath = (start: number, end: number) => {
+        const large = end - start > Math.PI ? 1 : 0;
+        const pt = (r: number, a: number) => `${cx + r * Math.cos(a)} ${65 + r * Math.sin(a)}`;
+        if (!rInner) return `M ${cx} 65 L ${pt(rOuter, start)} A ${rOuter} ${rOuter} 0 ${large} 1 ${pt(rOuter, end)} Z`;
+        return `M ${pt(rOuter, start)} A ${rOuter} ${rOuter} 0 ${large} 1 ${pt(rOuter, end)} L ${pt(rInner, end)} A ${rInner} ${rInner} 0 ${large} 0 ${pt(rInner, start)} Z`;
+    };
 
     return (
         <View>
             <Svg width="100%" height={size} viewBox={`0 0 ${vbW} 130`}>
-                {entries.map((entry, index) => {
-                    const start = (entries.slice(0, index).reduce((s, v) => s + v.value, 0) / total) * Math.PI * 2 - Math.PI / 2;
-                    const end = (entries.slice(0, index + 1).reduce((s, v) => s + v.value, 0) / total) * Math.PI * 2 - Math.PI / 2;
-                    const d = getPieSlicePath(cx, rOuter, rInner, start, end);
-                    return <Path key={entry.label} d={d} fill={chartColors[index % chartColors.length]} />;
+                {entries.map((entry, idx) => {
+                    const start = (entries.slice(0, idx).reduce((s, v) => s + v.value, 0) / total) * Math.PI * 2 - Math.PI / 2;
+                    const end = (entries.slice(0, idx + 1).reduce((s, v) => s + v.value, 0) / total) * Math.PI * 2 - Math.PI / 2;
+                    return <Path key={entry.label} d={slicePath(start, end)} fill={CHART_PALETTE[idx % CHART_PALETTE.length]} />;
                 })}
                 {type === "donut" && <Circle cx={cx} cy="65" r={rInner ? rInner - 6 : 0} fill={colors.card} />}
             </Svg>
@@ -622,123 +153,85 @@ function PieDonutChart({
     );
 }
 
-function ColumnChart({
-    entries,
-    fullWidth,
-}: {
-    entries: { label: string; value: number }[];
-    fullWidth?: boolean;
-}) {
-    const maxValue = Math.max(...entries.map((entry) => entry.value), 1);
-    const width = 500;
-    const barWidth = Math.min(fullWidth ? 68 : 42, (fullWidth ? 460 : 360) / entries.length);
+function ColumnChart({ entries, fullWidth }: { entries: { label: string; value: number }[]; fullWidth?: boolean }) {
+    const maxVal = Math.max(...entries.map((e) => e.value), 1);
+    const barW = Math.min(fullWidth ? 68 : 42, (fullWidth ? 460 : 360) / entries.length);
     return (
         <View>
-            <Svg width="100%" height={150} viewBox={`0 0 ${width} 150`}>
+            <Svg width="100%" height={150} viewBox="0 0 500 150">
                 <Line x1="36" y1="120" x2="480" y2="120" stroke={`${colors.green}66`} strokeWidth="1" />
-                {entries.map((entry, index) => {
-                    const height = (entry.value / maxValue) * 95;
-                    const x = 52 + index * (390 / entries.length);
+                {entries.map((entry, idx) => {
+                    const h = (entry.value / maxVal) * 95;
+                    const x = 52 + idx * (390 / entries.length);
                     return (
                         <G key={entry.label}>
-                            <Rect x={x} y={120 - height} width={barWidth} height={height} fill={chartColors[index % chartColors.length]} />
-                            <Text x={x + barWidth / 2} y="135" fill={colors.muted} style={{ fontSize: 6 }} textAnchor="middle">{index + 1}</Text>
+                            <Rect x={x} y={120 - h} width={barW} height={h} fill={CHART_PALETTE[idx % CHART_PALETTE.length]} />
+                            <Text x={x + barW / 2} y="135" fill={colors.muted} style={{ fontSize: 6 }} textAnchor="middle">{idx + 1}</Text>
                         </G>
                     );
                 })}
-                <Text x="30" y="28" fill={colors.muted} style={{ fontSize: 7 }} textAnchor="end">{formatNumber(maxValue)}</Text>
+                <Text x="30" y="28" fill={colors.muted} style={{ fontSize: 7 }} textAnchor="end">{formatNumber(maxVal)}</Text>
             </Svg>
             <ChartLegend entries={entries} />
         </View>
     );
 }
 
-function CategoricalChart({ type, entries, fullWidth }: { type: "pie" | "donut" | "column"; entries: { label: string; value: number }[]; fullWidth?: boolean }) {
-    if (type === "pie" || type === "donut") {
-        return <PieDonutChart type={type} entries={entries} fullWidth={fullWidth} />;
-    }
-
-    return <ColumnChart entries={entries} fullWidth={fullWidth} />;
-}
-
 function LineChart({ series, fullWidth }: { series: { label: string; points: { period: string; value: number }[] }[]; fullWidth?: boolean }) {
-    const values = series.flatMap((item) => item.points.map((point) => point.value));
-    const min = Math.min(...values);
-    const max = Math.max(...values);
+    const vals = series.flatMap((item) => item.points.map((p) => p.value));
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
     const range = max - min || 1;
-    const longest = Math.max(...series.map((item) => item.points.length));
-    const dates = series[0]?.points.map((point) => point.period) ?? [];
+    const longest = Math.max(...series.map((item) => item.points.length), 1);
+    const dates = series[0]?.points.map((p) => p.period) ?? [];
     const plot = fullWidth ? { left: 31, right: 468, top: 13, bottom: 94 } : { left: 31, right: 234, top: 13, bottom: 94 };
     const vbW = fullWidth ? 500 : 250;
-    const pointPosition = (point: { value: number }, index: number, length: number) => ({
-        x: plot.left + (index / Math.max(length - 1, 1)) * (plot.right - plot.left),
-        y: plot.bottom - ((point.value - min) / range) * (plot.bottom - plot.top),
+
+    const pos = (p: { value: number }, idx: number, len: number) => ({
+        x: plot.left + (idx / Math.max(len - 1, 1)) * (plot.right - plot.left),
+        y: plot.bottom - ((p.value - min) / range) * (plot.bottom - plot.top),
     });
-    const linePath = (points: { value: number }[]) => points.map((point, index) => {
-        const { x, y } = pointPosition(point, index, points.length);
-        return `${index === 0 ? "M" : "L"} ${x} ${y}`;
-    }).join(" ");
-    const areaPath = (points: { value: number }[]) => {
-        const first = pointPosition(points[0], 0, points.length);
-        const last = pointPosition(points[points.length - 1], points.length - 1, points.length);
-        return `${linePath(points)} L ${last.x} ${plot.bottom} L ${first.x} ${plot.bottom} Z`;
-    };
-    const legend = series.map((item) => ({ label: item.label, value: item.points[item.points.length - 1]?.value ?? 0 }));
+
+    const linePath = (pts: { value: number }[]) => pts.map((p, i) => `${i === 0 ? "M" : "L"} ${pos(p, i, pts.length).x} ${pos(p, i, pts.length).y}`).join(" ");
+    const areaPath = (pts: { value: number }[]) => `${linePath(pts)} L ${pos(pts.at(-1)!, pts.length - 1, pts.length).x} ${plot.bottom} L ${pos(pts[0], 0, pts.length).x} ${plot.bottom} Z`;
     const ticks = [max, min + range / 2, min];
-    const dateIndexes = [0, Math.floor((longest - 1) / 2), longest - 1].filter((index, position, list) => list.indexOf(index) === position);
+    const dateIdxs = [0, Math.floor((longest - 1) / 2), longest - 1].filter((idx, p, l) => l.indexOf(idx) === p);
+
     return (
         <View>
             <Svg width="100%" height={126} viewBox={`0 0 ${vbW} 126`}>
-                {ticks.map((value, index) => {
-                    const y = plot.top + index * ((plot.bottom - plot.top) / 2);
+                {ticks.map((val, i) => {
+                    const y = plot.top + i * ((plot.bottom - plot.top) / 2);
                     return (
-                        <G key={value}>
+                        <G key={val}>
                             <Line x1={plot.left} y1={y} x2={plot.right} y2={y} stroke={`${colors.green}20`} strokeWidth="0.8" />
-                            <Text x="26" y={y + 2.5} fill={colors.muted} style={{ fontSize: 6 }} textAnchor="end">{formatCompactNumber(value)}</Text>
+                            <Text x="26" y={y + 2.5} fill={colors.muted} style={{ fontSize: 6 }} textAnchor="end">{formatCompact(val)}</Text>
                         </G>
                     );
                 })}
-                {series.map((item, index) => (
+                {series.map((item, idx) => (
                     <G key={item.label}>
-                        {series.length === 1 && <Path d={areaPath(item.points)} fill={chartColors[index % chartColors.length]} fillOpacity={0.12} />}
-                        <Path d={linePath(item.points)} fill="none" stroke={chartColors[index % chartColors.length]} strokeWidth="2.2" />
-                        {item.points.map((point, pointIndex) => {
-                            const position = pointPosition(point, pointIndex, item.points.length);
-                            return <Circle key={`${item.label}-${point.period}`} cx={position.x} cy={position.y} r="2.2" fill={colors.card} stroke={chartColors[index % chartColors.length]} strokeWidth="1.3" />;
+                        {series.length === 1 && <Path d={areaPath(item.points)} fill={CHART_PALETTE[idx % CHART_PALETTE.length]} fillOpacity={0.12} />}
+                        <Path d={linePath(item.points)} fill="none" stroke={CHART_PALETTE[idx % CHART_PALETTE.length]} strokeWidth="2.2" />
+                        {item.points.map((pt, pIdx) => {
+                            const p = pos(pt, pIdx, item.points.length);
+                            return <Circle key={pIdx} cx={p.x} cy={p.y} r="2.2" fill={colors.card} stroke={CHART_PALETTE[idx % CHART_PALETTE.length]} strokeWidth="1.3" />;
                         })}
                     </G>
                 ))}
                 <Line x1={plot.left} y1={plot.bottom} x2={plot.right} y2={plot.bottom} stroke={`${colors.green}55`} strokeWidth="0.8" />
-                {dateIndexes.map((index) => (
-                    <Text key={index} x={plot.left + (index / Math.max(longest - 1, 1)) * (plot.right - plot.left)} y="109" fill={colors.muted} style={{ fontSize: 6 }} textAnchor="middle">{shorten(dates[index], 10)}</Text>
+                {dateIdxs.map((idx) => (
+                    <Text key={idx} x={plot.left + (idx / Math.max(longest - 1, 1)) * (plot.right - plot.left)} y="109" fill={colors.muted} style={{ fontSize: 6 }} textAnchor="middle">{shorten(dates[idx] || "", 10)}</Text>
                 ))}
             </Svg>
-            <ChartLegend entries={legend} />
+            <ChartLegend entries={series.map((s) => ({ label: s.label, value: s.points.at(-1)?.value ?? 0 }))} />
         </View>
     );
 }
 
-function ChartContainer({
-    title,
-    latest,
-    fullWidth,
-    borderRight,
-    children,
-}: {
-    title: string;
-    latest?: string;
-    fullWidth?: boolean;
-    borderRight?: boolean;
-    children: React.ReactNode;
-}) {
-    const groupStyle = [
-        styles.chartGroup,
-        fullWidth ? styles.chartGroupFull : {},
-        borderRight ? styles.chartBorderRight : {},
-    ];
-
+function ChartBox({ title, latest, fullWidth, borderRight, children }: { title: string; latest?: string; fullWidth?: boolean; borderRight?: boolean; children: React.ReactNode }) {
     return (
-        <View style={groupStyle} wrap={false}>
+        <View style={[styles.chartGroup, fullWidth ? styles.chartGroupFull : {}, borderRight ? styles.chartBorderRight : {}]} wrap={false}>
             <Text style={styles.chartTitle}>{title}</Text>
             {latest && <Text style={styles.chartDate}>Última actualización: {latest}</Text>}
             {children}
@@ -746,213 +239,110 @@ function ChartContainer({
     );
 }
 
-function getIneCategoricalEntries(table: TableConfig, filtered: any[]) {
-    const isPieOrDonut = table.type === "pie" || table.type === "donut";
-    return filtered.reduce<{ label: string; value: number }[]>((acc, item, index) => {
-        const rawValue = Array.isArray(item?.Data) ? item.Data[0]?.Valor : item?.Valor;
-        const entry = {
-            label: displayName(table, item, `Dato ${index + 1}`),
-            value: getValue(rawValue),
-        };
-        const isValid = isPieOrDonut ? entry.value > 0 : Number.isFinite(entry.value);
-        if (isValid) {
-            acc.push(entry);
-        }
+function getIneCat(table: TableConfig, filtered: any[]) {
+    const isPolar = table.type === "pie" || table.type === "donut";
+    return filtered.reduce<{ label: string; value: number }[]>((acc, item, i) => {
+        const raw = Array.isArray(item?.Data) ? item.Data[0]?.Valor : item?.Valor;
+        const name = String(item?.Nombre ?? item?.COD ?? `Dato ${i + 1}`);
+        const label = (table.formatName?.(name) ?? formatSeriesName(name)) || name;
+        const value = numVal(raw);
+        if (isPolar ? value > 0 : Number.isFinite(value)) acc.push({ label, value });
         return acc;
     }, []);
 }
 
-function getIneLineSeries(table: TableConfig, filtered: any[]) {
-    const isSeriesArray = Array.isArray(filtered) && filtered.some((item) => Array.isArray(item?.Data));
-    if (isSeriesArray) {
-        return filtered.reduce<{ label: string; points: { period: string; value: number }[] }[]>((acc, item, index) => {
-            const points = [...item.Data].reverse().map((point) => ({
-                period: getPeriod(point),
-                value: getValue(point.Valor),
-            }));
-            if (points.length) {
-                acc.push({ label: displayName(table, item, `Serie ${index + 1}`), points });
-            }
+function getIneSeries(table: TableConfig, filtered: any[]) {
+    if (Array.isArray(filtered) && filtered.some((item) => Array.isArray(item?.Data))) {
+        return filtered.reduce<{ label: string; points: { period: string; value: number }[] }[]>((acc, item, i) => {
+            const name = String(item?.Nombre ?? item?.COD ?? `Serie ${i + 1}`);
+            const label = (table.formatName?.(name) ?? formatSeriesName(name)) || name;
+            const points = [...item.Data].reverse().map((p) => ({ period: getPeriod(p), value: numVal(p.Valor) }));
+            if (points.length) acc.push({ label, points });
             return acc;
         }, []);
     }
-
     return [{
         label: table.title ?? "Valor",
-        points: [...filtered].reverse().map((item) => ({
-            period: getPeriod(item),
-            value: getValue(item.Valor),
-        })),
+        points: [...filtered].reverse().map((item) => ({ period: getPeriod(item), value: numVal(item.Valor) })),
     }];
 }
 
-function getIneLatestPeriod(filtered: any[]) {
-    const isSeriesArray = Array.isArray(filtered) && filtered.some((item) => Array.isArray(item?.Data));
-    return isSeriesArray ? getPeriod(filtered[0]?.Data?.[0]) : getPeriod(filtered[0]);
-}
-
-function hasChartData(table: TableConfig, data: any[]): boolean {
+function IneChart({ table, data, fullWidth, borderRight }: { table: TableConfig; data: any[]; fullWidth?: boolean; borderRight?: boolean }) {
     const filtered = filterData(data, table.filter);
-    if (!filtered.length) return false;
-    const isCategorical = table.type === "pie" || table.type === "donut" || table.type === "column";
-    if (isCategorical) {
-        return getIneCategoricalEntries(table, filtered).length > 0;
-    }
-    const series = getIneLineSeries(table, filtered);
-    return series.length > 0 && series.some((item) => item.points.length > 0);
-}
+    if (!filtered?.length) return null;
+    const isCat = table.type === "pie" || table.type === "donut" || table.type === "column";
+    const latest = Array.isArray(filtered) && Array.isArray(filtered[0]?.Data) ? getPeriod(filtered[0]?.Data?.[0]) : getPeriod(filtered[0]);
 
-function IneCategoricalChart({
-    table,
-    filtered,
-    fullWidth,
-    borderRight,
-}: {
-    table: TableConfig;
-    filtered: any[];
-    fullWidth?: boolean;
-    borderRight?: boolean;
-}) {
-    const entries = getIneCategoricalEntries(table, filtered);
-    if (!entries.length) return null;
-
-    const chartType = table.type === "pie" || table.type === "donut" ? table.type : "column";
-    const latest = getIneLatestPeriod(filtered);
-
-    return (
-        <ChartContainer
-            title={table.title ?? "Indicadores INE"}
-            latest={latest}
-            fullWidth={fullWidth}
-            borderRight={borderRight}
-        >
-            <CategoricalChart type={chartType} entries={entries} fullWidth={fullWidth} />
-        </ChartContainer>
-    );
-}
-
-function IneTimeSeriesChart({
-    table,
-    filtered,
-    fullWidth,
-    borderRight,
-}: {
-    table: TableConfig;
-    filtered: any[];
-    fullWidth?: boolean;
-    borderRight?: boolean;
-}) {
-    const series = getIneLineSeries(table, filtered);
-    if (!series.length || !series.some((item) => item.points.length)) return null;
-
-    const latest = getIneLatestPeriod(filtered);
-
-    return (
-        <ChartContainer
-            title={table.title ?? "Indicadores INE"}
-            latest={latest}
-            fullWidth={fullWidth}
-            borderRight={borderRight}
-        >
-            <LineChart series={series} fullWidth={fullWidth} />
-        </ChartContainer>
-    );
-}
-
-function IneChart({
-    table,
-    data,
-    fullWidth,
-    borderRight,
-}: {
-    table: TableConfig;
-    data: any[];
-    fullWidth?: boolean;
-    borderRight?: boolean;
-}) {
-    const filtered = filterData(data, table.filter);
-    if (!filtered.length) return null;
-
-    const isCategorical = table.type === "pie" || table.type === "donut" || table.type === "column";
-    if (isCategorical) {
+    if (isCat) {
+        const entries = getIneCat(table, filtered);
+        if (!entries.length) return null;
         return (
-            <IneCategoricalChart
-                table={table}
-                filtered={filtered}
-                fullWidth={fullWidth}
-                borderRight={borderRight}
-            />
+            <ChartBox title={table.title ?? "Indicadores INE"} latest={latest} fullWidth={fullWidth} borderRight={borderRight}>
+                {table.type === "pie" || table.type === "donut" ? <PieDonutChart type={table.type} entries={entries} fullWidth={fullWidth} /> : <ColumnChart entries={entries} fullWidth={fullWidth} />}
+            </ChartBox>
         );
     }
 
+    const series = getIneSeries(table, filtered);
+    if (!series.length || !series.some((s) => s.points.length)) return null;
     return (
-        <IneTimeSeriesChart
-            table={table}
-            filtered={filtered}
-            fullWidth={fullWidth}
-            borderRight={borderRight}
-        />
+        <ChartBox title={table.title ?? "Indicadores INE"} latest={latest} fullWidth={fullWidth} borderRight={borderRight}>
+            <LineChart series={series} fullWidth={fullWidth} />
+        </ChartBox>
     );
 }
 
-function hasAlquilerData(vivienda?: any): boolean {
-    if (!vivienda?.alquiler) return false;
-    if (Array.isArray(vivienda.alquiler.serie) && vivienda.alquiler.serie.length > 0) return true;
-    return Boolean(vivienda.alquiler.precio);
-}
-
-function AlquilerChart({
-    vivienda,
-    fullWidth,
-    borderRight,
-}: {
-    vivienda: any;
-    fullWidth?: boolean;
-    borderRight?: boolean;
-}) {
-    if (!hasAlquilerData(vivienda)) return null;
-
-    const serie = vivienda.alquiler.serie;
-    const precio = vivienda.alquiler.precio;
-    const actualizado = vivienda.actualizado;
-
-    const points = Array.isArray(serie) && serie.length > 0
-        ? serie
-            .toSorted((a, b) => Number(a.anio) - Number(b.anio))
-            .map((item) => ({ period: String(item.anio), value: Number(item.precio) }))
-        : [{ period: String(actualizado ?? ""), value: Number(precio) }];
-
-    const series = [{
-        label: vivienda.tipo === "casa" ? "Casas (mediana €/mes)" : vivienda.tipo === "piso" ? "Pisos (mediana €/mes)" : "Alquiler de referencia (€/mes)",
-        points,
-    }];
-
-    const latest = String(actualizado ?? points[points.length - 1]?.period ?? "");
+function AlquilerChart({ vivienda, fullWidth, borderRight }: { vivienda: any; fullWidth?: boolean; borderRight?: boolean }) {
+    if (!vivienda?.alquiler?.precio && !vivienda?.alquiler?.serie?.length) return null;
+    const points = Array.isArray(vivienda.alquiler.serie) && vivienda.alquiler.serie.length
+        ? vivienda.alquiler.serie.toSorted((a: any, b: any) => Number(a.anio) - Number(b.anio)).map((item: any) => ({ period: String(item.anio), value: Number(item.precio) }))
+        : [{ period: String(vivienda.actualizado ?? ""), value: Number(vivienda.alquiler.precio) }];
 
     return (
-        <ChartContainer
-            title="Alquiler de referencia"
-            latest={latest}
-            fullWidth={fullWidth}
-            borderRight={borderRight}
-        >
-            <LineChart series={series} fullWidth={fullWidth} />
-        </ChartContainer>
+        <ChartBox title="Alquiler de referencia" latest={String(vivienda.actualizado ?? points.at(-1)?.period ?? "")} fullWidth={fullWidth} borderRight={borderRight}>
+            <LineChart series={[{ label: vivienda.tipo === "casa" ? "Casas (€/mes)" : "Pisos (€/mes)", points }]} fullWidth={fullWidth} />
+        </ChartBox>
     );
 }
 
 function ReportFooter() {
     return (
         <View style={styles.footer} fixed>
-            <Text style={styles.footerLeft}>mepuedoquedar.es</Text>
-            <Text style={styles.footerCenter} render={({ pageNumber, totalPages }: { pageNumber: number; totalPages: number }) => `${pageNumber} de ${totalPages}`} />
-            <Text style={styles.footerRight}>{formatDate()}</Text>
+            <Text style={[styles.footerText, { textAlign: "left" }]}>mepuedoquedar.es</Text>
+            <Text style={[styles.footerText, { textAlign: "center" }]} render={({ pageNumber, totalPages }: any) => `${pageNumber} de ${totalPages}`} />
+            <Text style={[styles.footerText, { textAlign: "right" }]}>{dateFmt.format(new Date())}</Text>
         </View>
     );
 }
 
-function MunicipioReport({ data, scores, ineData, preferences, isDefault, wikiData }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean; wikiData?: WikipediaData | null }) {
+function getProfilePills(pref: Record<string, any>) {
+    const age = Number(pref.age ?? 35);
+    const label = age < 30 ? "Joven" : age < 45 ? "Adulto/a joven" : age < 60 ? "Adulto/a" : "Mayor";
+    return [
+        `${age} años · ${label}`,
+        pref.hasCar ? "Con coche" : "Sin coche",
+        pref.hasSchoolChildren ? "Con hijos" : "",
+        pref.lookingForWork ? "Busca empleo" : "",
+        pref.remotework ? "Teletrabaja" : "",
+        pref.isRetired ? "Jubilado/a" : "",
+        pref.hasPet ? "Con mascota" : "",
+    ].filter(Boolean);
+}
+
+function MunicipioReport({ data, scores, ineData, preferences, wikiData }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean; wikiData?: WikipediaData | null }) {
     const departments = Object.entries(scores.departments);
+    const visibleTables = ineData ? TABLES.filter((t) => filterData(ineData[getTableKey(t)] ?? [], t.filter).length > 0) : [];
+    const showAlquiler = Boolean(data.mas?.vivienda?.alquiler?.precio || data.mas?.vivienda?.alquiler?.serie?.length);
+
+    const chartItems = [
+        ...visibleTables.map((t) => ({ type: "ine" as const, table: t, data: ineData?.[getTableKey(t)] ?? [] })),
+        ...(showAlquiler ? [{ type: "alquiler" as const, vivienda: data.mas.vivienda }] : []),
+    ];
+
+    const chartRows: (typeof chartItems)[] = [];
+    for (let i = 0; i < chartItems.length; i += 2) {
+        chartRows.push(i === chartItems.length - 1 ? [chartItems[i]] : [chartItems[i], chartItems[i + 1]]);
+    }
 
     return (
         <Document title={`Informe de ${data.municipio}`} author="¿Me puedo quedar?" subject="Análisis territorial del municipio">
@@ -969,44 +359,34 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault, wikiDa
                 <ReportFooter />
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Conoce el lugar</Text>
-                    {wikiData && wikiData.paragraphs && wikiData.paragraphs.length > 0 ? (
+                    {wikiData?.paragraphs?.length ? (
                         <View wrap={false}>
-                            {wikiData.paragraphs.slice(0, 3).map((paragraph) => (
-                                <Text key={paragraph.substring(0, 50)} style={{ ...styles.intro, marginBottom: 8 }}>
-                                    {paragraph}
-                                </Text>
+                            {wikiData.paragraphs.slice(0, 3).map((p) => (
+                                <Text key={p.slice(0, 40)} style={[styles.intro, { marginBottom: 8 }]}>{p}</Text>
                             ))}
                         </View>
                     ) : (
                         <Text style={styles.intro}>
-                            {data.municipio} es un municipio perteneciente a la provincia de {data.provincia} (Castilla y León), con una población censada de {formatNumber(data.poblacion)} habitantes.
+                            {data.municipio} es un municipio de {data.provincia} (Castilla y León), con {formatNumber(data.poblacion)} habitantes censados.
                         </Text>
                     )}
-                    {wikiData && wikiData.images && wikiData.images.length > 0 && (
+                    {wikiData?.images?.length ? (
                         wikiData.images.length === 1 ? (
                             <View style={styles.summaryImageCard} wrap={false}>
-                                <Image src={wikiData.images[0].url} style={styles.summaryImage} />
-                                {wikiData.images[0].description && (
-                                    <Text style={styles.summaryImageCaption}>{wikiData.images[0].description}</Text>
-                                )}
+                                <Image src={wikiData.images[0].url} style={styles.summaryImage} alt="" />
+                                {wikiData.images[0].description && <Text style={styles.summaryImageCaption}>{wikiData.images[0].description}</Text>}
                             </View>
                         ) : (
                             <View style={styles.summaryImagesRow} wrap={false}>
-                                <View style={styles.summaryImageCol}>
-                                    <Image src={wikiData.images[0].url} style={styles.summaryImageHalf} />
-                                    {wikiData.images[0].description && (
-                                        <Text style={styles.summaryImageCaption}>{shorten(wikiData.images[0].description, 50)}</Text>
-                                    )}
-                                </View>
-                                <View style={styles.summaryImageCol}>
-                                    <Image src={wikiData.images[1].url} style={styles.summaryImageHalf} />
-                                    {wikiData.images[1].description && (
-                                        <Text style={styles.summaryImageCaption}>{shorten(wikiData.images[1].description, 50)}</Text>
-                                    )}
-                                </View>
+                                {wikiData.images.slice(0, 2).map((img, i) => (
+                                    <View key={i} style={styles.summaryImageCol}>
+                                        <Image src={img.url} style={styles.summaryImageHalf} alt="" />
+                                        {img.description && <Text style={styles.summaryImageCaption}>{shorten(img.description, 50)}</Text>}
+                                    </View>
+                                ))}
                             </View>
                         )
-                    )}
+                    ) : null}
                 </View>
             </Page>
 
@@ -1026,46 +406,36 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault, wikiDa
                                     <View style={[styles.globalBarFill, { width: `${Math.min(100, Math.max(0, scores.global))}%` }]} />
                                 </View>
                             </View>
-                            <Text style={styles.globalLabel}>{(() => {
-                                if (scores.global >= 80) return "¡Es sin duda tu lugar ideal!";
-                                if (scores.global >= 65) return "Es un lugar muy recomendable";
-                                if (scores.global >= 50) return "Podría ser una buena opción";
-                                if (scores.global >= 35) return "Quizás no sea para ti";
-                                return "No parece tu lugar ideal";
-                            })()}</Text>
+                            <Text style={styles.globalLabel}>{getGlobalLabel(scores.global)}</Text>
                         </View>
                         <View style={styles.profileBox}>
                             <Text style={styles.profileLine}>
                                 <Text style={styles.profilePrefix}>Perfil  ·  </Text>
-                                {getProfilePills(preferences)
-                                    .reduce<string[]>((acc, p) => {
-                                        if (p.active) acc.push(p.label);
-                                        return acc;
-                                    }, [])
-                                    .join("  ·  ")}
+                                {getProfilePills(preferences).join("  ·  ")}
                             </Text>
                         </View>
                     </View>
+
                     <Text style={styles.sectionTitle}>Puntuación por áreas</Text>
-                    {departments.map(([name, department]) => {
-                        const percentage = scorePercentage(department);
+                    {departments.map(([name, dept]) => {
+                        const pct = dept.maxScore ? Math.round((dept.score / dept.maxScore) * 100) : 0;
                         return (
                             <View key={name} style={styles.department} wrap={false}>
                                 <View style={styles.departmentHeader}>
                                     <Text style={styles.departmentName}>{name === "ine" ? "Indicadores INE" : capitalize(name)}</Text>
-                                    <Text style={styles.departmentScore}>{percentage}/100</Text>
+                                    <Text style={styles.departmentScore}>{pct}/100</Text>
                                 </View>
                                 <View style={styles.bar}>
-                                    <View style={{ ...styles.barFill, width: `${percentage}%` }} />
+                                    <View style={[styles.barFill, { width: `${pct}%` }]} />
                                 </View>
-                                {department.noData ? (
+                                {dept.noData ? (
                                     <Text style={styles.note}>Sin registros oficiales suficientes en el término municipal.</Text>
                                 ) : (
-                                    department.indicators.map((indicator) => (
-                                        <View key={indicator.label} style={styles.indicator}>
-                                            <Text style={styles.indicatorLabel}>{indicator.label}</Text>
-                                            <Text style={styles.indicatorValue}>{formatIndicatorValue(indicator)}</Text>
-                                            <Text style={styles.indicatorScore}>+{indicator.score}/{indicator.max}</Text>
+                                    dept.indicators.map((ind) => (
+                                        <View key={ind.label} style={styles.indicator}>
+                                            <Text style={styles.indicatorLabel}>{ind.label}</Text>
+                                            <Text style={styles.indicatorValue}>{formatIndicatorValue(ind)}</Text>
+                                            <Text style={styles.indicatorScore}>+{ind.score}/{ind.max}</Text>
                                         </View>
                                     ))
                                 )}
@@ -1075,173 +445,75 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault, wikiDa
                 </View>
             </Page>
 
-            {(() => {
-                const visibleTables = ineData ? TABLES.filter((table) => hasChartData(table, ineData[getTableKey(table)] ?? [])) : [];
-                const showAlquiler = hasAlquilerData(data.mas?.vivienda);
-
-                type ChartItem =
-                    | { type: "ine"; table: TableConfig; data: any[] }
-                    | { type: "alquiler"; vivienda: any };
-
-                const chartItems: ChartItem[] = [
-                    ...visibleTables.map((table) => ({
-                        type: "ine" as const,
-                        table,
-                        data: ineData?.[getTableKey(table)] ?? [],
-                    })),
-                    ...(showAlquiler ? [{ type: "alquiler" as const, vivienda: data.mas.vivienda }] : []),
-                ];
-
-                if (!chartItems.length) return null;
-
-                const rows: ChartItem[][] = [];
-                for (let i = 0; i < chartItems.length; i += 2) {
-                    if (i === chartItems.length - 1) {
-                        rows.push([chartItems[i]]);
-                    } else {
-                        rows.push([chartItems[i], chartItems[i + 1]]);
-                    }
-                }
-
-                return (
-                    <Page size="A4" style={styles.page}>
-                        <ReportFooter />
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Datos estadísticos</Text>
-                            <Text style={styles.intro}>Series y distribuciones del Instituto Nacional de Estadística y del Ministerio de Vivienda. La leyenda identifica cada serie o categoría y muestra su último valor disponible.</Text>
-                            <View style={styles.chartsContainer}>
-                                {rows.map((row, rowIndex) => {
-                                    const isSingle = row.length === 1;
-                                    return (
-                                        <View
-                                            key={rowIndex}
-                                            style={[
-                                                styles.chartRow,
-                                                rowIndex > 0 ? { marginTop: -1 } : {},
-                                            ]}
-                                            wrap={false}
-                                        >
-                                            {row.map((item, colIndex) => {
-                                                const fullWidth = isSingle;
-                                                const isLeftCol = !isSingle && colIndex === 0;
-
-                                                if (item.type === "ine") {
-                                                    return (
-                                                        <IneChart
-                                                            key={getTableKey(item.table)}
-                                                            table={item.table}
-                                                            data={item.data}
-                                                            fullWidth={fullWidth}
-                                                            borderRight={isLeftCol}
-                                                        />
-                                                    );
-                                                }
-                                                return (
-                                                    <AlquilerChart
-                                                        key="alquiler"
-                                                        vivienda={item.vivienda}
-                                                        fullWidth={fullWidth}
-                                                        borderRight={isLeftCol}
-                                                    />
-                                                );
-                                            })}
-                                        </View>
-                                    );
-                                })}
-                            </View>
+            {chartRows.length > 0 && (
+                <Page size="A4" style={styles.page}>
+                    <ReportFooter />
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Datos estadísticos</Text>
+                        <Text style={styles.intro}>Series y distribuciones oficiales del INE y del Ministerio de Vivienda con su último valor disponible.</Text>
+                        <View style={styles.chartsContainer}>
+                            {chartRows.map((row, rIdx) => (
+                                <View key={rIdx} style={[styles.chartRow, rIdx > 0 ? { marginTop: -1 } : {}]} wrap={false}>
+                                    {row.map((item, cIdx) => (
+                                        item.type === "ine" ? (
+                                            <IneChart key={getTableKey(item.table)} table={item.table} data={item.data} fullWidth={row.length === 1} borderRight={row.length > 1 && cIdx === 0} />
+                                        ) : (
+                                            <AlquilerChart key="alquiler" vivienda={item.vivienda} fullWidth={row.length === 1} borderRight={row.length > 1 && cIdx === 0} />
+                                        )
+                                    ))}
+                                </View>
+                            ))}
                         </View>
-                    </Page>
-                );
-            })()}
+                    </View>
+                </Page>
+            )}
 
             <Page size="A4" style={styles.page}>
                 <ReportFooter />
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Metodología y fuentes</Text>
-                    <Text style={styles.intro}>
-                        ¿Me puedo quedar? evalúa y compara de forma objetiva la calidad de vida y servicios en los 2.248 municipios de Castilla y León, combinando registros públicos oficiales con las prioridades ciudadanas en un índice transparente de 0 a 100%.
-                    </Text>
-
+                    <Text style={styles.intro}>¿Me puedo quedar? evalúa y compara de forma objetiva la calidad de vida y servicios en los 2.248 municipios de Castilla y León en un índice transparente de 0 a 100%.</Text>
                     <Text style={styles.methodologySectionTitle}>1. Sistema de puntuación y normalización</Text>
                     <View style={styles.sourceGrid} wrap={false}>
-                        <View style={styles.sourceItem}>
-                            <View style={styles.sourceCard}>
-                                <Text style={styles.sourceTag}>A. Normalización</Text>
-                                <Text style={styles.sourceTitle}>Escala 0 a 100</Text>
-                                <Text style={styles.sourceDesc}>
-                                    Conversión de cada servicio mediante tres funciones matemáticas:
-                                </Text>
-                                <View style={styles.formulaBox}>
-                                    <Text style={styles.formulaText}>Umbral: V ≥ Mín ? 100 : 0</Text>
-                                    <Text style={styles.formulaText}>Log: min(100, ln(V)/ln(Opt)×100)</Text>
-                                    <Text style={styles.formulaText}>Interp: (V-Min)/(Opt-Min)×100</Text>
+                        {[
+                            { tag: "A. Normalización", title: "Escala 0 a 100", desc: "Conversión de servicios mediante funciones matemáticas:", formulas: ["Umbral: V ≥ Mín ? 100 : 0", "Log: min(100, ln(V)/ln(Opt)×100)", "Interp: (V-Min)/(Opt-Min)×100"] },
+                            { tag: "B. Equidad rural", title: "Factor corrector", desc: "Evita penalizar a pueblos pequeños:", formulas: ["Factor = 0.10 + 0.90 × min(1, Pob/5.000)"], extra: "<100 hab: penaliza 10%. >5.000: 100%." },
+                            { tag: "C. Personalización", title: "Puntuación global", desc: "Media ponderada según prioridades ciudadanas:", formulas: ["Global = [Σ(Score_k × Peso_k × Fac_k)", "         / Σ(Peso_k × Fac_k)] × 100"] },
+                        ].map((card, i) => (
+                            <View key={i} style={styles.sourceItem}>
+                                <View style={styles.sourceCard}>
+                                    <Text style={styles.sourceTag}>{card.tag}</Text>
+                                    <Text style={styles.sourceTitle}>{card.title}</Text>
+                                    <Text style={styles.sourceDesc}>{card.desc}</Text>
+                                    <View style={styles.formulaBox}>
+                                        {card.formulas.map((f, fi) => <Text key={fi} style={styles.formulaText}>{f}</Text>)}
+                                    </View>
+                                    {card.extra && <Text style={[styles.sourceDesc, { marginTop: 3 }]}>{card.extra}</Text>}
                                 </View>
                             </View>
-                        </View>
-                        <View style={styles.sourceItem}>
-                            <View style={styles.sourceCard}>
-                                <Text style={styles.sourceTag}>B. Equidad rural</Text>
-                                <Text style={styles.sourceTitle}>Factor de corrección</Text>
-                                <Text style={styles.sourceDesc}>
-                                    Evita penalizar a pueblos por carecer de servicios de grandes urbes:
-                                </Text>
-                                <View style={styles.formulaBox}>
-                                    <Text style={styles.formulaText}>Factor = 0.10 + 0.90 × min(1, Pob/5.000)</Text>
-                                </View>
-                                <Text style={[styles.sourceDesc, { marginTop: 3 }]}>
-                                    &lt;100 hab: penaliza 10%. &gt;5.000 hab: penaliza 100%.
-                                </Text>
-                            </View>
-                        </View>
-                        <View style={styles.sourceItem}>
-                            <View style={styles.sourceCard}>
-                                <Text style={styles.sourceTag}>C. Personalización</Text>
-                                <Text style={styles.sourceTitle}>Puntuación global</Text>
-                                <Text style={styles.sourceDesc}>
-                                    Media ponderada según prioridades (teletrabajo, transporte, familia):
-                                </Text>
-                                <View style={styles.formulaBox}>
-                                    <Text style={styles.formulaText}>Global = [Σ(Score_k × Peso_k × Fac_k)</Text>
-                                    <Text style={styles.formulaText}>         / Σ(Peso_k × Fac_k)] × 100</Text>
-                                </View>
-                            </View>
-                        </View>
+                        ))}
                     </View>
 
                     <Text style={styles.methodologySectionTitle}>2. Fuentes de información pública</Text>
                     <View style={styles.sourceGrid} wrap={false}>
-                        <View style={styles.sourceItem}>
-                            <View style={styles.sourceCard}>
-                                <Text style={styles.sourceTag}>Junta de Castilla y León</Text>
-                                <Text style={styles.sourceTitle}>Datos Abiertos</Text>
-                                <Text style={styles.sourceDesc}>
-                                    Datos actualizados diariamente sobre centros de salud, colegios, empleo, comercio, seguridad, etc.
-                                </Text>
+                        {[
+                            { tag: "Junta de Castilla y León", title: "Datos Abiertos", desc: "Datos actualizados sobre sanidad, colegios, empleo, comercio, seguridad, etc." },
+                            { tag: "Estadísticas", title: "INE", desc: "Series históricas sobre empresas, ocupación y población mediante API oficial." },
+                            { tag: "Datos extra", title: "Otras fuentes", desc: "Precios de referencia de alquiler (MIVAU) y medios de comunicación locales." },
+                        ].map((source, i) => (
+                            <View key={i} style={styles.sourceItem}>
+                                <View style={styles.sourceCard}>
+                                    <Text style={styles.sourceTag}>{source.tag}</Text>
+                                    <Text style={styles.sourceTitle}>{source.title}</Text>
+                                    <Text style={styles.sourceDesc}>{source.desc}</Text>
+                                </View>
                             </View>
-                        </View>
-                        <View style={styles.sourceItem}>
-                            <View style={styles.sourceCard}>
-                                <Text style={styles.sourceTag}>Estadísticas</Text>
-                                <Text style={styles.sourceTitle}>INE</Text>
-                                <Text style={styles.sourceDesc}>
-                                    Indicadores y series históricas sobre empresas activas, empleo, ocupación, etc., actualizados en tiempo real mediante la API oficial.
-                                </Text>
-                            </View>
-                        </View>
-                        <View style={styles.sourceItem}>
-                            <View style={styles.sourceCard}>
-                                <Text style={styles.sourceTag}>Datos extra</Text>
-                                <Text style={styles.sourceTitle}>Otras fuentes</Text>
-                                <Text style={styles.sourceDesc}>
-                                    Datos como precios de alquiler (Ministerio de Vivienda) o medios de comunicación (Junta de Castilla y León).
-                                </Text>
-                            </View>
-                        </View>
+                        ))}
                     </View>
 
                     <View style={styles.legalBox} wrap={false}>
                         <Text style={styles.legalText}>
-                            ¿Me puedo quedar? (mepuedoquedar.es) es un proyecto de código abierto (github.com/deeivihh/mepuedoquedar.es). Toda la información se recopila de fuentes públicas abiertas amparadas por la Ley 37/2007 sobre reutilización de la información del sector público. Las puntuaciones son modelos cuantitativos orientativos de análisis ciudadano.
+                            ¿Me puedo quedar? (mepuedoquedar.es) es un proyecto de código abierto bajo la Ley 37/2007 de reutilización de información del sector público. Las puntuaciones son modelos cuantitativos orientativos de análisis ciudadano.
                         </Text>
                     </View>
                 </View>
@@ -1250,14 +522,7 @@ function MunicipioReport({ data, scores, ineData, preferences, isDefault, wikiDa
     );
 }
 
-function slugify(value: string) {
-    return value
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
-}
+const slugify = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 export default function DownloadReport({ data, scores, ineData, preferences, isDefault, wikiData }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean; wikiData?: WikipediaData | null }) {
     const [loading, setLoading] = useState(false);
@@ -1281,7 +546,6 @@ export default function DownloadReport({ data, scores, ineData, preferences, isD
 
             const doc = <MunicipioReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} wikiData={wikiData} />;
             const blob = await ReactPDF.pdf(doc).toBlob();
-
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;

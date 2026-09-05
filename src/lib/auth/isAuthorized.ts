@@ -3,69 +3,24 @@ import { createHmac, timingSafeEqual } from "crypto";
 const MAX_CLOCK_SKEW_SECONDS = 300;
 
 function safeCompare(a: string, b: string): boolean {
-    const bufferA = Buffer.from(a);
-    const bufferB = Buffer.from(b);
-
-    if (bufferA.length !== bufferB.length) {
-        return false;
-    }
-
-    return timingSafeEqual(bufferA, bufferB);
-}
-
-function createSignature(timestamp: string, secret: string) {
-    return createHmac("sha256", secret)
-        .update(timestamp)
-        .digest("hex");
+    const bufA = Buffer.from(a);
+    const bufB = Buffer.from(b);
+    return bufA.length === bufB.length && timingSafeEqual(bufA, bufB);
 }
 
 export function isAuthorized(req: Request): boolean {
     const secret = process.env.INT_SYNC_SECRET_KEY;
-
     if (!secret) return false;
 
-    const token = req.headers
-        .get("authorization")
-        ?.replace(/^Bearer\s+/i, "");
+    const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+    const timestamp = req.headers.get("x-sync-timestamp");
+    const signature = req.headers.get("x-sync-signature");
 
-    const timestamp = req.headers.get(
-        "x-sync-timestamp"
-    );
+    if (!token || !timestamp || !signature || !safeCompare(token, secret)) return false;
 
-    const signature = req.headers.get(
-        "x-sync-signature"
-    );
+    const ts = Number(timestamp);
+    if (!Number.isFinite(ts) || Math.abs(Math.floor(Date.now() / 1000) - ts) > MAX_CLOCK_SKEW_SECONDS) return false;
 
-    if (!token || !timestamp || !signature) {
-        return false;
-    }
-
-    if (!safeCompare(token, secret)) {
-        return false;
-    }
-
-    const timestampNumber = Number(timestamp);
-
-    if (!Number.isFinite(timestampNumber)) {
-        return false;
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-
-    if (
-        Math.abs(now - timestampNumber) >
-        MAX_CLOCK_SKEW_SECONDS
-    ) {
-        return false;
-    }
-
-    const expectedSignature = createSignature(
-        timestamp,
-        secret
-    );
-
-    return safeCompare(
-        signature,
-        expectedSignature
-    );
+    const expected = createHmac("sha256", secret).update(timestamp).digest("hex");
+    return safeCompare(signature, expected);
 }
