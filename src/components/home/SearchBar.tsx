@@ -142,7 +142,7 @@ export default function SearchBar() {
         } catch (e: any) {
             if (e.name !== "AbortError") setResults([]);
         } finally {
-            if (abortRef.current === ctrl) setIsLoading(false);
+            setIsLoading(false);
         }
     }, [locationParams]);
 

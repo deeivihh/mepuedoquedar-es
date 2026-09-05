@@ -306,11 +306,12 @@ function AlquilerChart({ vivienda, fullWidth, borderRight }: { vivienda: any; fu
 }
 
 function ReportFooter() {
+    const formattedDate = dateFmt.format(new Date());
     return (
         <View style={styles.footer} fixed>
             <Text style={[styles.footerText, { textAlign: "left" }]}>mepuedoquedar.es</Text>
             <Text style={[styles.footerText, { textAlign: "center" }]} render={({ pageNumber, totalPages }: any) => `${pageNumber} de ${totalPages}`} />
-            <Text style={[styles.footerText, { textAlign: "right" }]}>{dateFmt.format(new Date())}</Text>
+            <Text style={[styles.footerText, { textAlign: "right" }]}>{formattedDate}</Text>
         </View>
     );
 }
@@ -378,8 +379,8 @@ function MunicipioReport({ data, scores, ineData, preferences, wikiData }: { dat
                             </View>
                         ) : (
                             <View style={styles.summaryImagesRow} wrap={false}>
-                                {wikiData.images.slice(0, 2).map((img, i) => (
-                                    <View key={i} style={styles.summaryImageCol}>
+                                {wikiData.images.slice(0, 2).map((img) => (
+                                    <View key={img.url} style={styles.summaryImageCol}>
                                         <Image src={img.url} style={styles.summaryImageHalf} alt="" />
                                         {img.description && <Text style={styles.summaryImageCaption}>{shorten(img.description, 50)}</Text>}
                                     </View>
@@ -479,14 +480,14 @@ function MunicipioReport({ data, scores, ineData, preferences, wikiData }: { dat
                             { tag: "A. Normalización", title: "Escala 0 a 100", desc: "Conversión de servicios mediante funciones matemáticas:", formulas: ["Umbral: V ≥ Mín ? 100 : 0", "Log: min(100, ln(V)/ln(Opt)×100)", "Interp: (V-Min)/(Opt-Min)×100"] },
                             { tag: "B. Equidad rural", title: "Factor corrector", desc: "Evita penalizar a pueblos pequeños:", formulas: ["Factor = 0.10 + 0.90 × min(1, Pob/5.000)"], extra: "<100 hab: penaliza 10%. >5.000: 100%." },
                             { tag: "C. Personalización", title: "Puntuación global", desc: "Media ponderada según prioridades ciudadanas:", formulas: ["Global = [Σ(Score_k × Peso_k × Fac_k)", "         / Σ(Peso_k × Fac_k)] × 100"] },
-                        ].map((card, i) => (
-                            <View key={i} style={styles.sourceItem}>
+                        ].map((card) => (
+                            <View key={card.tag} style={styles.sourceItem}>
                                 <View style={styles.sourceCard}>
                                     <Text style={styles.sourceTag}>{card.tag}</Text>
                                     <Text style={styles.sourceTitle}>{card.title}</Text>
                                     <Text style={styles.sourceDesc}>{card.desc}</Text>
                                     <View style={styles.formulaBox}>
-                                        {card.formulas.map((f, fi) => <Text key={fi} style={styles.formulaText}>{f}</Text>)}
+                                        {card.formulas.map((f) => <Text key={f} style={styles.formulaText}>{f}</Text>)}
                                     </View>
                                     {card.extra && <Text style={[styles.sourceDesc, { marginTop: 3 }]}>{card.extra}</Text>}
                                 </View>
@@ -500,8 +501,8 @@ function MunicipioReport({ data, scores, ineData, preferences, wikiData }: { dat
                             { tag: "Junta de Castilla y León", title: "Datos Abiertos", desc: "Datos actualizados sobre sanidad, colegios, empleo, comercio, seguridad, etc." },
                             { tag: "Estadísticas", title: "INE", desc: "Series históricas sobre empresas, ocupación y población mediante API oficial." },
                             { tag: "Datos extra", title: "Otras fuentes", desc: "Precios de referencia de alquiler (MIVAU) y medios de comunicación locales." },
-                        ].map((source, i) => (
-                            <View key={i} style={styles.sourceItem}>
+                        ].map((source) => (
+                            <View key={source.tag} style={styles.sourceItem}>
                                 <View style={styles.sourceCard}>
                                     <Text style={styles.sourceTag}>{source.tag}</Text>
                                     <Text style={styles.sourceTitle}>{source.title}</Text>

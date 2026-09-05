@@ -449,7 +449,7 @@ export default function GobiernoSection({ data }: { data: any }) {
 
                                 return (
                                     <div
-                                        key={p.siglas || `partido-${i}`}
+                                        key={p.siglas}
                                         onMouseEnter={() => p.siglas && setHoveredParty(p.siglas)}
                                         onMouseLeave={() => setHoveredParty(null)}
                                         className={`p-3 sm:p-3.5 bg-white/40 border border-title/15 transition-all duration-150 flex flex-col justify-center gap-2 hover:bg-white/70 cursor-pointer ${
