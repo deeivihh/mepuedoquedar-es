@@ -8,6 +8,8 @@ import { getGlobalLabel } from "@/lib/scores/calculateScores";
 import { formatIndicatorValue } from "@/lib/scores/departmentPriority";
 import { TABLES, getTableKey, filterData, getPeriod, formatSeriesName, CHART_PALETTE, type TableConfig } from "@/lib/config/tables";
 import type { WikipediaData } from "@/actions/wikipedia";
+import type { EleccionesData, EleccionesPartido } from "@/types";
+import { formatPersonName, getSortedPartidos, computeHemicicloSeats } from "@/lib/elecciones";
 
 let Document: any;
 let Page: any;
@@ -99,6 +101,26 @@ const styles: any = {
     legalBox: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, padding: 8 },
     legalText: { color: colors.muted, fontSize: 6.8, lineHeight: 1.4 },
     note: { color: colors.muted, fontSize: 7.5, lineHeight: 1.45 },
+    gobTopRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
+    gobCard: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, padding: 10, flex: 1 },
+    gobEyebrow: { color: `${colors.green}88`, fontFamily: "Helvetica-Bold", fontSize: 6.5, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 3 },
+    gobTitle: { color: colors.green, fontFamily: "Times-Bold", fontSize: 13, marginBottom: 4 },
+    gobBadgeRow: { flexDirection: "row", flexWrap: "wrap", gap: 4, marginTop: 2, marginBottom: 6 },
+    gobBadge: { backgroundColor: `${colors.green}12`, borderColor: `${colors.green}24`, borderWidth: 0.8, paddingVertical: 2, paddingHorizontal: 5, flexDirection: "row", alignItems: "center", gap: 4 },
+    gobBadgeText: { color: colors.green, fontFamily: "Helvetica-Bold", fontSize: 6.5 },
+    gobPartyDot: { width: 5, height: 5, borderRadius: 2.5 },
+    gobDesc: { color: colors.muted, fontSize: 7.2, lineHeight: 1.35 },
+    gobPartiesContainer: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, padding: 10, marginTop: 4 },
+    gobPartyItem: { marginBottom: 3 },
+    gobPartyRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 2 },
+    gobPartyLeft: { flexDirection: "row", alignItems: "center", gap: 5, flex: 1 },
+    gobPartyName: { color: colors.ink, fontFamily: "Helvetica-Bold", fontSize: 7.8 },
+    gobPartyTag: { backgroundColor: `${colors.green}15`, paddingHorizontal: 3, paddingVertical: 1, fontSize: 5.5, fontFamily: "Helvetica-Bold", color: colors.green },
+    gobPartyRight: { flexDirection: "row", alignItems: "center", gap: 8 },
+    gobPartySeats: { color: colors.green, fontFamily: "Times-Bold", fontSize: 9.5 },
+    gobPartyPct: { color: colors.muted, fontSize: 7, width: 44, textAlign: "right" },
+    gobPartyBarBg: { backgroundColor: `${colors.green}15`, height: 3, width: "100%", marginTop: 2, marginBottom: 3 },
+    gobPartyBarFill: { height: 3 },
 };
 
 const capitalize = (v: string) => v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
@@ -330,7 +352,321 @@ function getProfilePills(pref: Record<string, any>) {
     ].filter(Boolean);
 }
 
+function getDisplayName(nombre?: string | null, leadPartySiglas?: string) {
+    if (nombre) return formatPersonName(nombre);
+    if (leadPartySiglas) return `Pleno municipal (${leadPartySiglas})`;
+    return "Pleno municipal";
+}
+
+function getNarrative(
+    alcaldiaPartido?: string,
+    leadPartySiglas?: string,
+    leadSeats: number = 0,
+    totalSeats: number = 0,
+    isAbsoluteMajority: boolean = false
+) {
+    const seatsInfo = totalSeats > 0 ? `, formación que cuenta con ${leadSeats} de los ${totalSeats} concejales de la corporación local.` : ".";
+    const majorityInfo = isAbsoluteMajority
+        ? "Dispone de mayoría absoluta para la aprobación de iniciativas."
+        : "El pleno requiere acuerdos para la aprobación de presupuestos y ordenanzas.";
+
+    if (alcaldiaPartido) {
+        return `El gobierno municipal está presidido por el ${alcaldiaPartido}${seatsInfo} ${majorityInfo}`;
+    }
+    if (leadPartySiglas) {
+        return `La formación con más representación en el pleno municipal es el ${leadPartySiglas}${seatsInfo} ${majorityInfo}`;
+    }
+    return "Datos oficiales de la corporación municipal actualizados para la legislatura vigente.";
+}
+
+function AlcaldiaCardReport({
+    alcaldia,
+    gobierno,
+    leadPartySiglas,
+    leadPartyColor,
+    leadSeats,
+    totalSeats,
+    isAbsoluteMajority,
+}: {
+    alcaldia?: EleccionesData["alcaldia"];
+    gobierno?: EleccionesData["gobierno"];
+    leadPartySiglas?: string;
+    leadPartyColor: string;
+    leadSeats: number;
+    totalSeats: number;
+    isAbsoluteMajority: boolean;
+}) {
+    const badgeText = gobierno?.etiqueta || (isAbsoluteMajority ? "Mayoría absoluta" : "Sin mayoría absoluta");
+    const sectionEyebrow = alcaldia?.nombre ? "Alcaldía y Gobernabilidad" : "Composición y Gobernabilidad";
+    const displayName = getDisplayName(alcaldia?.nombre, leadPartySiglas);
+    const partyTag = alcaldia?.partido ? alcaldia.partido : (leadPartySiglas ? `${leadPartySiglas} (1ª fuerza)` : "");
+    const narrative = getNarrative(alcaldia?.partido, leadPartySiglas, leadSeats, totalSeats, isAbsoluteMajority);
+
+    return (
+        <View style={styles.gobCard}>
+            <Text style={styles.gobEyebrow}>{sectionEyebrow}</Text>
+            <Text style={styles.gobTitle}>{displayName}</Text>
+            <View style={styles.gobBadgeRow}>
+                {partyTag ? (
+                    <View style={styles.gobBadge}>
+                        <View style={[styles.gobPartyDot, { backgroundColor: leadPartyColor }]} />
+                        <Text style={styles.gobBadgeText}>{partyTag}</Text>
+                    </View>
+                ) : null}
+                <View style={styles.gobBadge}>
+                    <Text style={styles.gobBadgeText}>{badgeText}</Text>
+                </View>
+            </View>
+            <Text style={styles.gobDesc}>{narrative}</Text>
+        </View>
+    );
+}
+
+function HemicicloReport({
+    totalSeats,
+    majorityThreshold,
+    seats,
+}: {
+    totalSeats: number;
+    majorityThreshold: number;
+    seats: { x: number; y: number; party: EleccionesPartido & { color: string }; dotR: number; key: string }[];
+}) {
+    return (
+        <View style={styles.gobCard}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <Text style={styles.gobEyebrow}>Hemiciclo del pleno</Text>
+                <Text style={{ color: colors.muted, fontSize: 6.5 }}>Mayoría en {majorityThreshold} escaños</Text>
+            </View>
+            <Svg width="100%" height={110} viewBox="0 0 320 180">
+                {seats.map((seat) => (
+                    <Circle
+                        key={seat.key}
+                        cx={seat.x}
+                        cy={seat.y}
+                        r={seat.dotR * 1.1}
+                        fill={seat.party.color || colors.green}
+                    />
+                ))}
+                <Text x="160" y="125" textAnchor="middle" fill={colors.green} style={{ fontSize: 28, fontFamily: "Times-Bold" }}>
+                    {totalSeats}
+                </Text>
+                <Text x="160" y="139" textAnchor="middle" fill={`${colors.green}88`} style={{ fontSize: 7, fontFamily: "Helvetica-Bold" }}>
+                    CONCEJALES
+                </Text>
+            </Svg>
+        </View>
+    );
+}
+
+function PartidosListReport({
+    partidos,
+    leadPartySiglas,
+    isAlcaldiaSet,
+    totalSeats,
+}: {
+    partidos: (EleccionesPartido & { color: string })[];
+    leadPartySiglas?: string;
+    isAlcaldiaSet: boolean;
+    totalSeats: number;
+}) {
+    const isGrid = partidos.length >= 5;
+    const half = Math.ceil(partidos.length / 2);
+    const col1 = isGrid ? partidos.slice(0, half) : partidos;
+    const col2 = isGrid ? partidos.slice(half) : [];
+
+    const renderPartyItem = (p: EleccionesPartido & { color: string }) => {
+        const isMayor = Boolean(leadPartySiglas && p.siglas && leadPartySiglas.toUpperCase() === p.siglas.toUpperCase());
+        const concejales = p.concejales ?? 0;
+        const pctVal = typeof p.pct === "number" ? p.pct : (p.pct ? parseFloat(String(p.pct)) : undefined);
+        const hasPct = pctVal !== undefined && !Number.isNaN(pctVal);
+        const pctPleno = totalSeats > 0 ? ((concejales / totalSeats) * 100) : 0;
+        const barWidth = hasPct ? pctVal : pctPleno;
+
+        return (
+            <View key={p.siglas} style={styles.gobPartyItem} wrap={false}>
+                <View style={styles.gobPartyRow}>
+                    <View style={styles.gobPartyLeft}>
+                        <View style={[styles.gobPartyDot, { backgroundColor: p.color || colors.green }]} />
+                        <Text style={styles.gobPartyName}>{p.siglas}</Text>
+                        {isMayor && (
+                            <Text style={styles.gobPartyTag}>{isAlcaldiaSet ? "Alcaldía" : "1ª fuerza"}</Text>
+                        )}
+                    </View>
+                    <View style={styles.gobPartyRight}>
+                        <Text style={styles.gobPartySeats}>
+                            {concejales} {concejales === 1 ? "concejal" : "concejales"}
+                        </Text>
+                        <Text style={styles.gobPartyPct}>
+                            {hasPct ? `${pctVal.toFixed(1)}% votos` : "—"}
+                        </Text>
+                        <Text style={[styles.gobPartyPct, { width: 48 }]}>
+                            {totalSeats > 0 ? `${pctPleno.toFixed(0)}% pleno` : "—"}
+                        </Text>
+                    </View>
+                </View>
+                <View style={styles.gobPartyBarBg}>
+                    <View style={[styles.gobPartyBarFill, { width: `${Math.min(100, Math.max(0, barWidth))}%`, backgroundColor: p.color || colors.green }]} />
+                </View>
+            </View>
+        );
+    };
+
+    return (
+        <View style={styles.gobPartiesContainer} wrap={false}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6, paddingBottom: 4, borderBottomColor: `${colors.green}20`, borderBottomWidth: 0.8 }}>
+                <Text style={styles.gobEyebrow}>Grupos políticos con representación</Text>
+                <Text style={{ color: colors.muted, fontSize: 6.5 }}>{partidos.length} formaciones</Text>
+            </View>
+            {isGrid ? (
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                    <View style={{ flex: 1 }}>{col1.map(renderPartyItem)}</View>
+                    <View style={{ flex: 1 }}>{col2.map(renderPartyItem)}</View>
+                </View>
+            ) : (
+                <View>{partidos.map(renderPartyItem)}</View>
+            )}
+        </View>
+    );
+}
+
+function GobiernoPageReport({ elecciones }: { elecciones: EleccionesData }) {
+    const partidos = getSortedPartidos(elecciones);
+    const totalSeats = (elecciones.concejales_totales && elecciones.concejales_totales > 0)
+        ? elecciones.concejales_totales
+        : (partidos.reduce((acc, p) => acc + (p.concejales || 0), 0) || 0);
+    const majorityThreshold = totalSeats > 0 ? Math.floor(totalSeats / 2) + 1 : 0;
+    const seats = computeHemicicloSeats(totalSeats, partidos);
+
+    const { alcaldia, gobierno, legislatura = "2023-2027" } = elecciones;
+    const leadPartySiglas = alcaldia?.partido || partidos[0]?.siglas;
+    const leadParty = leadPartySiglas
+        ? partidos.find((p) => p.siglas.toUpperCase() === leadPartySiglas.toUpperCase())
+        : partidos[0];
+    const leadPartyColor = leadParty?.color || colors.green;
+    const leadSeats = leadParty?.concejales || 0;
+    const isAbsoluteMajority = gobierno?.mayoria_absoluta ?? (totalSeats > 0 && leadSeats >= majorityThreshold);
+
+    return (
+        <Page size="A4" style={styles.page}>
+            <ReportFooter />
+            <View style={styles.section}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomColor: `${colors.green}44`, borderBottomWidth: 1, marginBottom: 12, paddingBottom: 7 }}>
+                    <Text style={[styles.sectionTitle, { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 }]}>
+                        Equipo de gobierno
+                    </Text>
+                    {legislatura && (
+                        <Text style={{ color: `${colors.green}99`, fontFamily: "Helvetica-Bold", fontSize: 7.5, textTransform: "uppercase" }}>
+                            Mandato {legislatura}
+                        </Text>
+                    )}
+                </View>
+                <Text style={styles.intro}>
+                    Composición de la corporación municipal y gobernabilidad resultante de los comicios locales.
+                </Text>
+
+                <View style={styles.gobTopRow} wrap={false}>
+                    <AlcaldiaCardReport
+                        alcaldia={alcaldia}
+                        gobierno={gobierno}
+                        leadPartySiglas={leadPartySiglas}
+                        leadPartyColor={leadPartyColor}
+                        leadSeats={leadSeats}
+                        totalSeats={totalSeats}
+                        isAbsoluteMajority={isAbsoluteMajority}
+                    />
+                    <HemicicloReport
+                        totalSeats={totalSeats}
+                        majorityThreshold={majorityThreshold}
+                        seats={seats}
+                    />
+                </View>
+
+                {partidos.length > 0 && (
+                    <PartidosListReport
+                        partidos={partidos}
+                        leadPartySiglas={leadPartySiglas}
+                        isAlcaldiaSet={Boolean(alcaldia?.partido)}
+                        totalSeats={totalSeats}
+                    />
+                )}
+
+                <Text style={[styles.note, { marginTop: 10 }]}>
+                    Fuente: Ministerio del Interior (Elecciones Municipales {elecciones.anio || 2023})
+                </Text>
+            </View>
+        </Page>
+    );
+}
+
+function SummaryPageReport({ data, wikiData }: { data: MunicipioData; wikiData?: WikipediaData | null }) {
+    const hasWikiText = Boolean(wikiData?.paragraphs?.length);
+    const images = wikiData?.images || [];
+
+    return (
+        <Page size="A4" style={styles.page}>
+            <ReportFooter />
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Conoce el lugar</Text>
+                {hasWikiText ? (
+                    <View wrap={false}>
+                        {wikiData!.paragraphs!.slice(0, 3).map((p) => (
+                            <Text key={p.slice(0, 40)} style={[styles.intro, { marginBottom: 8 }]}>{p}</Text>
+                        ))}
+                    </View>
+                ) : (
+                    <Text style={styles.intro}>
+                        {data.municipio} es un municipio de {data.provincia} (Castilla y León), con {formatNumber(data.poblacion)} habitantes censados.
+                    </Text>
+                )}
+                {images.length === 1 && (
+                    <View style={styles.summaryImageCard} wrap={false}>
+                        <Image src={images[0].url} style={styles.summaryImage} alt="" />
+                        {images[0].description && <Text style={styles.summaryImageCaption}>{images[0].description}</Text>}
+                    </View>
+                )}
+                {images.length > 1 && (
+                    <View style={styles.summaryImagesRow} wrap={false}>
+                        {images.slice(0, 2).map((img) => (
+                            <View key={img.url} style={styles.summaryImageCol}>
+                                <Image src={img.url} style={styles.summaryImageHalf} alt="" />
+                                {img.description && <Text style={styles.summaryImageCaption}>{shorten(img.description, 50)}</Text>}
+                            </View>
+                        ))}
+                    </View>
+                )}
+            </View>
+        </Page>
+    );
+}
+
+function ChartsPageReport({ chartRows }: { chartRows: any[][] }) {
+    return (
+        <Page size="A4" style={styles.page}>
+            <ReportFooter />
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Datos estadísticos</Text>
+                <Text style={styles.intro}>Series y distribuciones oficiales del INE y del Ministerio de Vivienda con su último valor disponible.</Text>
+                <View style={styles.chartsContainer}>
+                    {chartRows.map((row, rIdx) => (
+                        <View key={rIdx} style={[styles.chartRow, rIdx > 0 ? { marginTop: -1 } : {}]} wrap={false}>
+                            {row.map((item, cIdx) => (
+                                item.type === "ine" ? (
+                                    <IneChart key={getTableKey(item.table)} table={item.table} data={item.data} fullWidth={row.length === 1} borderRight={row.length > 1 && cIdx === 0} />
+                                ) : (
+                                    <AlquilerChart key="alquiler" vivienda={item.vivienda} fullWidth={row.length === 1} borderRight={row.length > 1 && cIdx === 0} />
+                                )
+                            ))}
+                        </View>
+                    ))}
+                </View>
+            </View>
+        </Page>
+    );
+}
+
 function MunicipioReport({ data, scores, ineData, preferences, wikiData }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean; wikiData?: WikipediaData | null }) {
+    const elecciones: EleccionesData | undefined = data.mas?.elecciones;
+    const hasElecciones = Boolean(elecciones && (elecciones.alcaldia || (elecciones.partidos && elecciones.partidos.length > 0)));
     const departments = Object.entries(scores.departments);
     const visibleTables = ineData ? TABLES.filter((t) => filterData(ineData[getTableKey(t)] ?? [], t.filter).length > 0) : [];
     const showAlquiler = Boolean(data.mas?.vivienda?.alquiler?.precio || data.mas?.vivienda?.alquiler?.serie?.length);
@@ -356,40 +692,7 @@ function MunicipioReport({ data, scores, ineData, preferences, wikiData }: { dat
                 </ImageBackground>
             </Page>
 
-            <Page size="A4" style={styles.page}>
-                <ReportFooter />
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Conoce el lugar</Text>
-                    {wikiData?.paragraphs?.length ? (
-                        <View wrap={false}>
-                            {wikiData.paragraphs.slice(0, 3).map((p) => (
-                                <Text key={p.slice(0, 40)} style={[styles.intro, { marginBottom: 8 }]}>{p}</Text>
-                            ))}
-                        </View>
-                    ) : (
-                        <Text style={styles.intro}>
-                            {data.municipio} es un municipio de {data.provincia} (Castilla y León), con {formatNumber(data.poblacion)} habitantes censados.
-                        </Text>
-                    )}
-                    {wikiData?.images?.length ? (
-                        wikiData.images.length === 1 ? (
-                            <View style={styles.summaryImageCard} wrap={false}>
-                                <Image src={wikiData.images[0].url} style={styles.summaryImage} alt="" />
-                                {wikiData.images[0].description && <Text style={styles.summaryImageCaption}>{wikiData.images[0].description}</Text>}
-                            </View>
-                        ) : (
-                            <View style={styles.summaryImagesRow} wrap={false}>
-                                {wikiData.images.slice(0, 2).map((img) => (
-                                    <View key={img.url} style={styles.summaryImageCol}>
-                                        <Image src={img.url} style={styles.summaryImageHalf} alt="" />
-                                        {img.description && <Text style={styles.summaryImageCaption}>{shorten(img.description, 50)}</Text>}
-                                    </View>
-                                ))}
-                            </View>
-                        )
-                    ) : null}
-                </View>
-            </Page>
+            <SummaryPageReport data={data} wikiData={wikiData} />
 
             <Page size="A4" style={styles.page}>
                 <ReportFooter />
@@ -446,28 +749,9 @@ function MunicipioReport({ data, scores, ineData, preferences, wikiData }: { dat
                 </View>
             </Page>
 
-            {chartRows.length > 0 && (
-                <Page size="A4" style={styles.page}>
-                    <ReportFooter />
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Datos estadísticos</Text>
-                        <Text style={styles.intro}>Series y distribuciones oficiales del INE y del Ministerio de Vivienda con su último valor disponible.</Text>
-                        <View style={styles.chartsContainer}>
-                            {chartRows.map((row, rIdx) => (
-                                <View key={rIdx} style={[styles.chartRow, rIdx > 0 ? { marginTop: -1 } : {}]} wrap={false}>
-                                    {row.map((item, cIdx) => (
-                                        item.type === "ine" ? (
-                                            <IneChart key={getTableKey(item.table)} table={item.table} data={item.data} fullWidth={row.length === 1} borderRight={row.length > 1 && cIdx === 0} />
-                                        ) : (
-                                            <AlquilerChart key="alquiler" vivienda={item.vivienda} fullWidth={row.length === 1} borderRight={row.length > 1 && cIdx === 0} />
-                                        )
-                                    ))}
-                                </View>
-                            ))}
-                        </View>
-                    </View>
-                </Page>
-            )}
+            {chartRows.length > 0 && <ChartsPageReport chartRows={chartRows} />}
+
+            {hasElecciones && <GobiernoPageReport elecciones={elecciones!} />}
 
             <Page size="A4" style={styles.page}>
                 <ReportFooter />
