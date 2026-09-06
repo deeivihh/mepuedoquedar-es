@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { EleccionesData, EleccionesPartido } from "@/types";
 import { MdAccountBalance, MdCheckCircleOutline } from "react-icons/md";
 
-import { formatPersonName, getSortedPartidos, computeHemicicloSeats } from "@/lib/elecciones";
+import { getEleccionesSummary } from "@/lib/elecciones";
 
 function Hemiciclo({
     majorityThreshold,
@@ -98,85 +98,20 @@ function Hemiciclo({
     );
 }
 
-function GobernabilidadDescription({
-    alcaldiaPartido,
-    leadPartySiglas,
-    leadSeats,
-    totalSeats,
-    isAbsoluteMajority,
-}: {
-    alcaldiaPartido?: string;
-    leadPartySiglas?: string;
-    leadSeats: number;
-    totalSeats: number;
-    isAbsoluteMajority: boolean;
-}) {
-    if (alcaldiaPartido) {
-        return (
-            <p className="text-xs sm:text-sm leading-relaxed text-title/75">
-                El gobierno municipal está presidido por el{" "}
-                <span className="font-semibold">{alcaldiaPartido}</span>
-                {totalSeats > 0 && (
-                    <>, formación que cuenta con{" "}
-                        <span className="font-semibold">{leadSeats} de los {totalSeats}</span> concejales de la corporación local.
-                    </>
-                )}{" "}
-                {isAbsoluteMajority
-                    ? "Dispone de mayoría absoluta para la aprobación de iniciativas."
-                    : "El pleno requiere acuerdos para la aprobación de presupuestos y ordenanzas."}
-            </p>
-        );
-    }
-
-    if (leadPartySiglas) {
-        return (
-            <p className="text-xs sm:text-sm leading-relaxed text-title/75">
-                La formación con más representación en el pleno municipal es el{" "}
-                <span className="font-semibold">{leadPartySiglas}</span>
-                {totalSeats > 0 && (
-                    <>, que cuenta con{" "}
-                        <span className="font-semibold">{leadSeats} de los {totalSeats}</span> concejales de la corporación local.
-                    </>
-                )}{" "}
-                {isAbsoluteMajority
-                    ? "Dispone de mayoría absoluta suficiente para la gobernabilidad."
-                    : "El pleno municipal requiere acuerdos para alcanzar mayorías en votaciones e investidura."}
-            </p>
-        );
-    }
-
-    return (
-        <p className="text-xs sm:text-sm leading-relaxed text-title/75">
-            Datos oficiales de la corporación municipal actualizados para la legislatura vigente.
-        </p>
-    );
-}
-
 function GobernabilidadCard({
-    alcaldia,
-    gobierno,
-    leadPartySiglas,
+    displayName,
+    partyTag,
     leadPartyColor,
-    leadSeats,
-    totalSeats,
-    isAbsoluteMajority,
+    badgeText,
+    narrative,
 }: {
-    alcaldia?: EleccionesData["alcaldia"];
-    gobierno?: EleccionesData["gobierno"];
-    leadPartySiglas?: string;
+    displayName: string;
+    partyTag: string;
     leadPartyColor: string;
-    leadSeats: number;
-    totalSeats: number;
-    isAbsoluteMajority: boolean;
+    badgeText: string;
+    narrative: string;
 }) {
-    const badgeText = gobierno?.etiqueta || (isAbsoluteMajority ? "Mayoría absoluta" : "Sin mayoría absoluta");
-    const sectionTitle = alcaldia?.nombre ? "Alcaldía y Gobernabilidad" : "Composición y Gobernabilidad";
-    const displayName = alcaldia?.nombre
-        ? formatPersonName(alcaldia.nombre)
-        : leadPartySiglas
-            ? `Pleno municipal (${leadPartySiglas})`
-            : "Pleno municipal";
-    const partyTag = alcaldia?.partido ? alcaldia.partido : `${leadPartySiglas} (1ª fuerza)`;
+    const sectionTitle = displayName.startsWith("Pleno") ? "Composición y Gobernabilidad" : "Alcaldía y Gobernabilidad";
 
     return (
         <div className="p-6 sm:p-8 flex flex-col justify-between gap-5 flex-1 bg-white/10">
@@ -191,7 +126,7 @@ function GobernabilidadCard({
                     {displayName}
                 </h3>
                 <div className="flex flex-wrap items-center gap-2.5 pt-0.5">
-                    {leadPartySiglas && (
+                    {partyTag && (
                         <span className="inline-flex items-center gap-2 px-2.5 py-0.5 text-xs font-semibold tracking-wider text-title bg-white/70 border border-title/20">
                             <span
                                 className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -207,13 +142,9 @@ function GobernabilidadCard({
                 </div>
             </div>
 
-            <GobernabilidadDescription
-                alcaldiaPartido={alcaldia?.partido}
-                leadPartySiglas={leadPartySiglas}
-                leadSeats={leadSeats}
-                totalSeats={totalSeats}
-                isAbsoluteMajority={isAbsoluteMajority}
-            />
+            <p className="text-xs sm:text-sm leading-relaxed text-title/75">
+                {narrative}
+            </p>
         </div>
     );
 }
@@ -222,15 +153,11 @@ function GruposPoliticosList({
     partidos,
     hoveredParty,
     onHoverParty,
-    leadPartySiglas,
-    isAlcaldiaSet,
     totalSeats,
 }: {
     partidos: (EleccionesPartido & { color: string })[];
     hoveredParty: string | null;
     onHoverParty: (siglas: string | null) => void;
-    leadPartySiglas?: string;
-    isAlcaldiaSet: boolean;
     totalSeats: number;
 }) {
     const isGrid = partidos.length >= 5;
@@ -241,7 +168,6 @@ function GruposPoliticosList({
                 {partidos.map((p, i) => {
                     const isHovered = Boolean(p.siglas && hoveredParty === p.siglas);
                     const isFaded = hoveredParty !== null && !isHovered;
-                    const isMayor = Boolean(leadPartySiglas && p.siglas && leadPartySiglas.toUpperCase() === p.siglas.toUpperCase());
                     const isOddLast = isGrid && partidos.length % 2 === 1 && i === partidos.length - 1;
                     const concejales = p.concejales ?? 0;
                     const pctVal = typeof p.pct === "number" ? p.pct : (p.pct ? parseFloat(p.pct) : undefined);
@@ -306,40 +232,16 @@ export default function GobiernoSection({ data }: { data: any }) {
     const elecciones: EleccionesData | undefined = data?.mas?.elecciones;
     const [hoveredParty, setHoveredParty] = useState<string | null>(null);
 
-    const partidos = useMemo(() => getSortedPartidos(elecciones), [elecciones]);
-
-    const totalSeats = useMemo(() => {
-        if (elecciones?.concejales_totales && elecciones.concejales_totales > 0) {
-            return elecciones.concejales_totales;
-        }
-        return partidos.reduce((acc, p) => acc + (p.concejales || 0), 0) || 0;
-    }, [elecciones, partidos]);
-
-    const majorityThreshold = useMemo(() => {
-        if (!totalSeats) return 0;
-        return Math.floor(totalSeats / 2) + 1;
-    }, [totalSeats]);
+    const summary = useMemo(() => getEleccionesSummary(elecciones), [elecciones]);
 
     const hoveredPartyData = useMemo(() => {
-        if (!hoveredParty) return null;
-        return partidos.find((p) => p.siglas === hoveredParty) || null;
-    }, [hoveredParty, partidos]);
+        if (!hoveredParty || !summary?.partidos) return null;
+        return summary.partidos.find((p) => p.siglas === hoveredParty) || null;
+    }, [hoveredParty, summary]);
 
-    const seats = useMemo(() => computeHemicicloSeats(totalSeats, partidos), [totalSeats, partidos]);
-
-    if (!elecciones || (!elecciones.alcaldia && partidos.length === 0)) {
+    if (!summary) {
         return null;
     }
-
-    const { alcaldia, gobierno, legislatura = "2023-2027" } = elecciones;
-
-    const leadPartySiglas = alcaldia?.partido || partidos[0]?.siglas;
-    const leadParty = leadPartySiglas
-        ? partidos.find((p) => p.siglas.toUpperCase() === leadPartySiglas.toUpperCase())
-        : partidos[0];
-    const leadPartyColor = leadParty?.color || "#1F3A2E";
-    const leadSeats = leadParty?.concejales || 0;
-    const isAbsoluteMajority = gobierno?.mayoria_absoluta ?? (totalSeats > 0 && leadSeats >= majorityThreshold);
 
     return (
         <section className="py-14 sm:py-12 relative">
@@ -347,9 +249,9 @@ export default function GobiernoSection({ data }: { data: any }) {
                 <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">
                     Equipo de gobierno
                 </h2>
-                {legislatura && (
+                {summary.legislatura && (
                     <span className="pl-0.5 text-xs font-mono uppercase tracking-widest text-title/60">
-                        Mandato {legislatura}
+                        Mandato {summary.legislatura}
                     </span>
                 )}
             </div>
@@ -358,32 +260,28 @@ export default function GobiernoSection({ data }: { data: any }) {
                 <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-title/15 items-stretch">
                     <div className="lg:col-span-6 flex flex-col divide-y divide-title/15">
                         <Hemiciclo
-                            majorityThreshold={majorityThreshold}
-                            totalSeats={totalSeats}
-                            seats={seats}
+                            majorityThreshold={summary.majorityThreshold}
+                            totalSeats={summary.totalSeats}
+                            seats={summary.seats}
                             hoveredParty={hoveredParty}
                             hoveredPartyData={hoveredPartyData}
                             onHoverParty={setHoveredParty}
                         />
 
                         <GobernabilidadCard
-                            alcaldia={alcaldia}
-                            gobierno={gobierno}
-                            leadPartySiglas={leadPartySiglas}
-                            leadPartyColor={leadPartyColor}
-                            leadSeats={leadSeats}
-                            totalSeats={totalSeats}
-                            isAbsoluteMajority={isAbsoluteMajority}
+                            displayName={summary.displayName}
+                            partyTag={summary.partyTag}
+                            leadPartyColor={summary.leadPartyColor}
+                            badgeText={summary.badgeText}
+                            narrative={summary.narrative}
                         />
                     </div>
 
                     <GruposPoliticosList
-                        partidos={partidos}
+                        partidos={summary.partidos}
                         hoveredParty={hoveredParty}
                         onHoverParty={setHoveredParty}
-                        leadPartySiglas={leadPartySiglas}
-                        isAlcaldiaSet={Boolean(alcaldia?.partido)}
-                        totalSeats={totalSeats}
+                        totalSeats={summary.totalSeats}
                     />
                 </div>
             </div>

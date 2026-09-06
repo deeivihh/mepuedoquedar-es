@@ -9,7 +9,7 @@ import { formatIndicatorValue } from "@/lib/scores/departmentPriority";
 import { TABLES, getTableKey, filterData, getPeriod, formatSeriesName, CHART_PALETTE, type TableConfig } from "@/lib/config/tables";
 import type { WikipediaData } from "@/actions/wikipedia";
 import type { EleccionesData, EleccionesPartido } from "@/types";
-import { formatPersonName, getSortedPartidos, computeHemicicloSeats } from "@/lib/elecciones";
+import { getEleccionesSummary } from "@/lib/elecciones";
 
 let Document: any;
 let Page: any;
@@ -101,26 +101,33 @@ const styles: any = {
     legalBox: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, padding: 8 },
     legalText: { color: colors.muted, fontSize: 6.8, lineHeight: 1.4 },
     note: { color: colors.muted, fontSize: 7.5, lineHeight: 1.45 },
-    gobTopRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
-    gobCard: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, padding: 10, flex: 1 },
-    gobEyebrow: { color: `${colors.green}88`, fontFamily: "Helvetica-Bold", fontSize: 6.5, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 3 },
-    gobTitle: { color: colors.green, fontFamily: "Times-Bold", fontSize: 13, marginBottom: 4 },
-    gobBadgeRow: { flexDirection: "row", flexWrap: "wrap", gap: 4, marginTop: 2, marginBottom: 6 },
-    gobBadge: { backgroundColor: `${colors.green}12`, borderColor: `${colors.green}24`, borderWidth: 0.8, paddingVertical: 2, paddingHorizontal: 5, flexDirection: "row", alignItems: "center", gap: 4 },
-    gobBadgeText: { color: colors.green, fontFamily: "Helvetica-Bold", fontSize: 6.5 },
-    gobPartyDot: { width: 5, height: 5, borderRadius: 2.5 },
-    gobDesc: { color: colors.muted, fontSize: 7.2, lineHeight: 1.35 },
-    gobPartiesContainer: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, padding: 10, marginTop: 4 },
-    gobPartyItem: { marginBottom: 3 },
-    gobPartyRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 2 },
-    gobPartyLeft: { flexDirection: "row", alignItems: "center", gap: 5, flex: 1 },
-    gobPartyName: { color: colors.ink, fontFamily: "Helvetica-Bold", fontSize: 7.8 },
-    gobPartyTag: { backgroundColor: `${colors.green}15`, paddingHorizontal: 3, paddingVertical: 1, fontSize: 5.5, fontFamily: "Helvetica-Bold", color: colors.green },
-    gobPartyRight: { flexDirection: "row", alignItems: "center", gap: 8 },
-    gobPartySeats: { color: colors.green, fontFamily: "Times-Bold", fontSize: 9.5 },
-    gobPartyPct: { color: colors.muted, fontSize: 7, width: 44, textAlign: "right" },
-    gobPartyBarBg: { backgroundColor: `${colors.green}15`, height: 3, width: "100%", marginTop: 2, marginBottom: 3 },
-    gobPartyBarFill: { height: 3 },
+    gobContainer: { backgroundColor: colors.card, borderColor: `${colors.green}33`, borderWidth: 1, flexDirection: "row", alignItems: "stretch", marginBottom: 8 },
+    gobLeftCol: { flex: 1, borderRightColor: `${colors.green}22`, borderRightWidth: 1 },
+    gobHemicicloBox: { backgroundColor: "#FFFFFF33", borderBottomColor: `${colors.green}22`, borderBottomWidth: 1, paddingTop: 8, paddingBottom: 6, paddingHorizontal: 10, alignItems: "center" },
+    gobHemicicloMajority: { color: `${colors.green}99`, fontSize: 6.5, fontFamily: "Courier", marginTop: 2, textAlign: "center" },
+    gobAlcaldiaCard: { backgroundColor: "#FFFFFF1A", padding: 10 },
+    gobEyebrow: { color: `${colors.green}99`, fontFamily: "Helvetica-Bold", fontSize: 6.5, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 3 },
+    gobTitle: { color: colors.green, fontFamily: "Times-Bold", fontSize: 14, marginBottom: 5 },
+    gobBadgeRow: { flexDirection: "row", flexWrap: "wrap", marginBottom: 6 },
+    gobPartyBadge: { backgroundColor: "#FFFFFFB3", borderColor: `${colors.green}33`, borderWidth: 0.8, flexDirection: "row", alignItems: "center", paddingVertical: 2, paddingHorizontal: 5, marginRight: 5, marginBottom: 3 },
+    gobPartyBadgeText: { color: colors.green, fontFamily: "Helvetica-Bold", fontSize: 6.8 },
+    gobMajorityBadge: { backgroundColor: colors.card, borderColor: `${colors.green}33`, borderWidth: 0.8, paddingVertical: 2, paddingHorizontal: 5, marginRight: 5, marginBottom: 3 },
+    gobMajorityBadgeText: { color: colors.green, fontFamily: "Helvetica-Bold", fontSize: 6.5, textTransform: "uppercase" },
+    gobPartyDot: { width: 5, height: 5, borderRadius: 2.5, marginRight: 4 },
+    gobDesc: { color: `${colors.green}CC`, fontSize: 7.2, lineHeight: 1.35 },
+    gobRightCol: { flex: 1, padding: 8 },
+    gobPartiesList: { flex: 1 },
+    gobPartyCard: { backgroundColor: "#FFFFFF66", borderColor: `${colors.green}26`, borderWidth: 0.8, padding: 5, marginBottom: 4 },
+    gobPartyHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 2 },
+    gobPartyNameBox: { flexDirection: "row", alignItems: "center" },
+    gobPartyTitle: { color: colors.green, fontFamily: "Helvetica-Bold", fontSize: 8 },
+    gobPartySeatsBox: { flexDirection: "row", alignItems: "baseline" },
+    gobPartySeatsCount: { color: colors.green, fontFamily: "Times-Bold", fontSize: 10.5 },
+    gobPartySeatsLabel: { color: `${colors.green}99`, fontSize: 6, marginLeft: 3 },
+    gobPartyMetrics: { flexDirection: "row", justifyContent: "space-between", marginBottom: 2 },
+    gobPartyMetricText: { color: `${colors.green}99`, fontFamily: "Courier", fontSize: 6 },
+    gobPartyBarTrack: { backgroundColor: `${colors.green}18`, height: 2.5, width: "100%" },
+    gobPartyBarProgress: { height: 2.5 },
 };
 
 const capitalize = (v: string) => v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
@@ -352,69 +359,34 @@ function getProfilePills(pref: Record<string, any>) {
     ].filter(Boolean);
 }
 
-function getDisplayName(nombre?: string | null, leadPartySiglas?: string) {
-    if (nombre) return formatPersonName(nombre);
-    if (leadPartySiglas) return `Pleno municipal (${leadPartySiglas})`;
-    return "Pleno municipal";
-}
-
-function getNarrative(
-    alcaldiaPartido?: string,
-    leadPartySiglas?: string,
-    leadSeats: number = 0,
-    totalSeats: number = 0,
-    isAbsoluteMajority: boolean = false
-) {
-    const seatsInfo = totalSeats > 0 ? `, formación que cuenta con ${leadSeats} de los ${totalSeats} concejales de la corporación local.` : ".";
-    const majorityInfo = isAbsoluteMajority
-        ? "Dispone de mayoría absoluta para la aprobación de iniciativas."
-        : "El pleno requiere acuerdos para la aprobación de presupuestos y ordenanzas.";
-
-    if (alcaldiaPartido) {
-        return `El gobierno municipal está presidido por el ${alcaldiaPartido}${seatsInfo} ${majorityInfo}`;
-    }
-    if (leadPartySiglas) {
-        return `La formación con más representación en el pleno municipal es el ${leadPartySiglas}${seatsInfo} ${majorityInfo}`;
-    }
-    return "Datos oficiales de la corporación municipal actualizados para la legislatura vigente.";
-}
-
 function AlcaldiaCardReport({
-    alcaldia,
-    gobierno,
-    leadPartySiglas,
+    eyebrow,
+    displayName,
+    partyTag,
     leadPartyColor,
-    leadSeats,
-    totalSeats,
-    isAbsoluteMajority,
+    badgeText,
+    narrative,
 }: {
-    alcaldia?: EleccionesData["alcaldia"];
-    gobierno?: EleccionesData["gobierno"];
-    leadPartySiglas?: string;
+    eyebrow: string;
+    displayName: string;
+    partyTag: string;
     leadPartyColor: string;
-    leadSeats: number;
-    totalSeats: number;
-    isAbsoluteMajority: boolean;
+    badgeText: string;
+    narrative: string;
 }) {
-    const badgeText = gobierno?.etiqueta || (isAbsoluteMajority ? "Mayoría absoluta" : "Sin mayoría absoluta");
-    const sectionEyebrow = alcaldia?.nombre ? "Alcaldía y Gobernabilidad" : "Composición y Gobernabilidad";
-    const displayName = getDisplayName(alcaldia?.nombre, leadPartySiglas);
-    const partyTag = alcaldia?.partido ? alcaldia.partido : (leadPartySiglas ? `${leadPartySiglas} (1ª fuerza)` : "");
-    const narrative = getNarrative(alcaldia?.partido, leadPartySiglas, leadSeats, totalSeats, isAbsoluteMajority);
-
     return (
-        <View style={styles.gobCard}>
-            <Text style={styles.gobEyebrow}>{sectionEyebrow}</Text>
+        <View style={styles.gobAlcaldiaCard}>
+            <Text style={styles.gobEyebrow}>{eyebrow}</Text>
             <Text style={styles.gobTitle}>{displayName}</Text>
             <View style={styles.gobBadgeRow}>
                 {partyTag ? (
-                    <View style={styles.gobBadge}>
+                    <View style={styles.gobPartyBadge}>
                         <View style={[styles.gobPartyDot, { backgroundColor: leadPartyColor }]} />
-                        <Text style={styles.gobBadgeText}>{partyTag}</Text>
+                        <Text style={styles.gobPartyBadgeText}>{partyTag}</Text>
                     </View>
                 ) : null}
-                <View style={styles.gobBadge}>
-                    <Text style={styles.gobBadgeText}>{badgeText}</Text>
+                <View style={styles.gobMajorityBadge}>
+                    <Text style={styles.gobMajorityBadgeText}>{badgeText}</Text>
                 </View>
             </View>
             <Text style={styles.gobDesc}>{narrative}</Text>
@@ -432,50 +404,44 @@ function HemicicloReport({
     seats: { x: number; y: number; party: EleccionesPartido & { color: string }; dotR: number; key: string }[];
 }) {
     return (
-        <View style={styles.gobCard}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <Text style={styles.gobEyebrow}>Hemiciclo del pleno</Text>
-                <Text style={{ color: colors.muted, fontSize: 6.5 }}>Mayoría en {majorityThreshold} escaños</Text>
-            </View>
-            <Svg width="100%" height={110} viewBox="0 0 320 180">
+        <View style={styles.gobHemicicloBox}>
+            <Svg width="100%" height={105} viewBox="0 0 320 180">
                 {seats.map((seat) => (
                     <Circle
                         key={seat.key}
                         cx={seat.x}
                         cy={seat.y}
-                        r={seat.dotR * 1.1}
+                        r={seat.dotR * 1.15}
                         fill={seat.party.color || colors.green}
                     />
                 ))}
-                <Text x="160" y="125" textAnchor="middle" fill={colors.green} style={{ fontSize: 28, fontFamily: "Times-Bold" }}>
+                <Text x="160" y="125" textAnchor="middle" fill={colors.green} style={{ fontSize: 24, fontFamily: "Times-Bold" }}>
                     {totalSeats}
                 </Text>
-                <Text x="160" y="139" textAnchor="middle" fill={`${colors.green}88`} style={{ fontSize: 7, fontFamily: "Helvetica-Bold" }}>
+                <Text x="160" y="139" textAnchor="middle" fill={`${colors.green}88`} style={{ fontSize: 6.5, fontFamily: "Helvetica-Bold", letterSpacing: 1.2 }}>
                     CONCEJALES
                 </Text>
             </Svg>
+            <Text style={styles.gobHemicicloMajority}>
+                Mayoría en {majorityThreshold} escaños
+            </Text>
         </View>
     );
 }
 
 function PartidosListReport({
     partidos,
-    leadPartySiglas,
-    isAlcaldiaSet,
     totalSeats,
 }: {
     partidos: (EleccionesPartido & { color: string })[];
-    leadPartySiglas?: string;
-    isAlcaldiaSet: boolean;
     totalSeats: number;
 }) {
-    const isGrid = partidos.length >= 5;
+    const isGrid = partidos.length >= 6;
     const half = Math.ceil(partidos.length / 2);
     const col1 = isGrid ? partidos.slice(0, half) : partidos;
     const col2 = isGrid ? partidos.slice(half) : [];
 
     const renderPartyItem = (p: EleccionesPartido & { color: string }) => {
-        const isMayor = Boolean(leadPartySiglas && p.siglas && leadPartySiglas.toUpperCase() === p.siglas.toUpperCase());
         const concejales = p.concejales ?? 0;
         const pctVal = typeof p.pct === "number" ? p.pct : (p.pct ? parseFloat(String(p.pct)) : undefined);
         const hasPct = pctVal !== undefined && !Number.isNaN(pctVal);
@@ -483,43 +449,49 @@ function PartidosListReport({
         const barWidth = hasPct ? pctVal : pctPleno;
 
         return (
-            <View key={p.siglas} style={styles.gobPartyItem} wrap={false}>
-                <View style={styles.gobPartyRow}>
-                    <View style={styles.gobPartyLeft}>
+            <View key={p.siglas} style={styles.gobPartyCard} wrap={false}>
+                <View style={styles.gobPartyHeader}>
+                    <View style={styles.gobPartyNameBox}>
                         <View style={[styles.gobPartyDot, { backgroundColor: p.color || colors.green }]} />
-                        <Text style={styles.gobPartyName}>{p.siglas}</Text>
-                        {isMayor && (
-                            <Text style={styles.gobPartyTag}>{isAlcaldiaSet ? "Alcaldía" : "1ª fuerza"}</Text>
-                        )}
+                        <Text style={styles.gobPartyTitle}>{p.siglas}</Text>
                     </View>
-                    <View style={styles.gobPartyRight}>
-                        <Text style={styles.gobPartySeats}>
-                            {concejales} {concejales === 1 ? "concejal" : "concejales"}
-                        </Text>
-                        <Text style={styles.gobPartyPct}>
-                            {hasPct ? `${pctVal.toFixed(1)}% votos` : "—"}
-                        </Text>
-                        <Text style={[styles.gobPartyPct, { width: 48 }]}>
-                            {totalSeats > 0 ? `${pctPleno.toFixed(0)}% pleno` : "—"}
+                    <View style={styles.gobPartySeatsBox}>
+                        <Text style={styles.gobPartySeatsCount}>{concejales}</Text>
+                        <Text style={styles.gobPartySeatsLabel}>
+                            {concejales === 1 ? "concejal" : "concejales"}
                         </Text>
                     </View>
                 </View>
-                <View style={styles.gobPartyBarBg}>
-                    <View style={[styles.gobPartyBarFill, { width: `${Math.min(100, Math.max(0, barWidth))}%`, backgroundColor: p.color || colors.green }]} />
+
+                <View style={styles.gobPartyMetrics}>
+                    <Text style={styles.gobPartyMetricText}>
+                        {hasPct ? `${pctVal.toFixed(1)}% votos` : "—"}
+                    </Text>
+                    <Text style={styles.gobPartyMetricText}>
+                        {totalSeats > 0 ? `${pctPleno.toFixed(0)}% pleno` : "—"}
+                    </Text>
+                </View>
+
+                <View style={styles.gobPartyBarTrack}>
+                    <View
+                        style={[
+                            styles.gobPartyBarProgress,
+                            {
+                                width: `${Math.min(100, Math.max(0, barWidth))}%`,
+                                backgroundColor: p.color || colors.green,
+                            },
+                        ]}
+                    />
                 </View>
             </View>
         );
     };
 
     return (
-        <View style={styles.gobPartiesContainer} wrap={false}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6, paddingBottom: 4, borderBottomColor: `${colors.green}20`, borderBottomWidth: 0.8 }}>
-                <Text style={styles.gobEyebrow}>Grupos políticos con representación</Text>
-                <Text style={{ color: colors.muted, fontSize: 6.5 }}>{partidos.length} formaciones</Text>
-            </View>
+        <View style={styles.gobPartiesList}>
             {isGrid ? (
-                <View style={{ flexDirection: "row", gap: 10 }}>
-                    <View style={{ flex: 1 }}>{col1.map(renderPartyItem)}</View>
+                <View style={{ flexDirection: "row" }}>
+                    <View style={{ flex: 1, marginRight: 4 }}>{col1.map(renderPartyItem)}</View>
                     <View style={{ flex: 1 }}>{col2.map(renderPartyItem)}</View>
                 </View>
             ) : (
@@ -530,21 +502,10 @@ function PartidosListReport({
 }
 
 function GobiernoPageReport({ elecciones }: { elecciones: EleccionesData }) {
-    const partidos = getSortedPartidos(elecciones);
-    const totalSeats = (elecciones.concejales_totales && elecciones.concejales_totales > 0)
-        ? elecciones.concejales_totales
-        : (partidos.reduce((acc, p) => acc + (p.concejales || 0), 0) || 0);
-    const majorityThreshold = totalSeats > 0 ? Math.floor(totalSeats / 2) + 1 : 0;
-    const seats = computeHemicicloSeats(totalSeats, partidos);
+    const summary = getEleccionesSummary(elecciones);
+    if (!summary) return null;
 
-    const { alcaldia, gobierno, legislatura = "2023-2027" } = elecciones;
-    const leadPartySiglas = alcaldia?.partido || partidos[0]?.siglas;
-    const leadParty = leadPartySiglas
-        ? partidos.find((p) => p.siglas.toUpperCase() === leadPartySiglas.toUpperCase())
-        : partidos[0];
-    const leadPartyColor = leadParty?.color || colors.green;
-    const leadSeats = leadParty?.concejales || 0;
-    const isAbsoluteMajority = gobierno?.mayoria_absoluta ?? (totalSeats > 0 && leadSeats >= majorityThreshold);
+    const sectionEyebrow = summary.alcaldia?.nombre ? "Alcaldía y Gobernabilidad" : "Composición y Gobernabilidad";
 
     return (
         <Page size="A4" style={styles.page}>
@@ -554,9 +515,9 @@ function GobiernoPageReport({ elecciones }: { elecciones: EleccionesData }) {
                     <Text style={[styles.sectionTitle, { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 }]}>
                         Equipo de gobierno
                     </Text>
-                    {legislatura && (
+                    {summary.legislatura && (
                         <Text style={{ color: `${colors.green}99`, fontFamily: "Helvetica-Bold", fontSize: 7.5, textTransform: "uppercase" }}>
-                            Mandato {legislatura}
+                            Mandato {summary.legislatura}
                         </Text>
                     )}
                 </View>
@@ -564,34 +525,32 @@ function GobiernoPageReport({ elecciones }: { elecciones: EleccionesData }) {
                     Composición de la corporación municipal y gobernabilidad resultante de los comicios locales.
                 </Text>
 
-                <View style={styles.gobTopRow} wrap={false}>
-                    <AlcaldiaCardReport
-                        alcaldia={alcaldia}
-                        gobierno={gobierno}
-                        leadPartySiglas={leadPartySiglas}
-                        leadPartyColor={leadPartyColor}
-                        leadSeats={leadSeats}
-                        totalSeats={totalSeats}
-                        isAbsoluteMajority={isAbsoluteMajority}
-                    />
-                    <HemicicloReport
-                        totalSeats={totalSeats}
-                        majorityThreshold={majorityThreshold}
-                        seats={seats}
-                    />
+                <View style={styles.gobContainer} wrap={false}>
+                    <View style={styles.gobLeftCol}>
+                        <HemicicloReport
+                            totalSeats={summary.totalSeats}
+                            majorityThreshold={summary.majorityThreshold}
+                            seats={summary.seats}
+                        />
+                        <AlcaldiaCardReport
+                            eyebrow={sectionEyebrow}
+                            displayName={summary.displayName}
+                            partyTag={summary.partyTag}
+                            leadPartyColor={summary.leadPartyColor}
+                            badgeText={summary.badgeText}
+                            narrative={summary.narrative}
+                        />
+                    </View>
+                    <View style={styles.gobRightCol}>
+                        <PartidosListReport
+                            partidos={summary.partidos}
+                            totalSeats={summary.totalSeats}
+                        />
+                    </View>
                 </View>
 
-                {partidos.length > 0 && (
-                    <PartidosListReport
-                        partidos={partidos}
-                        leadPartySiglas={leadPartySiglas}
-                        isAlcaldiaSet={Boolean(alcaldia?.partido)}
-                        totalSeats={totalSeats}
-                    />
-                )}
-
-                <Text style={[styles.note, { marginTop: 10 }]}>
-                    Fuente: Ministerio del Interior (Elecciones Municipales {elecciones.anio || 2023})
+                <Text style={[styles.note, { marginTop: 8 }]}>
+                    Fuente: Ministerio del Interior
                 </Text>
             </View>
         </Page>

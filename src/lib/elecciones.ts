@@ -195,3 +195,96 @@ export function computeHemicicloSeats(
     }
     return result;
 }
+
+export function getAlcaldiaDisplayName(nombre?: string | null, leadPartySiglas?: string): string {
+    if (nombre) return formatPersonName(nombre);
+    if (leadPartySiglas) return `Pleno municipal (${leadPartySiglas})`;
+    return "Pleno municipal";
+}
+
+export function getGobiernoNarrative(
+    alcaldiaPartido?: string,
+    leadPartySiglas?: string,
+    leadSeats: number = 0,
+    totalSeats: number = 0,
+    isAbsoluteMajority: boolean = false
+): string {
+    const seatsInfo = totalSeats > 0 ? `, formación que cuenta con ${leadSeats} de los ${totalSeats} concejales de la corporación local.` : ".";
+    const majorityInfo = isAbsoluteMajority
+        ? "Dispone de mayoría absoluta para la aprobación de iniciativas."
+        : "El pleno requiere acuerdos para la aprobación de presupuestos y ordenanzas.";
+
+    if (alcaldiaPartido) {
+        return `El gobierno municipal está presidido por el ${alcaldiaPartido}${seatsInfo} ${majorityInfo}`;
+    }
+    if (leadPartySiglas) {
+        return `La formación con más representación en el pleno municipal es el ${leadPartySiglas}${seatsInfo} ${majorityInfo}`;
+    }
+    return "Datos oficiales de la corporación municipal actualizados para la legislatura vigente.";
+}
+
+export interface EleccionesSummary {
+    partidos: (EleccionesPartido & { color: string })[];
+    totalSeats: number;
+    majorityThreshold: number;
+    seats: { x: number; y: number; party: EleccionesPartido & { color: string }; dotR: number; key: string }[];
+    legislatura: string;
+    anio: number;
+    alcaldia?: EleccionesData["alcaldia"];
+    gobierno?: EleccionesData["gobierno"];
+    leadPartySiglas?: string;
+    leadParty?: EleccionesPartido & { color: string };
+    leadPartyColor: string;
+    leadSeats: number;
+    isAbsoluteMajority: boolean;
+    badgeText: string;
+    displayName: string;
+    narrative: string;
+    partyTag: string;
+}
+
+export function getEleccionesSummary(elecciones?: EleccionesData): EleccionesSummary | null {
+    if (!elecciones) return null;
+    const partidos = getSortedPartidos(elecciones);
+    if (!elecciones.alcaldia && partidos.length === 0) return null;
+
+    const totalSeats = (elecciones.concejales_totales && elecciones.concejales_totales > 0)
+        ? elecciones.concejales_totales
+        : (partidos.reduce((acc, p) => acc + (p.concejales || 0), 0) || 0);
+
+    const majorityThreshold = totalSeats > 0 ? Math.floor(totalSeats / 2) + 1 : 0;
+    const seats = computeHemicicloSeats(totalSeats, partidos);
+
+    const { alcaldia, gobierno, legislatura = "2023-2027", anio = 2023 } = elecciones;
+    const leadPartySiglas = alcaldia?.partido || partidos[0]?.siglas;
+    const leadParty = leadPartySiglas
+        ? partidos.find((p) => p.siglas.toUpperCase() === leadPartySiglas.toUpperCase())
+        : partidos[0];
+    const leadPartyColor = leadParty?.color || "#1F3A2E";
+    const leadSeats = leadParty?.concejales || 0;
+    const isAbsoluteMajority = gobierno?.mayoria_absoluta ?? (totalSeats > 0 && leadSeats >= majorityThreshold);
+    const badgeText = gobierno?.etiqueta || (isAbsoluteMajority ? "Mayoría absoluta" : "Sin mayoría absoluta");
+    const displayName = getAlcaldiaDisplayName(alcaldia?.nombre, leadPartySiglas);
+    const narrative = getGobiernoNarrative(alcaldia?.partido, leadPartySiglas, leadSeats, totalSeats, isAbsoluteMajority);
+    const partyTag = alcaldia?.partido ? alcaldia.partido : (leadPartySiglas ? `${leadPartySiglas} (1ª fuerza)` : "");
+
+    return {
+        partidos,
+        totalSeats,
+        majorityThreshold,
+        seats,
+        legislatura,
+        anio,
+        alcaldia,
+        gobierno,
+        leadPartySiglas,
+        leadParty,
+        leadPartyColor,
+        leadSeats,
+        isAbsoluteMajority,
+        badgeText,
+        displayName,
+        narrative,
+        partyTag,
+    };
+}
