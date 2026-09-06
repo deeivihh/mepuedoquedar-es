@@ -16,6 +16,7 @@ import DatosSection from "./DatosSection";
 import AlquilerSection from "./AlquilerSection";
 import PrensaSection from "./PrensaSection";
 import GobiernoSection from "./GobiernoSection";
+import Source from "./Source";
 import { fetchAllTables } from "@/lib/datos/ine";
 import { TABLES } from "@/lib/config/tables";
 import dynamic from "next/dynamic";
@@ -210,10 +211,9 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     <div className="overflow-hidden border-y border-title/20 bg-bg-card">
                         <DatosSection ineData={ineData} />
                     </div>
-                    <p className="mt-3 px-0.5 gap-1 flex items-center text-[10px] text-title/50 group relative w-fit">
-                        <span>Fuente:</span>
-                        <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-colors duration-150" href="https://www.ine.es/">Instituto Nacional de Estadística</a>
-                    </p>
+                    <Source href="https://www.ine.es/">
+                        Instituto Nacional de Estadística
+                    </Source>
                 </section>
             )}
 

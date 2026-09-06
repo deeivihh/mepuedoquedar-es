@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Source from "./Source";
 
 const BaseChart = dynamic(() => import("@/components/charts/BaseChart"), { ssr: false });
 
@@ -46,10 +47,9 @@ export default function AlquilerSection({ data }: { data: any }) {
                     </div>
                 </div>
             </div>
-            <p className="mt-3 px-0.5 gap-1 flex items-center text-[10px] text-title/50 group relative w-fit">
-                <span>Fuente:</span>
-                <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-colors duration-150" href="https://www.mivau.gob.es/">Ministerio de Vivienda</a>
-            </p>
+            <Source href="https://www.mivau.gob.es/">
+                Ministerio de Vivienda
+            </Source>
         </section>
     );
 }

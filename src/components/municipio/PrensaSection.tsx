@@ -1,4 +1,5 @@
 import { MdArrowOutward } from "react-icons/md";
+import Source from "./Source";
 
 export default function PrensaSection({ data }: { data: any }) {
     if (!data.mas?.medios?.length) return null;
@@ -32,10 +33,9 @@ export default function PrensaSection({ data }: { data: any }) {
                     </div>
                 ))}
             </div>
-            <p className="mt-3 px-0.5 gap-1 flex items-center text-[10px] text-title/50 group relative w-fit">
-                <span>Fuente:</span>
-                <a target="_blank" rel="noopener noreferrer" className="group-hover:text-text-2 transition-colors duration-150" href="https://analisis.datosabiertos.jcyl.es/explore/dataset/guia-de-medios-de-comunicacion/information">Guía de medios de comunicación de la Junta de Castilla y León</a>
-            </p>
+            <Source href="https://analisis.datosabiertos.jcyl.es/explore/dataset/guia-de-medios-de-comunicacion/information">
+                Guía de medios de comunicación de la Junta de Castilla y León
+            </Source>
         </section>
     );
 }
