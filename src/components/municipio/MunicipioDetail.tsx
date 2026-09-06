@@ -14,6 +14,7 @@ import WikipediaSection, { getMunicipioWikipedia } from "./WikipediaSection";
 import { WikipediaData } from "@/actions/wikipedia";
 import DatosSection from "./DatosSection";
 import AlquilerSection from "./AlquilerSection";
+import CoberturaSection from "./CoberturaSection";
 import PrensaSection from "./PrensaSection";
 import GobiernoSection from "./GobiernoSection";
 import Source from "./Source";
@@ -201,6 +202,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                     </div>
                 </section>
                 <AlquilerSection data={data} />
+                <CoberturaSection data={data} />
             </div>
 
             {data.cod_int && ineData && (
