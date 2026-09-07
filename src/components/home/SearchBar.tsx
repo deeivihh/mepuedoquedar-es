@@ -120,34 +120,50 @@ export default function SearchBar() {
     const [query, setQuery] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<Site[]>([]);
+    const [hasSearched, setHasSearched] = useState(false);
     const abortRef = useRef<AbortController | null>(null);
 
-    const isSearching = query.trim().length > 0;
+    const isSearching = query.trim().length >= 3 && (isLoading || results.length > 0 || hasSearched);
 
     const doSearch = useCallback(async (q: string) => {
         abortRef.current?.abort();
-        if (q.trim().length < 3) {
+        const trimmed = q.trim();
+        if (trimmed.length < 3) {
             setResults([]);
+            setIsLoading(false);
+            setHasSearched(false);
             return;
         }
         const ctrl = new AbortController();
         abortRef.current = ctrl;
         setIsLoading(true);
         try {
-            const res = await fetch(`/api/jcyl/municipios?search=${encodeURIComponent(q)}&limit=10${locationParams}`, { signal: ctrl.signal });
+            const res = await fetch(`/api/jcyl/municipios?search=${encodeURIComponent(trimmed)}&limit=10${locationParams}`, { signal: ctrl.signal });
             if (res.ok) {
                 const data: any = await res.json();
-                if (abortRef.current === ctrl) setResults(data.results || []);
+                if (abortRef.current === ctrl) {
+                    setResults(data.results || []);
+                    setHasSearched(true);
+                }
             }
         } catch (e: any) {
-            if (e.name !== "AbortError") setResults([]);
+            if (e.name !== "AbortError") {
+                setResults([]);
+                setHasSearched(true);
+            }
         } finally {
-            setIsLoading(false);
+            if (abortRef.current === ctrl) {
+                setIsLoading(false);
+            }
         }
     }, [locationParams]);
 
     useEffect(() => {
         if (!ready) return;
+        if (query.trim().length < 3) {
+            abortRef.current?.abort();
+            return;
+        }
         const timer = setTimeout(() => doSearch(query), 300);
         return () => clearTimeout(timer);
     }, [query, ready, doSearch]);
@@ -169,12 +185,34 @@ export default function SearchBar() {
                             placeholder="Busca tu municipio..."
                             autoFocus={isHome}
                             value={query}
-                            onChange={(e) => { setResults([]); setQuery(e.target.value); }}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setQuery(val);
+                                if (val.trim().length < 3) {
+                                    abortRef.current?.abort();
+                                    setResults([]);
+                                    setIsLoading(false);
+                                    setHasSearched(false);
+                                } else {
+                                    setIsLoading(true);
+                                }
+                            }}
                             className="w-full flex-1 min-w-0 h-full outline-none text-title font-medium bg-transparent"
                         />
                         {isLoading && <AiOutlineLoading3Quarters size={15} className="text-title shrink-0 mr-2.5 animate-spin" />}
                         {query.length > 0 && !isLoading && (
-                            <button type="button" aria-label="Limpiar búsqueda" onClick={() => { setQuery(""); setResults([]); }} className="text-title hover:opacity-70 shrink-0 w-8 h-8 flex items-center justify-center">
+                            <button
+                                type="button"
+                                aria-label="Limpiar búsqueda"
+                                onClick={() => {
+                                    abortRef.current?.abort();
+                                    setQuery("");
+                                    setResults([]);
+                                    setIsLoading(false);
+                                    setHasSearched(false);
+                                }}
+                                className="text-title hover:opacity-70 shrink-0 w-8 h-8 flex items-center justify-center"
+                            >
                                 <IoMdClose size={20} />
                             </button>
                         )}
