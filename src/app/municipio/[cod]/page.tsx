@@ -9,8 +9,8 @@ export default async function DetailPage({
     const { cod } = await params;
 
     return (
-        <main className="min-h-[100dvh] w-full bg-bg p-4 sm:p-8 lg:p-12 flex justify-center">
-            <div className="flex w-full max-w-5xl flex-col gap-4 sm:gap-8 lg:gap-12">
+        <main className="min-h-[100dvh] w-full p-4 py-6 flex justify-center">
+            <div className="flex w-full max-w-5xl flex-col gap-8">
                 <header className="relative z-50 w-full">
                     <SearchBar />
                 </header>

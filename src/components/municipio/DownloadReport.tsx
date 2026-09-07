@@ -8,7 +8,7 @@ import { getGlobalLabel } from "@/lib/scores/calculateScores";
 import { formatIndicatorValue } from "@/lib/scores/departmentPriority";
 import { TABLES, getTableKey, filterData, getPeriod, formatSeriesName, CHART_PALETTE, type TableConfig } from "@/lib/config/tables";
 import type { WikipediaData } from "@/actions/wikipedia";
-import type { EleccionesData, EleccionesPartido } from "@/types";
+import type { EleccionesData, EleccionesPartido, CoberturaData } from "@/types";
 import { getEleccionesSummary } from "@/lib/elecciones";
 
 let Document: any;
@@ -46,52 +46,60 @@ const styles: any = {
     coverMunicipalitySubtitle: { color: colors.title, fontFamily: "Times-BoldItalic", fontSize: 15, lineHeight: 1.2, textAlign: "center", marginTop: 20 },
     footer: { bottom: 20, left: 48, position: "absolute", right: 48, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
     footerText: { color: colors.muted, fontSize: 7, flex: 1 },
-    section: { marginBottom: 20 },
-    sectionTitle: { borderBottomColor: `${colors.green}44`, borderBottomWidth: 1, color: colors.green, fontFamily: "Times-Bold", fontSize: 22, marginBottom: 12, paddingBottom: 7 },
-    intro: { color: colors.muted, fontSize: 10, lineHeight: 1.5, marginBottom: 16 },
+    section: { marginBottom: 18 },
+    sectionTitle: { borderBottomColor: `${colors.green}44`, borderBottomWidth: 1, color: colors.green, fontFamily: "Times-Bold", fontSize: 18, marginBottom: 10, paddingBottom: 5 },
+    intro: { color: colors.muted, fontSize: 9, lineHeight: 1.45, marginBottom: 10 },
     summaryImageCard: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, marginTop: 12, overflow: "hidden" },
     summaryImage: { height: 220, objectFit: "cover", width: "100%" },
     summaryImageHalf: { height: 160, objectFit: "cover", width: "100%" },
     summaryImageCaption: { color: colors.muted, fontSize: 7.5, paddingHorizontal: 10, paddingVertical: 6, textAlign: "center" },
     summaryImagesRow: { flexDirection: "row", gap: 10, marginTop: 12 },
     summaryImageCol: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, flex: 1, overflow: "hidden" },
-    globalScoreBlock: { backgroundColor: colors.card, borderWidth: 1, borderColor: `${colors.green}22`, padding: 16, marginBottom: 18 },
+    globalScoreBlock: { backgroundColor: colors.card, borderWidth: 1, borderColor: `${colors.green}22`, padding: 12, marginBottom: 12 },
     globalScoreHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", gap: 12 },
     globalEyebrow: { color: `${colors.green}88`, fontFamily: "Helvetica-Bold", fontSize: 7, letterSpacing: 1.4, textTransform: "uppercase" },
     globalScoreRow: { flexDirection: "row", alignItems: "baseline", gap: 4, marginTop: 4 },
-    globalScoreNumber: { color: colors.green, fontFamily: "Times-Bold", fontSize: 42, lineHeight: 1 },
+    globalScoreNumber: { color: colors.green, fontFamily: "Times-Bold", fontSize: 38, lineHeight: 1 },
     globalScoreMax: { color: `${colors.green}66`, fontFamily: "Helvetica-Bold", fontSize: 10 },
     globalBar: { backgroundColor: `${colors.green}18`, height: 4, marginTop: 8, width: 160 },
     globalBarFill: { backgroundColor: colors.terracotta, height: 4 },
     globalLabel: { color: colors.green, fontFamily: "Times-Bold", fontSize: 13, lineHeight: 1.25, textAlign: "right", flex: 1, paddingLeft: 12 },
-    profileBox: { borderTopColor: `${colors.green}12`, borderTopWidth: 1, marginTop: 12, paddingTop: 7 },
+    profileBox: { borderTopColor: `${colors.green}12`, borderTopWidth: 1, marginTop: 10, paddingTop: 6 },
     profileLine: { color: `${colors.green}88`, fontFamily: "Helvetica", fontSize: 7.5, letterSpacing: 0.3 },
     profilePrefix: { fontFamily: "Helvetica-Bold", color: colors.green },
-    department: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, marginBottom: 10, padding: 10 },
-    departmentHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
-    departmentName: { color: colors.green, fontFamily: "Times-Bold", fontSize: 11 },
-    departmentScore: { color: colors.terracotta, fontFamily: "Helvetica-Bold", fontSize: 10 },
-    bar: { backgroundColor: `${colors.green}18`, height: 4, marginBottom: 8, width: "100%" },
-    barFill: { backgroundColor: colors.green, height: 4 },
-    indicator: { flexDirection: "row", justifyContent: "space-between", marginTop: 4 },
-    indicatorLabel: { color: colors.ink, fontSize: 8, width: "52%" },
-    indicatorValue: { color: colors.muted, fontSize: 8, textAlign: "right", width: "28%" },
-    indicatorScore: { color: colors.green, fontFamily: "Helvetica-Bold", fontSize: 8, textAlign: "right", width: "20%" },
-    chartsContainer: { borderColor: `${colors.green}22`, borderWidth: 1 },
+    department: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, marginBottom: 7, padding: 8 },
+    departmentHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 5 },
+    departmentName: { color: colors.green, fontFamily: "Times-Bold", fontSize: 10.5 },
+    departmentScore: { color: colors.terracotta, fontFamily: "Helvetica-Bold", fontSize: 9.5 },
+    bar: { backgroundColor: `${colors.green}18`, height: 3.5, marginBottom: 6, width: "100%" },
+    barFill: { backgroundColor: colors.terracotta, height: 3.5 },
+    indicator: { flexDirection: "row", justifyContent: "space-between", marginTop: 3 },
+    indicatorLabel: { color: colors.ink, fontSize: 7.8, width: "52%" },
+    indicatorValue: { color: colors.muted, fontSize: 7.8, textAlign: "right", width: "28%" },
+    indicatorScore: { color: colors.green, fontFamily: "Helvetica-Bold", fontSize: 7.8, textAlign: "right", width: "20%" },
+    chartsContainer: { borderColor: `${colors.green}22`, borderWidth: 1, marginBottom: 8 },
     chartRow: { flexDirection: "row", borderTopColor: `${colors.green}22`, borderTopWidth: 1 },
     chartGroup: { backgroundColor: colors.card, flex: 1, padding: 8 },
     chartGroupFull: { width: "100%" },
     chartBorderRight: { borderRightColor: `${colors.green}22`, borderRightWidth: 1 },
     chartTitle: { color: colors.green, fontFamily: "Times-Bold", fontSize: 9.5, marginBottom: 2 },
     chartDate: { color: colors.muted, fontSize: 7, marginBottom: 8 },
+    alquilerContainer: { backgroundColor: colors.card, borderColor: `${colors.green}33`, borderWidth: 1, flexDirection: "row", padding: 10, alignItems: "stretch", marginBottom: 8 },
+    alquilerLeftCol: { width: "38%", paddingRight: 12, justifyContent: "space-between", borderRightColor: `${colors.green}22`, borderRightWidth: 1 },
+    alquilerRightCol: { width: "62%", paddingLeft: 12 },
+    alquilerEyebrow: { color: `${colors.green}88`, fontFamily: "Helvetica-Bold", fontSize: 6.5, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 6 },
+    alquilerPriceRow: { flexDirection: "row", alignItems: "baseline", gap: 3 },
+    alquilerPriceNumber: { color: colors.green, fontFamily: "Times-Bold", fontSize: 38, lineHeight: 1 },
+    alquilerPriceUnit: { color: colors.terracotta, fontFamily: "Helvetica-Bold", fontSize: 11 },
+    alquilerDesc: { color: colors.muted, fontSize: 7, lineHeight: 1.4, marginTop: 8 },
     legend: { flexDirection: "row", flexWrap: "wrap", marginTop: 7 },
     legendItem: { alignItems: "center", flexDirection: "row", marginBottom: 4, paddingRight: 8, width: "50%" },
     legendMarker: { height: 6, marginRight: 4, width: 6 },
     legendLabel: { color: colors.ink, fontSize: 7, paddingRight: 4, width: "76%" },
     legendValue: { color: colors.muted, fontSize: 7, textAlign: "right", width: "24%" },
-    sourceGrid: { flexDirection: "row", marginHorizontal: -4, marginBottom: 12 },
+    sourceGrid: { flexDirection: "row", marginHorizontal: -4, marginBottom: 8 },
     sourceItem: { paddingHorizontal: 4, width: "33.33%" },
-    sourceCard: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, height: 100, padding: 8 },
+    sourceCard: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, height: 88, padding: 6 },
     sourceTag: { color: colors.terracotta, fontFamily: "Helvetica-Bold", fontSize: 5.5, letterSpacing: 0.5, marginBottom: 3, textTransform: "uppercase" },
     sourceTitle: { color: colors.green, fontFamily: "Times-Bold", fontSize: 8.5, marginBottom: 2 },
     sourceDesc: { color: colors.muted, fontSize: 6.5, lineHeight: 1.35 },
@@ -128,6 +136,24 @@ const styles: any = {
     gobPartyMetricText: { color: `${colors.green}99`, fontFamily: "Courier", fontSize: 6 },
     gobPartyBarTrack: { backgroundColor: `${colors.green}18`, height: 2.5, width: "100%" },
     gobPartyBarProgress: { height: 2.5 },
+    coberturaContainer: { backgroundColor: colors.card, borderColor: `${colors.green}33`, borderWidth: 1, marginBottom: 10 },
+    coberturaGrid: { flexDirection: "row" },
+    coberturaCol: { flex: 1, padding: 8, justifyContent: "space-between" },
+    coberturaColBorder: { borderRightColor: `${colors.green}22`, borderRightWidth: 1 },
+    coberturaEyebrowRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 5 },
+    coberturaEyebrow: { color: `${colors.green}88`, fontFamily: "Helvetica-Bold", fontSize: 6.2, letterSpacing: 1, textTransform: "uppercase" },
+    coberturaBigNumber: { color: colors.green, fontFamily: "Times-Bold", fontSize: 28, lineHeight: 1 },
+    coberturaBarTrack: { backgroundColor: `${colors.green}18`, height: 3, width: "100%", marginVertical: 5 },
+    coberturaBarFill: { backgroundColor: colors.terracotta, height: 3 },
+    coberturaSubTitle: { color: colors.green, fontFamily: "Times-Bold", fontSize: 11.5, marginTop: 3, marginBottom: 2 },
+    coberturaDesc: { color: colors.muted, fontSize: 6.5, lineHeight: 1.35, marginTop: 6 },
+    coberturaSatelliteBanner: { borderTopColor: `${colors.green}22`, borderTopWidth: 1, backgroundColor: "#FFFFFF44", paddingHorizontal: 8, paddingVertical: 5, flexDirection: "row", alignItems: "center" },
+    coberturaSatelliteText: { color: colors.green, fontSize: 6.5, lineHeight: 1.3, flex: 1 },
+    coberturaDetailsGrid: { flexDirection: "row", gap: 8, marginBottom: 10 },
+    coberturaDetailCard: { flex: 1, backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, padding: 8 },
+    coberturaRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 2.8, borderBottomColor: `${colors.green}10`, borderBottomWidth: 0.6 },
+    coberturaRowLabel: { color: colors.ink, fontSize: 6.8, width: "55%" },
+    coberturaRowValue: { color: colors.green, fontFamily: "Helvetica-Bold", fontSize: 6.8, textAlign: "right", width: "45%" },
 };
 
 const capitalize = (v: string) => v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
@@ -167,15 +193,27 @@ function PieDonutChart({ type, entries, fullWidth }: { type: "pie" | "donut"; en
         return `M ${pt(rOuter, start)} A ${rOuter} ${rOuter} 0 ${large} 1 ${pt(rOuter, end)} L ${pt(rInner, end)} A ${rInner} ${rInner} 0 ${large} 0 ${pt(rInner, start)} Z`;
     };
 
+    if (entries.length === 1) {
+        return (
+            <View wrap={false}>
+                <Svg width="100%" height={size} viewBox={`0 0 ${vbW} 130`}>
+                    <Circle cx={cx} cy={65} r={rOuter} fill={CHART_PALETTE[0]} />
+                    {type === "donut" && <Circle cx={cx} cy={65} r={rInner ? rInner - 6 : 0} fill={colors.card} />}
+                </Svg>
+                <ChartLegend entries={entries} />
+            </View>
+        );
+    }
+
     return (
-        <View>
+        <View wrap={false}>
             <Svg width="100%" height={size} viewBox={`0 0 ${vbW} 130`}>
                 {entries.map((entry, idx) => {
                     const start = (entries.slice(0, idx).reduce((s, v) => s + v.value, 0) / total) * Math.PI * 2 - Math.PI / 2;
                     const end = (entries.slice(0, idx + 1).reduce((s, v) => s + v.value, 0) / total) * Math.PI * 2 - Math.PI / 2;
                     return <Path key={entry.label} d={slicePath(start, end)} fill={CHART_PALETTE[idx % CHART_PALETTE.length]} />;
                 })}
-                {type === "donut" && <Circle cx={cx} cy="65" r={rInner ? rInner - 6 : 0} fill={colors.card} />}
+                {type === "donut" && <Circle cx={cx} cy={65} r={rInner ? rInner - 6 : 0} fill={colors.card} />}
             </Svg>
             <ChartLegend entries={entries} />
         </View>
@@ -186,7 +224,7 @@ function ColumnChart({ entries, fullWidth }: { entries: { label: string; value: 
     const maxVal = Math.max(...entries.map((e) => e.value), 1);
     const barW = Math.min(fullWidth ? 68 : 42, (fullWidth ? 460 : 360) / entries.length);
     return (
-        <View>
+        <View wrap={false}>
             <Svg width="100%" height={150} viewBox="0 0 500 150">
                 <Line x1="36" y1="120" x2="480" y2="120" stroke={`${colors.green}66`} strokeWidth="1" />
                 {entries.map((entry, idx) => {
@@ -206,33 +244,49 @@ function ColumnChart({ entries, fullWidth }: { entries: { label: string; value: 
     );
 }
 
-function LineChart({ series, fullWidth }: { series: { label: string; points: { period: string; value: number }[] }[]; fullWidth?: boolean }) {
+function LineChart({ series, fullWidth, height = 126 }: { series: { label: string; points: { period: string; value: number }[] }[]; fullWidth?: boolean; height?: number }) {
     const vals = series.flatMap((item) => item.points.map((p) => p.value));
     const min = Math.min(...vals);
     const max = Math.max(...vals);
     const range = max - min || 1;
     const longest = Math.max(...series.map((item) => item.points.length), 1);
     const dates = series[0]?.points.map((p) => p.period) ?? [];
-    const plot = fullWidth ? { left: 31, right: 468, top: 13, bottom: 94 } : { left: 31, right: 234, top: 13, bottom: 94 };
+    const plot = fullWidth ? { left: 31, right: 468, top: 13, bottom: height - 32 } : { left: 31, right: 234, top: 13, bottom: height - 32 };
     const vbW = fullWidth ? 500 : 250;
 
     const pos = (p: { value: number }, idx: number, len: number) => ({
-        x: plot.left + (idx / Math.max(len - 1, 1)) * (plot.right - plot.left),
-        y: plot.bottom - ((p.value - min) / range) * (plot.bottom - plot.top),
+        x: len <= 1 ? (plot.left + plot.right) / 2 : plot.left + (idx / Math.max(len - 1, 1)) * (plot.right - plot.left),
+        y: range === 0 || max === min
+            ? (plot.top + plot.bottom) / 2
+            : plot.bottom - ((p.value - min) / range) * (plot.bottom - plot.top),
     });
 
-    const linePath = (pts: { value: number }[]) => pts.map((p, i) => `${i === 0 ? "M" : "L"} ${pos(p, i, pts.length).x} ${pos(p, i, pts.length).y}`).join(" ");
-    const areaPath = (pts: { value: number }[]) => `${linePath(pts)} L ${pos(pts.at(-1)!, pts.length - 1, pts.length).x} ${plot.bottom} L ${pos(pts[0], 0, pts.length).x} ${plot.bottom} Z`;
-    const ticks = [max, min + range / 2, min];
-    const dateIdxs = [0, Math.floor((longest - 1) / 2), longest - 1].filter((idx, p, l) => l.indexOf(idx) === p);
+    const linePath = (pts: { value: number }[]) => {
+        if (pts.length <= 1) {
+            const y = pos(pts[0], 0, 1).y;
+            return `M ${plot.left} ${y} L ${plot.right} ${y}`;
+        }
+        return pts.map((p, i) => `${i === 0 ? "M" : "L"} ${pos(p, i, pts.length).x} ${pos(p, i, pts.length).y}`).join(" ");
+    };
+
+    const areaPath = (pts: { value: number }[]) => {
+        if (pts.length <= 1) {
+            const y = pos(pts[0], 0, 1).y;
+            return `M ${plot.left} ${y} L ${plot.right} ${y} L ${plot.right} ${plot.bottom} L ${plot.left} ${plot.bottom} Z`;
+        }
+        return `${linePath(pts)} L ${pos(pts.at(-1)!, pts.length - 1, pts.length).x} ${plot.bottom} L ${pos(pts[0], 0, pts.length).x} ${plot.bottom} Z`;
+    };
+
+    const ticks = [max, min + (max - min) / 2, min];
+    const dateIdxs = longest <= 1 ? [0] : [0, Math.floor((longest - 1) / 2), longest - 1].filter((idx, p, l) => l.indexOf(idx) === p);
 
     return (
-        <View>
-            <Svg width="100%" height={126} viewBox={`0 0 ${vbW} 126`}>
+        <View wrap={false}>
+            <Svg width="100%" height={height} viewBox={`0 0 ${vbW} ${height}`}>
                 {ticks.map((val, i) => {
                     const y = plot.top + i * ((plot.bottom - plot.top) / 2);
                     return (
-                        <G key={val}>
+                        <G key={i}>
                             <Line x1={plot.left} y1={y} x2={plot.right} y2={y} stroke={`${colors.green}20`} strokeWidth="0.8" />
                             <Text x="26" y={y + 2.5} fill={colors.muted} style={{ fontSize: 6 }} textAnchor="end">{formatCompact(val)}</Text>
                         </G>
@@ -250,7 +304,7 @@ function LineChart({ series, fullWidth }: { series: { label: string; points: { p
                 ))}
                 <Line x1={plot.left} y1={plot.bottom} x2={plot.right} y2={plot.bottom} stroke={`${colors.green}55`} strokeWidth="0.8" />
                 {dateIdxs.map((idx) => (
-                    <Text key={idx} x={plot.left + (idx / Math.max(longest - 1, 1)) * (plot.right - plot.left)} y="109" fill={colors.muted} style={{ fontSize: 6 }} textAnchor="middle">{shorten(dates[idx] || "", 10)}</Text>
+                    <Text key={idx} x={longest <= 1 ? (plot.left + plot.right) / 2 : plot.left + (idx / Math.max(longest - 1, 1)) * (plot.right - plot.left)} y={height - 17} fill={colors.muted} style={{ fontSize: 6 }} textAnchor="middle">{shorten(dates[idx] || "", 10)}</Text>
                 ))}
             </Svg>
             <ChartLegend entries={series.map((s) => ({ label: s.label, value: s.points.at(-1)?.value ?? 0 }))} />
@@ -321,16 +375,38 @@ function IneChart({ table, data, fullWidth, borderRight }: { table: TableConfig;
     );
 }
 
-function AlquilerChart({ vivienda, fullWidth, borderRight }: { vivienda: any; fullWidth?: boolean; borderRight?: boolean }) {
+function AlquilerReportSection({ vivienda }: { vivienda: any }) {
     if (!vivienda?.alquiler?.precio && !vivienda?.alquiler?.serie?.length) return null;
-    const points = Array.isArray(vivienda.alquiler.serie) && vivienda.alquiler.serie.length
-        ? vivienda.alquiler.serie.toSorted((a: any, b: any) => Number(a.anio) - Number(b.anio)).map((item: any) => ({ period: String(item.anio), value: Number(item.precio) }))
-        : [{ period: String(vivienda.actualizado ?? ""), value: Number(vivienda.alquiler.precio) }];
+    const precio = vivienda.alquiler.precio;
+    const tipo = vivienda.tipo === "casa" ? "casas" : "pisos";
+    const serie = Array.isArray(vivienda.alquiler.serie) ? vivienda.alquiler.serie : [];
+    const points = serie.length
+        ? serie.toSorted((a: any, b: any) => Number(a.anio) - Number(b.anio)).map((item: any) => ({ period: String(item.anio), value: Number(item.precio) }))
+        : [{ period: String(vivienda.actualizado ?? ""), value: Number(precio) }];
 
     return (
-        <ChartBox title="Alquiler de referencia" latest={String(vivienda.actualizado ?? points.at(-1)?.period ?? "")} fullWidth={fullWidth} borderRight={borderRight}>
-            <LineChart series={[{ label: vivienda.tipo === "casa" ? "Casas (€/mes)" : "Pisos (€/mes)", points }]} fullWidth={fullWidth} />
-        </ChartBox>
+        <View style={styles.section} wrap={false}>
+            <Text style={styles.sectionTitle}>Vivir aquí</Text>
+            <View style={styles.alquilerContainer}>
+                <View style={styles.alquilerLeftCol}>
+                    <View>
+                        <Text style={styles.alquilerEyebrow}>Alquiler · precio de referencia</Text>
+                        <View style={styles.alquilerPriceRow}>
+                            <Text style={styles.alquilerPriceNumber}>{precio}</Text>
+                            <Text style={styles.alquilerPriceUnit}>€/mes</Text>
+                        </View>
+                    </View>
+                    <Text style={styles.alquilerDesc}>
+                        Mediana del alquiler declarado en {tipo} (IRPF), no precios de anuncio.
+                    </Text>
+                </View>
+                <View style={styles.alquilerRightCol}>
+                    <Text style={styles.chartTitle}>Evolución del precio (€/mes)</Text>
+                    {vivienda.actualizado && <Text style={styles.chartDate}>Última actualización: {vivienda.actualizado}</Text>}
+                    <LineChart series={[{ label: tipo === "casas" ? "Casas (€/mes)" : "Pisos (€/mes)", points }]} fullWidth height={165} />
+                </View>
+            </View>
+        </View>
     );
 }
 
@@ -501,139 +577,385 @@ function PartidosListReport({
     );
 }
 
-function GobiernoPageReport({ elecciones }: { elecciones: EleccionesData }) {
-    const summary = getEleccionesSummary(elecciones);
-    if (!summary) return null;
-
-    const sectionEyebrow = summary.alcaldia?.nombre ? "Alcaldía y Gobernabilidad" : "Composición y Gobernabilidad";
-
+function WifiIcon() {
     return (
-        <Page size="A4" style={styles.page}>
-            <ReportFooter />
-            <View style={styles.section}>
-                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomColor: `${colors.green}44`, borderBottomWidth: 1, marginBottom: 12, paddingBottom: 7 }}>
-                    <Text style={[styles.sectionTitle, { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 }]}>
-                        Equipo de gobierno
-                    </Text>
-                    {summary.legislatura && (
-                        <Text style={{ color: `${colors.green}99`, fontFamily: "Helvetica-Bold", fontSize: 7.5, textTransform: "uppercase" }}>
-                            Mandato {summary.legislatura}
-                        </Text>
-                    )}
-                </View>
-                <Text style={styles.intro}>
-                    Composición de la corporación municipal y gobernabilidad resultante de los comicios locales.
-                </Text>
-
-                <View style={styles.gobContainer} wrap={false}>
-                    <View style={styles.gobLeftCol}>
-                        <HemicicloReport
-                            totalSeats={summary.totalSeats}
-                            majorityThreshold={summary.majorityThreshold}
-                            seats={summary.seats}
-                        />
-                        <AlcaldiaCardReport
-                            eyebrow={sectionEyebrow}
-                            displayName={summary.displayName}
-                            partyTag={summary.partyTag}
-                            leadPartyColor={summary.leadPartyColor}
-                            badgeText={summary.badgeText}
-                            narrative={summary.narrative}
-                        />
-                    </View>
-                    <View style={styles.gobRightCol}>
-                        <PartidosListReport
-                            partidos={summary.partidos}
-                            totalSeats={summary.totalSeats}
-                        />
-                    </View>
-                </View>
-
-                <Text style={[styles.note, { marginTop: 8 }]}>
-                    Fuente: Ministerio del Interior
-                </Text>
-            </View>
-        </Page>
+        <Svg width={11} height={11} viewBox="0 0 24 24">
+            <Path fill={colors.terracotta} d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21L24 8.98C20.93 5.9 16.69 4 12 4ZM12 8.5C14.7 8.5 17.15 9.53 19.03 11.23L12 18.25L4.97 11.23C6.85 9.53 9.3 8.5 12 8.5Z" />
+        </Svg>
     );
 }
 
-function SummaryPageReport({ data, wikiData }: { data: MunicipioData; wikiData?: WikipediaData | null }) {
+function SignalIcon() {
+    return (
+        <Svg width={11} height={11} viewBox="0 0 24 24">
+            <Path fill={colors.terracotta} d="M2 18h3v4H2v-4zm6-6h3v10H8V12zm6-6h3v16h-3V6zm6-6h3v22h-3V0z" />
+        </Svg>
+    );
+}
+
+function MarketIcon() {
+    return (
+        <Svg width={11} height={11} viewBox="0 0 24 24">
+            <Path fill={colors.terracotta} d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z" />
+        </Svg>
+    );
+}
+
+function TerritorioReportSection({
+    cobertura,
+    elecciones,
+    municipio,
+}: {
+    cobertura?: CoberturaData;
+    elecciones?: EleccionesData;
+    municipio: string;
+}) {
+    const summary = elecciones ? getEleccionesSummary(elecciones) : null;
+    const esCompetitiva = cobertura?.zona_cnmc === "competitiva";
+    const teletrabajoScore = cobertura ? (cobertura.ftth >= 90 ? "Excelente" : cobertura.ftth >= 80 ? "Muy bueno" : "Básico") : "";
+    const videollamadas = cobertura ? (cobertura.ftth >= 85 ? "Óptimo (Múltiples HD/4K)" : "Adecuado (1-2 flujos)") : "";
+    const estabilidad = cobertura ? (cobertura.ftth >= 80 ? "Alta (Fibra simétrica)" : "Media (Sujeta a cobertura)") : "";
+    const sectionEyebrow = summary?.alcaldia?.nombre ? "Alcaldía y Gobernabilidad" : "Composición y Gobernabilidad";
+
+    return (
+        <View style={styles.section}>
+            {cobertura && (
+                <View wrap={false} style={{ marginBottom: summary ? 12 : 0 }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomColor: `${colors.green}44`, borderBottomWidth: 1, marginBottom: 8, paddingBottom: 5 }}>
+                        <Text style={[styles.sectionTitle, { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 }]}>
+                            Conectividad
+                        </Text>
+                    </View>
+
+                    <View style={styles.coberturaContainer}>
+                        <View style={styles.coberturaGrid}>
+                            <View style={[styles.coberturaCol, styles.coberturaColBorder]}>
+                                <View>
+                                    <View style={styles.coberturaEyebrowRow}>
+                                        <Text style={styles.coberturaEyebrow}>Fibra óptica (FTTH)</Text>
+                                        <WifiIcon />
+                                    </View>
+                                    <Text style={styles.coberturaBigNumber}>{cobertura.ftth}%</Text>
+                                    <View style={styles.coberturaBarTrack}>
+                                        <View style={[styles.coberturaBarFill, { width: `${cobertura.ftth}%` }]} />
+                                    </View>
+                                </View>
+                                <Text style={styles.coberturaDesc}>
+                                    Población con cobertura de red fija de fibra simétrica para teletrabajo y uso intensivo.
+                                </Text>
+                            </View>
+
+                            <View style={[styles.coberturaCol, styles.coberturaColBorder]}>
+                                <View>
+                                    <View style={styles.coberturaEyebrowRow}>
+                                        <Text style={styles.coberturaEyebrow}>Velocidad y móvil</Text>
+                                        <SignalIcon />
+                                    </View>
+                                    <Text style={styles.coberturaBigNumber}>{cobertura.velocidad_max}</Text>
+                                </View>
+                                <Text style={styles.coberturaDesc}>
+                                    Velocidad máxima disponible en el núcleo urbano y tecnología móvil predominante.
+                                </Text>
+                            </View>
+
+                            <View style={styles.coberturaCol}>
+                                <View>
+                                    <View style={styles.coberturaEyebrowRow}>
+                                        <Text style={styles.coberturaEyebrow}>Mercado y operadores</Text>
+                                        <MarketIcon />
+                                    </View>
+                                    <Text style={styles.coberturaSubTitle}>
+                                        {esCompetitiva ? "Alta competencia" : "Acceso mayorista"}
+                                    </Text>
+                                </View>
+                                <Text style={styles.coberturaDesc}>
+                                    {esCompetitiva
+                                        ? "Presencia de múltiples redes independientes (Digi, Movistar, Orange, Vodafone) con las tarifas más ventajosas."
+                                        : "Municipio regulado por la CNMC con servicio asegurado a través de la red mayorista NEBA."}
+                                </Text>
+                            </View>
+                        </View>
+
+                        {cobertura.satelite_rural && (
+                            <View style={styles.coberturaSatelliteBanner}>
+                                <Text style={styles.coberturaSatelliteText}>
+                                    Dispone además de derecho a internet por satélite subvencionado a 200 Mbps (35 €/mes) mediante el programa estatal Conéctate35.
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+
+                    <View style={styles.coberturaDetailsGrid}>
+                        <View style={styles.coberturaDetailCard}>
+                            <View style={styles.coberturaRow}>
+                                <Text style={styles.coberturaRowLabel}>Nivel de idoneidad</Text>
+                                <Text style={styles.coberturaRowValue}>{teletrabajoScore}</Text>
+                            </View>
+                            <View style={styles.coberturaRow}>
+                                <Text style={styles.coberturaRowLabel}>Videoconferencia simultánea</Text>
+                                <Text style={styles.coberturaRowValue}>{videollamadas}</Text>
+                            </View>
+                            <View style={styles.coberturaRow}>
+                                <Text style={styles.coberturaRowLabel}>Estabilidad de conexión</Text>
+                                <Text style={styles.coberturaRowValue}>{estabilidad}</Text>
+                            </View>
+                            <View style={styles.coberturaRow}>
+                                <Text style={styles.coberturaRowLabel}>Acceso móvil en exteriores</Text>
+                                <Text style={styles.coberturaRowValue}>Tecnología {cobertura.red_movil}</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.coberturaDetailCard}>
+                            <View style={styles.coberturaRow}>
+                                <Text style={styles.coberturaRowLabel}>Tecnología de banda ancha</Text>
+                                <Text style={styles.coberturaRowValue}>FTTH (Fibra hasta el hogar)</Text>
+                            </View>
+                            <View style={styles.coberturaRow}>
+                                <Text style={styles.coberturaRowLabel}>Hogares con cobertura FTTH</Text>
+                                <Text style={styles.coberturaRowValue}>{cobertura.ftth}%</Text>
+                            </View>
+                            <View style={styles.coberturaRow}>
+                                <Text style={styles.coberturaRowLabel}>Velocidad máxima teórica</Text>
+                                <Text style={styles.coberturaRowValue}>{cobertura.velocidad_max}</Text>
+                            </View>
+                            <View style={styles.coberturaRow}>
+                                <Text style={styles.coberturaRowLabel}>Régimen regulatorio CNMC</Text>
+                                <Text style={styles.coberturaRowValue}>{esCompetitiva ? "Mercado desregulado" : "Obligación mayorista NEBA"}</Text>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            )}
+
+            {summary && (
+                <View wrap={false}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomColor: `${colors.green}44`, borderBottomWidth: 1, marginBottom: 8, paddingBottom: 5 }}>
+                        <Text style={[styles.sectionTitle, { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 }]}>
+                            Equipo de gobierno
+                        </Text>
+                        {summary.legislatura && (
+                            <Text style={{ color: `${colors.green}99`, fontFamily: "Helvetica-Bold", fontSize: 7.5, textTransform: "uppercase" }}>
+                                Mandato {summary.legislatura}
+                            </Text>
+                        )}
+                    </View>
+                    <View style={styles.gobContainer}>
+                        <View style={styles.gobLeftCol}>
+                            <HemicicloReport
+                                totalSeats={summary.totalSeats}
+                                majorityThreshold={summary.majorityThreshold}
+                                seats={summary.seats}
+                            />
+                            <AlcaldiaCardReport
+                                eyebrow={sectionEyebrow}
+                                displayName={summary.displayName}
+                                partyTag={summary.partyTag}
+                                leadPartyColor={summary.leadPartyColor}
+                                badgeText={summary.badgeText}
+                                narrative={summary.narrative}
+                            />
+                        </View>
+
+                        <View style={styles.gobRightCol}>
+                            <PartidosListReport
+                                partidos={summary.partidos}
+                                totalSeats={summary.totalSeats}
+                            />
+                        </View>
+                    </View>
+                </View>
+            )}
+        </View>
+    );
+}
+
+function SummaryReportSection({ data, wikiData }: { data: MunicipioData; wikiData?: WikipediaData | null }) {
     const hasWikiText = Boolean(wikiData?.paragraphs?.length);
     const images = wikiData?.images || [];
 
     return (
-        <Page size="A4" style={styles.page}>
-            <ReportFooter />
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Conoce el lugar</Text>
-                {hasWikiText ? (
-                    <View wrap={false}>
-                        {wikiData!.paragraphs!.slice(0, 3).map((p) => (
-                            <Text key={p.slice(0, 40)} style={[styles.intro, { marginBottom: 8 }]}>{p}</Text>
-                        ))}
-                    </View>
-                ) : (
-                    <Text style={styles.intro}>
-                        {data.municipio} es un municipio de {data.provincia} (Castilla y León), con {formatNumber(data.poblacion)} habitantes censados.
-                    </Text>
-                )}
-                {images.length === 1 && (
-                    <View style={styles.summaryImageCard} wrap={false}>
-                        <Image src={images[0].url} style={styles.summaryImage} alt="" />
-                        {images[0].description && <Text style={styles.summaryImageCaption}>{images[0].description}</Text>}
-                    </View>
-                )}
-                {images.length > 1 && (
-                    <View style={styles.summaryImagesRow} wrap={false}>
-                        {images.slice(0, 2).map((img) => (
-                            <View key={img.url} style={styles.summaryImageCol}>
-                                <Image src={img.url} style={styles.summaryImageHalf} alt="" />
-                                {img.description && <Text style={styles.summaryImageCaption}>{shorten(img.description, 50)}</Text>}
-                            </View>
-                        ))}
-                    </View>
-                )}
-            </View>
-        </Page>
+        <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Conoce el lugar</Text>
+            {hasWikiText ? (
+                <View wrap={false}>
+                    {wikiData!.paragraphs!.slice(0, 3).map((p) => (
+                        <Text key={p.slice(0, 40)} style={[styles.intro, { marginBottom: 6 }]}>{p}</Text>
+                    ))}
+                </View>
+            ) : (
+                <Text style={styles.intro}>
+                    {data.municipio} es un municipio de {data.provincia} (Castilla y León), con {formatNumber(data.poblacion)} habitantes censados.
+                </Text>
+            )}
+            {images.length === 1 && (
+                <View style={styles.summaryImageCard} wrap={false}>
+                    <Image src={images[0].url} style={styles.summaryImage} alt="" />
+                    {images[0].description && <Text style={styles.summaryImageCaption}>{images[0].description}</Text>}
+                </View>
+            )}
+            {images.length > 1 && (
+                <View style={styles.summaryImagesRow} wrap={false}>
+                    {images.slice(0, 2).map((img) => (
+                        <View key={img.url} style={styles.summaryImageCol}>
+                            <Image src={img.url} style={styles.summaryImageHalf} alt="" />
+                            {img.description && <Text style={styles.summaryImageCaption}>{shorten(img.description, 50)}</Text>}
+                        </View>
+                    ))}
+                </View>
+            )}
+        </View>
     );
 }
 
-function ChartsPageReport({ chartRows }: { chartRows: any[][] }) {
+function PuntuacionReportSection({ scores, preferences }: { scores: ScoreResult; preferences: Record<string, any> }) {
+    const departments = Object.entries(scores.departments);
+
     return (
-        <Page size="A4" style={styles.page}>
-            <ReportFooter />
-            <View style={styles.section}>
+        <View style={styles.section}>
+            <View wrap={false}>
+                <Text style={styles.sectionTitle}>Puntuación</Text>
+                <View style={styles.globalScoreBlock}>
+                    <View style={styles.globalScoreHeader}>
+                        <View>
+                            <Text style={styles.globalEyebrow}>¿Encaja contigo?</Text>
+                            <View style={styles.globalScoreRow}>
+                                <Text style={styles.globalScoreNumber}>{scores.global}</Text>
+                                <Text style={styles.globalScoreMax}>/ 100</Text>
+                            </View>
+                            <View style={styles.globalBar}>
+                                <View style={[styles.globalBarFill, { width: `${Math.min(100, Math.max(0, scores.global))}%` }]} />
+                            </View>
+                        </View>
+                        <Text style={styles.globalLabel}>{getGlobalLabel(scores.global)}</Text>
+                    </View>
+                    <View style={styles.profileBox}>
+                        <Text style={styles.profileLine}>
+                            <Text style={styles.profilePrefix}>Perfil  ·  </Text>
+                            {getProfilePills(preferences).join("  ·  ")}
+                        </Text>
+                    </View>
+                </View>
+            </View>
+
+            <View wrap={false}>
+                <Text style={styles.sectionTitle}>Puntuación por áreas</Text>
+            </View>
+            {departments.map(([name, dept]) => {
+                const pct = dept.maxScore ? Math.round((dept.score / dept.maxScore) * 100) : 0;
+                return (
+                    <View key={name} style={styles.department} wrap={false}>
+                        <View style={styles.departmentHeader}>
+                            <Text style={styles.departmentName}>{name === "ine" ? "Indicadores INE" : capitalize(name)}</Text>
+                            <Text style={styles.departmentScore}>{pct}/100</Text>
+                        </View>
+                        <View style={styles.bar}>
+                            <View style={[styles.barFill, { width: `${pct}%` }]} />
+                        </View>
+                        {dept.noData ? (
+                            <Text style={styles.note}>Sin registros oficiales suficientes en el término municipal.</Text>
+                        ) : (
+                            dept.indicators.map((ind) => (
+                                <View key={ind.label} style={styles.indicator}>
+                                    <Text style={styles.indicatorLabel}>{ind.label}</Text>
+                                    <Text style={styles.indicatorValue}>{formatIndicatorValue(ind)}</Text>
+                                    <Text style={styles.indicatorScore}>+{ind.score}/{ind.max}</Text>
+                                </View>
+                            ))
+                        )}
+                    </View>
+                );
+            })}
+        </View>
+    );
+}
+
+function ChartsReportSection({ chartRows }: { chartRows: any[][] }) {
+    return (
+        <View style={styles.section}>
+            <View wrap={false}>
                 <Text style={styles.sectionTitle}>Datos estadísticos</Text>
-                <Text style={styles.intro}>Series y distribuciones oficiales del INE y del Ministerio de Vivienda con su último valor disponible.</Text>
-                <View style={styles.chartsContainer}>
-                    {chartRows.map((row, rIdx) => (
-                        <View key={rIdx} style={[styles.chartRow, rIdx > 0 ? { marginTop: -1 } : {}]} wrap={false}>
-                            {row.map((item, cIdx) => (
-                                item.type === "ine" ? (
-                                    <IneChart key={getTableKey(item.table)} table={item.table} data={item.data} fullWidth={row.length === 1} borderRight={row.length > 1 && cIdx === 0} />
-                                ) : (
-                                    <AlquilerChart key="alquiler" vivienda={item.vivienda} fullWidth={row.length === 1} borderRight={row.length > 1 && cIdx === 0} />
-                                )
-                            ))}
+            </View>
+            <View style={styles.chartsContainer}>
+                {chartRows.map((row, rIdx) => (
+                    <View key={rIdx} style={[styles.chartRow, rIdx > 0 ? { marginTop: -1 } : {}]} wrap={false}>
+                        {row.map((item, cIdx) => (
+                            <IneChart key={getTableKey(item.table)} table={item.table} data={item.data} fullWidth={row.length === 1} borderRight={row.length > 1 && cIdx === 0} />
+                        ))}
+                    </View>
+                ))}
+            </View>
+        </View>
+    );
+}
+
+function MetodologiaReportSection() {
+    return (
+        <View style={styles.section}>
+            <View wrap={false}>
+                <Text style={styles.sectionTitle}>Metodología y fuentes</Text>
+                <Text style={styles.intro}>¿Me puedo quedar? evalúa y compara de forma objetiva la calidad de vida y servicios en los 2.248 municipios de Castilla y León en un índice transparente de 0 a 100%.</Text>
+            </View>
+
+            <View wrap={false}>
+                <Text style={styles.methodologySectionTitle}>1. Sistema de puntuación y normalización</Text>
+                <View style={styles.sourceGrid}>
+                    {[
+                        { tag: "A. Normalización", title: "Escala 0 a 100", desc: "Conversión de servicios mediante funciones matemáticas:", formulas: ["Umbral: V ≥ Mín ? 100 : 0", "Log: min(100, ln(V)/ln(Opt)×100)", "Interp: (V-Min)/(Opt-Min)×100"] },
+                        { tag: "B. Equidad rural", title: "Factor corrector", desc: "Evita penalizar a pueblos pequeños:", formulas: ["Factor = 0.10 + 0.90 × min(1, Pob/5.000)"], extra: "<100 hab: penaliza 10%. >5.000: 100%." },
+                        { tag: "C. Personalización", title: "Puntuación global", desc: "Media ponderada según prioridades ciudadanas:", formulas: ["Global = [Σ(Score_k × Peso_k × Fac_k)", "         / Σ(Peso_k × Fac_k)] × 100"] },
+                    ].map((card) => (
+                        <View key={card.tag} style={styles.sourceItem}>
+                            <View style={styles.sourceCard}>
+                                <Text style={styles.sourceTag}>{card.tag}</Text>
+                                <Text style={styles.sourceTitle}>{card.title}</Text>
+                                <Text style={styles.sourceDesc}>{card.desc}</Text>
+                                <View style={styles.formulaBox}>
+                                    {card.formulas.map((f) => <Text key={f} style={styles.formulaText}>{f}</Text>)}
+                                </View>
+                                {card.extra && <Text style={[styles.sourceDesc, { marginTop: 3 }]}>{card.extra}</Text>}
+                            </View>
                         </View>
                     ))}
                 </View>
             </View>
-        </Page>
+
+            <View wrap={false}>
+                <Text style={styles.methodologySectionTitle}>2. Fuentes de información pública</Text>
+                <View style={styles.sourceGrid}>
+                    {[
+                        { tag: "Junta de Castilla y León", title: "Datos Abiertos", desc: "Datos actualizados sobre sanidad, colegios, empleo, comercio, seguridad, etc." },
+                        { tag: "Estadísticas", title: "INE", desc: "Series históricas sobre empresas, ocupación y población mediante API oficial." },
+                        { tag: "Datos extra", title: "Otras fuentes", desc: "Precios de alquiler (MIVAU), conectividad (CNMC) y medios de comunicación locales." },
+                    ].map((source) => (
+                        <View key={source.tag} style={styles.sourceItem}>
+                            <View style={styles.sourceCard}>
+                                <Text style={styles.sourceTag}>{source.tag}</Text>
+                                <Text style={styles.sourceTitle}>{source.title}</Text>
+                                <Text style={styles.sourceDesc}>{source.desc}</Text>
+                            </View>
+                        </View>
+                    ))}
+                </View>
+
+                <View style={styles.legalBox}>
+                    <Text style={styles.legalText}>
+                        ¿Me puedo quedar? (mepuedoquedar.es) es un proyecto de código abierto bajo la Ley 37/2007 de reutilización de información del sector público. Las puntuaciones son modelos cuantitativos orientativos de análisis ciudadano.
+                    </Text>
+                </View>
+            </View>
+        </View>
     );
 }
 
 function MunicipioReport({ data, scores, ineData, preferences, wikiData }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean; wikiData?: WikipediaData | null }) {
     const elecciones: EleccionesData | undefined = data.mas?.elecciones;
     const hasElecciones = Boolean(elecciones && (elecciones.alcaldia || (elecciones.partidos && elecciones.partidos.length > 0)));
-    const departments = Object.entries(scores.departments);
+    const cobertura: CoberturaData | undefined = data.mas?.cobertura;
+    const hasCobertura = Boolean(cobertura);
     const visibleTables = ineData ? TABLES.filter((t) => filterData(ineData[getTableKey(t)] ?? [], t.filter).length > 0) : [];
     const showAlquiler = Boolean(data.mas?.vivienda?.alquiler?.precio || data.mas?.vivienda?.alquiler?.serie?.length);
 
-    const chartItems = [
-        ...visibleTables.map((t) => ({ type: "ine" as const, table: t, data: ineData?.[getTableKey(t)] ?? [] })),
-        ...(showAlquiler ? [{ type: "alquiler" as const, vivienda: data.mas.vivienda }] : []),
-    ];
+    const chartItems = visibleTables.map((t) => ({ type: "ine" as const, table: t, data: ineData?.[getTableKey(t)] ?? [] }));
 
     const chartRows: (typeof chartItems)[] = [];
     for (let i = 0; i < chartItems.length; i += 2) {
@@ -651,116 +973,40 @@ function MunicipioReport({ data, scores, ineData, preferences, wikiData }: { dat
                 </ImageBackground>
             </Page>
 
-            <SummaryPageReport data={data} wikiData={wikiData} />
-
             <Page size="A4" style={styles.page}>
                 <ReportFooter />
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Puntuación</Text>
-                    <View style={styles.globalScoreBlock} wrap={false}>
-                        <View style={styles.globalScoreHeader}>
-                            <View>
-                                <Text style={styles.globalEyebrow}>¿Encaja contigo?</Text>
-                                <View style={styles.globalScoreRow}>
-                                    <Text style={styles.globalScoreNumber}>{scores.global}</Text>
-                                    <Text style={styles.globalScoreMax}>/ 100</Text>
-                                </View>
-                                <View style={styles.globalBar}>
-                                    <View style={[styles.globalBarFill, { width: `${Math.min(100, Math.max(0, scores.global))}%` }]} />
-                                </View>
-                            </View>
-                            <Text style={styles.globalLabel}>{getGlobalLabel(scores.global)}</Text>
-                        </View>
-                        <View style={styles.profileBox}>
-                            <Text style={styles.profileLine}>
-                                <Text style={styles.profilePrefix}>Perfil  ·  </Text>
-                                {getProfilePills(preferences).join("  ·  ")}
-                            </Text>
-                        </View>
-                    </View>
-
-                    <Text style={styles.sectionTitle}>Puntuación por áreas</Text>
-                    {departments.map(([name, dept]) => {
-                        const pct = dept.maxScore ? Math.round((dept.score / dept.maxScore) * 100) : 0;
-                        return (
-                            <View key={name} style={styles.department} wrap={false}>
-                                <View style={styles.departmentHeader}>
-                                    <Text style={styles.departmentName}>{name === "ine" ? "Indicadores INE" : capitalize(name)}</Text>
-                                    <Text style={styles.departmentScore}>{pct}/100</Text>
-                                </View>
-                                <View style={styles.bar}>
-                                    <View style={[styles.barFill, { width: `${pct}%` }]} />
-                                </View>
-                                {dept.noData ? (
-                                    <Text style={styles.note}>Sin registros oficiales suficientes en el término municipal.</Text>
-                                ) : (
-                                    dept.indicators.map((ind) => (
-                                        <View key={ind.label} style={styles.indicator}>
-                                            <Text style={styles.indicatorLabel}>{ind.label}</Text>
-                                            <Text style={styles.indicatorValue}>{formatIndicatorValue(ind)}</Text>
-                                            <Text style={styles.indicatorScore}>+{ind.score}/{ind.max}</Text>
-                                        </View>
-                                    ))
-                                )}
-                            </View>
-                        );
-                    })}
-                </View>
+                <SummaryReportSection data={data} wikiData={wikiData} />
             </Page>
 
-            {chartRows.length > 0 && <ChartsPageReport chartRows={chartRows} />}
+            <Page size="A4" style={styles.page}>
+                <ReportFooter />
+                <PuntuacionReportSection scores={scores} preferences={preferences} />
+            </Page>
 
-            {hasElecciones && <GobiernoPageReport elecciones={elecciones!} />}
+            {chartRows.length > 0 && (
+                <Page size="A4" style={styles.page}>
+                    <ReportFooter />
+                    <ChartsReportSection chartRows={chartRows} />
+                </Page>
+            )}
+
+            {(showAlquiler || hasCobertura || hasElecciones) && (
+                <Page size="A4" style={styles.page}>
+                    <ReportFooter />
+                    {showAlquiler && <AlquilerReportSection vivienda={data.mas?.vivienda} />}
+                    {(hasCobertura || hasElecciones) && (
+                        <TerritorioReportSection
+                            cobertura={cobertura}
+                            elecciones={elecciones}
+                            municipio={data.municipio}
+                        />
+                    )}
+                </Page>
+            )}
 
             <Page size="A4" style={styles.page}>
                 <ReportFooter />
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Metodología y fuentes</Text>
-                    <Text style={styles.intro}>¿Me puedo quedar? evalúa y compara de forma objetiva la calidad de vida y servicios en los 2.248 municipios de Castilla y León en un índice transparente de 0 a 100%.</Text>
-                    <Text style={styles.methodologySectionTitle}>1. Sistema de puntuación y normalización</Text>
-                    <View style={styles.sourceGrid} wrap={false}>
-                        {[
-                            { tag: "A. Normalización", title: "Escala 0 a 100", desc: "Conversión de servicios mediante funciones matemáticas:", formulas: ["Umbral: V ≥ Mín ? 100 : 0", "Log: min(100, ln(V)/ln(Opt)×100)", "Interp: (V-Min)/(Opt-Min)×100"] },
-                            { tag: "B. Equidad rural", title: "Factor corrector", desc: "Evita penalizar a pueblos pequeños:", formulas: ["Factor = 0.10 + 0.90 × min(1, Pob/5.000)"], extra: "<100 hab: penaliza 10%. >5.000: 100%." },
-                            { tag: "C. Personalización", title: "Puntuación global", desc: "Media ponderada según prioridades ciudadanas:", formulas: ["Global = [Σ(Score_k × Peso_k × Fac_k)", "         / Σ(Peso_k × Fac_k)] × 100"] },
-                        ].map((card) => (
-                            <View key={card.tag} style={styles.sourceItem}>
-                                <View style={styles.sourceCard}>
-                                    <Text style={styles.sourceTag}>{card.tag}</Text>
-                                    <Text style={styles.sourceTitle}>{card.title}</Text>
-                                    <Text style={styles.sourceDesc}>{card.desc}</Text>
-                                    <View style={styles.formulaBox}>
-                                        {card.formulas.map((f) => <Text key={f} style={styles.formulaText}>{f}</Text>)}
-                                    </View>
-                                    {card.extra && <Text style={[styles.sourceDesc, { marginTop: 3 }]}>{card.extra}</Text>}
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-
-                    <Text style={styles.methodologySectionTitle}>2. Fuentes de información pública</Text>
-                    <View style={styles.sourceGrid} wrap={false}>
-                        {[
-                            { tag: "Junta de Castilla y León", title: "Datos Abiertos", desc: "Datos actualizados sobre sanidad, colegios, empleo, comercio, seguridad, etc." },
-                            { tag: "Estadísticas", title: "INE", desc: "Series históricas sobre empresas, ocupación y población mediante API oficial." },
-                            { tag: "Datos extra", title: "Otras fuentes", desc: "Precios de referencia de alquiler (MIVAU) y medios de comunicación locales." },
-                        ].map((source) => (
-                            <View key={source.tag} style={styles.sourceItem}>
-                                <View style={styles.sourceCard}>
-                                    <Text style={styles.sourceTag}>{source.tag}</Text>
-                                    <Text style={styles.sourceTitle}>{source.title}</Text>
-                                    <Text style={styles.sourceDesc}>{source.desc}</Text>
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-
-                    <View style={styles.legalBox} wrap={false}>
-                        <Text style={styles.legalText}>
-                            ¿Me puedo quedar? (mepuedoquedar.es) es un proyecto de código abierto bajo la Ley 37/2007 de reutilización de información del sector público. Las puntuaciones son modelos cuantitativos orientativos de análisis ciudadano.
-                        </Text>
-                    </View>
-                </View>
+                <MetodologiaReportSection />
             </Page>
         </Document>
     );

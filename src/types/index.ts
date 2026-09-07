@@ -50,3 +50,11 @@ export interface EleccionesData {
     gobierno?: EleccionesGobierno | null;
     partidos: EleccionesPartido[];
 }
+
+export interface CoberturaData {
+    ftth: number;
+    red_movil: "5G" | "4G";
+    velocidad_max: string;
+    zona_cnmc: "competitiva" | "regulada";
+    satelite_rural: boolean;
+}

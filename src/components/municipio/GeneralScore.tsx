@@ -26,7 +26,7 @@ function ScoreItem({ name, number, multiplier, isDefault, preferences }: { name:
     const priority = getDepartmentPriority(name, multiplier, preferences, isDefault);
 
     return (
-        <details className={`group bg-bg-card p-5 text-title transition-colors hover:bg-white/30 ${name === "ine" ? "md:col-span-2" : ""}`}>
+        <details className={`group bg-white/30 border border-title/20 p-4 text-title transition-colors hover:bg-white/30 ${name === "ine" ? "md:col-span-2" : ""}`}>
             <summary className="list-none cursor-pointer [&::-webkit-details-marker]:hidden">
                 <div className="flex min-h-11 items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-2">
@@ -58,7 +58,7 @@ function ScoreItem({ name, number, multiplier, isDefault, preferences }: { name:
                     <p className="text-xs italic text-black/50">Sin registros oficiales suficientes en el término municipal</p>
                 ) : (
                     number.indicators.map((ind) => (
-                        <div key={ind.label} className="flex items-center justify-between gap-3 bg-bg/60 px-3 py-2.5 text-[11px]">
+                        <div key={ind.label} className="flex items-center justify-between gap-3 bg-white/30 border border-title/20 px-3 py-2.5 text-[11px]">
                             <span className="min-w-0 truncate font-medium text-black/80" title={ind.label}>{ind.label}</span>
                             <div className="flex shrink-0 items-center gap-2">
                                 <span className="font-mono text-[10px] text-black/60">{formatIndicatorValue(ind)}</span>
@@ -108,7 +108,9 @@ export default function GeneralScore({ number, scoresDepartments }: { number: nu
 
             <div className="h-1 w-full bg-title/10">
                 <div className="h-full bg-text-2 transition-[width] duration-500 ease-out" style={{ width: `${Math.min(100, Math.max(0, number))}%` }} />
+                <div className="h-full bg-text-2 transition-[width] duration-500 ease-out blur-xl scale-105 opacity-80" style={{ width: `${Math.min(100, Math.max(0, number))}%` }} />
             </div>
+
 
             {showDepartments && (
                 <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2">

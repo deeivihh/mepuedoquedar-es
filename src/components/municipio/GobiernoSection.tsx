@@ -23,7 +23,7 @@ function Hemiciclo({
     onHoverParty: (siglas: string | null) => void;
 }) {
     return (
-        <div className="flex flex-col items-center justify-center bg-white/20 pb-8">
+        <div className="flex flex-col items-center justify-center pb-8">
             <div className="w-full max-w-[340px] aspect-[320/180] relative">
                 <svg viewBox="0 0 320 180" className="w-full h-full overflow-visible">
                     {seats.map((seat) => {
@@ -164,8 +164,8 @@ function GruposPoliticosList({
     const isGrid = partidos.length >= 5;
 
     return (
-        <div className="lg:col-span-6 p-6 sm:p-8 flex flex-col justify-between gap-2">
-            <div className={isGrid ? "grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1" : "flex flex-col gap-4 flex-1 justify-between"}>
+        <div className="lg:col-span-5 w-full p-6 flex flex-col justify-between">
+            <div className={isGrid ? "grid grid-cols-1sm:grid-cols-2 gap-3 flex-1 w-full" : "flex flex-col gap-3 flex-1 justify-between"}>
                 {partidos.map((p, i) => {
                     const isHovered = Boolean(p.siglas && hoveredParty === p.siglas);
                     const isFaded = hoveredParty !== null && !isHovered;
@@ -181,12 +181,12 @@ function GruposPoliticosList({
                             key={p.siglas}
                             onMouseEnter={() => p.siglas && onHoverParty(p.siglas)}
                             onMouseLeave={() => onHoverParty(null)}
-                            className={`p-3 sm:p-3.5 bg-white/40 border border-title/15 transition-colors duration-150 flex flex-col justify-center gap-2 hover:bg-white/70 cursor-pointer ${isGrid ? (isOddLast ? "sm:col-span-2" : "") : "flex-1"
+                            className={`p-6 bg-white/40 border border-title/20 transition-colors duration-150 flex flex-col justify-center gap-2 hover:bg-white/70 cursor-pointer ${isGrid ? (isOddLast ? "sm:col-span-2" : "") : "flex-1"
                                 }`}
                             style={{ opacity: isFaded ? 0.4 : 1 }}
                         >
                             <div className="flex items-start justify-between h-full gap-2">
-                                <div className="flex items-center gap-2 min-w-0">
+                                <div className="flex items-center gap-2 min-w-0 pt-1">
                                     <span
                                         className="w-2.5 h-2.5 rounded-full shrink-0"
                                         style={{ backgroundColor: p.color || "#1F3A2E" }}
@@ -245,7 +245,7 @@ export default function GobiernoSection({ data }: { data: any }) {
     }
 
     return (
-        <section className="py-14 sm:py-12 relative">
+        <section id="equipo-de-gobierno" className="relative">
             <div className="mb-8 flex flex-col gap-2">
                 <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">
                     Equipo de gobierno
@@ -257,9 +257,9 @@ export default function GobiernoSection({ data }: { data: any }) {
                 )}
             </div>
 
-            <div className="border-y border-title/20 bg-bg-card">
-                <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-title/15 items-stretch">
-                    <div className="lg:col-span-6 flex flex-col divide-y divide-title/15">
+            <div className="border border-title/20 bg-white/30">
+                <div className="grid grid-cols-1 lg:grid-cols-9 divide-y lg:divide-y-0 lg:divide-x divide-title/15 items-stretch">
+                    <div className="lg:col-span-4 flex flex-col divide-y divide-title/15">
                         <Hemiciclo
                             majorityThreshold={summary.majorityThreshold}
                             totalSeats={summary.totalSeats}

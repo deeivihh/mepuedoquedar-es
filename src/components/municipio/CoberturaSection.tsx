@@ -1,13 +1,7 @@
 import Source from "./Source";
 import { MdOutlineWifi, MdSignalCellularAlt, MdSpeed, MdSatelliteAlt } from "react-icons/md";
-
-interface CoberturaData {
-    ftth: number;
-    red_movil: "5G" | "4G";
-    velocidad_max: string;
-    zona_cnmc: "competitiva" | "regulada";
-    satelite_rural: boolean;
-}
+import type { CoberturaData } from "@/types";
+import { FaStore } from "react-icons/fa";
 
 export default function CoberturaSection({ data }: { data: any }) {
     const cobertura: CoberturaData | undefined = data.mas?.cobertura;
@@ -16,14 +10,14 @@ export default function CoberturaSection({ data }: { data: any }) {
     const esCompetitiva = cobertura.zona_cnmc === "competitiva";
 
     return (
-        <section className="py-14 sm:py-12 relative">
+        <section id="conectividad" className="relative">
             <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Conectividad</h2>
                 </div>
             </div>
 
-            <div className="border-y border-title/20 bg-bg-card">
+            <div className="border border-title/20 bg-white/30">
                 <div className="grid grid-cols-1 divide-y divide-title/15 md:grid-cols-3 md:divide-y-0 md:divide-x">
                     <div className="flex flex-col justify-between p-6 sm:p-8">
                         <div>
@@ -63,11 +57,6 @@ export default function CoberturaSection({ data }: { data: any }) {
                                     {cobertura.velocidad_max}
                                 </span>
                             </div>
-                            <div className="mt-3 flex items-center gap-2">
-                                <span className="inline-flex items-center gap-1 border border-title/20 bg-white/40 px-2.5 py-0.5 text-xs font-semibold text-title">
-                                    <MdSpeed className="text-text-2" aria-hidden="true" /> Red {cobertura.red_movil}
-                                </span>
-                            </div>
                         </div>
                         <p className="mt-4 text-xs leading-relaxed text-title/60">
                             Velocidad máxima disponible en el núcleo urbano y tecnología móvil predominante.
@@ -80,15 +69,7 @@ export default function CoberturaSection({ data }: { data: any }) {
                                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-title/55">
                                     Mercado y operadores
                                 </p>
-                                <span
-                                    className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                                        esCompetitiva
-                                            ? "bg-text-2/15 text-text-2 border border-text-2/30"
-                                            : "bg-title/10 text-title/75 border border-title/20"
-                                    }`}
-                                >
-                                    {esCompetitiva ? "Zona Competitiva" : "Zona Regulada"}
-                                </span>
+                                <FaStore className="text-xl text-text-2" aria-hidden="true" />
                             </div>
                             <h3 className="title-font mt-4 text-xl font-semibold text-title">
                                 {esCompetitiva ? "Alta competencia" : "Acceso mayorista"}
@@ -105,7 +86,6 @@ export default function CoberturaSection({ data }: { data: any }) {
                 {cobertura.satelite_rural && (
                     <div className="border-t border-title/15 bg-white/20 px-6 py-3 sm:px-8">
                         <div className="flex items-center gap-2 text-xs text-title/70">
-                            <MdSatelliteAlt className="shrink-0 text-text-2" aria-hidden="true" />
                             <span>
                                 Dispone además de derecho a internet por satélite subvencionado a 200 Mbps (35 €/mes) mediante el programa estatal Conéctate35.
                             </span>
@@ -115,7 +95,7 @@ export default function CoberturaSection({ data }: { data: any }) {
             </div>
 
             <Source href="https://data.cnmc.es/">
-                CNMC y Ministerio para la Transformación Digital
+                Comisión Nacional de los Mercados y la Competencia
             </Source>
         </section>
     );

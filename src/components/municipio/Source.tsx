@@ -6,13 +6,14 @@ interface SourceProps {
     children?: React.ReactNode;
     name?: string;
     className?: string;
+    section?: string;
 }
 
-export default function Source({ href, children, name, className = "" }: SourceProps) {
+export default function Source({ href, children, name, className = "", section = "" }: SourceProps) {
     const content = children ?? name;
 
     return (
-        <p className={`mt-3 px-0.5 gap-1 flex items-center text-[10px] text-title/50 group relative w-fit ${className}`.trim()}>
+        <p className={`${section === "" ? "mt-3 px-0.5" : "mt-0"} gap-1 flex items-center text-[10px] text-title/50 group relative w-fit ${className}`.trim()}>
             <span>Fuente:</span>
             {href ? (
                 <a

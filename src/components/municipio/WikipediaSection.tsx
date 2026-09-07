@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { WikipediaData } from "@/actions/wikipedia";
 import { FaExternalLinkAlt, FaChevronDown, FaChevronUp, FaWikipediaW } from "react-icons/fa";
+import Source from "./Source";
 
 export { getMunicipioWikipedia } from "@/actions/wikipedia";
 
@@ -64,22 +65,9 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
     const images = data.images || [];
 
     return (
-        <article className="flex flex-col gap-10 p-6 sm:p-8 lg:gap-12 lg:p-10">
-            <section className="flex flex-col gap-5">
-                <header className="flex items-center justify-between border-b border-title/20 pb-3 text-sm">
-                    <div className="flex items-center gap-2 text-title">
-                        <FaWikipediaW size={18} />
-                        <span className="text-[10px] font-bold uppercase tracking-[0.18em]">Wikipedia</span>
-                    </div>
-                    {data.pageUrl && (
-                        <a href={data.pageUrl} target="_blank" rel="noreferrer" title="Abrir en Wikipedia" className="flex items-center gap-2 text-xs font-semibold text-title/60 hover:text-text-2">
-                            <FaExternalLinkAlt size={15} />
-                        </a>
-                    )}
-                </header>
-
+        <article className="flex flex-col gap-10 mt-2">
+            <section className="flex flex-col gap-2">
                 <div className="space-y-4">
-                    <h3 className="title-font text-3xl font-semibold leading-tight text-title">{data.title}</h3>
                     {visibleParas.map((p) => <p key={p.slice(0, 40)}>{p}</p>)}
                 </div>
 
@@ -88,6 +76,7 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
                         {expanded ? <>Menos <FaChevronUp size={10} /></> : <>Más <FaChevronDown size={10} /></>}
                     </button>
                 )}
+                <Source section="wikipedia" href={data.pageUrl}>Wikipedia</Source>
             </section>
 
             {images.length > 0 && <WikipediaGallery images={images} title={data.title} />}

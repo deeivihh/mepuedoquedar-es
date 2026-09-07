@@ -57,7 +57,7 @@ function MunicipioHero({ data }: { data: any }) {
         : "Castilla y León, España";
 
     return (
-        <section className="relative isolate flex min-h-0 flex-col overflow-hidden border border-title/20 bg-bg-card min-md:h-[50svh]">
+        <section className="relative isolate flex min-h-0 flex-col overflow-hidden min-md:h-[50svh]">
             <div className="relative max-md:p-6 p-16 flex flex-col justify-between w-full h-full gap-2 z-999 max-w-xl">
                 <div className="flex flex-col gap-2">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-title/55 px-1">{locationLabel}</p>
@@ -193,46 +193,50 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     }
 
     return (
-        <article className="w-full text-title">
-            <div className="flex flex-col min-h-[75svh]">
+        <article className="w-full text-title card border border-title/20">
+            <div className="flex flex-col min-h-[75svh] max-md:py-4">
                 <MunicipioHero data={data} />
-                <section className="border border-title/20 bg-bg-card">
+                <section className="border-y border-title/30 shadow-xs">
                     <div className="px-6 py-10 sm:px-10 lg:px-14 lg:py-12">
                         <GeneralScore number={scores?.global ?? 0} scoresDepartments={scores?.departments ?? {}} />
                     </div>
                 </section>
-                <AlquilerSection data={data} />
-                <CoberturaSection data={data} />
             </div>
 
-            {data.cod_int && ineData && (
-                <section className="py-14 sm:py-12 relative">
-                    <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                        <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Lo que cuentan los datos</h2>
-                    </div>
-                    <div className="overflow-hidden border-y border-title/20 bg-bg-card">
-                        <DatosSection ineData={ineData} />
-                    </div>
-                    <Source href="https://www.ine.es/">
-                        Instituto Nacional de Estadística
-                    </Source>
-                </section>
-            )}
+            <div className="min-md:px-14 p-6 py-8 flex flex-col gap-16">
+                {wikiData && (
+                    <section id="conoce-el-lugar">
+                        <div className="mb-4">
+                            <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Conoce el lugar</h2>
+                        </div>
+                        <div className="overflow-hidden">
+                            <WikipediaSection data={wikiData} />
+                        </div>
+                    </section>
+                )}
 
-            {wikiData && (
-                <section className="py-14 sm:py-12">
-                    <div className="mb-8">
-                        <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Conoce el lugar</h2>
-                    </div>
-                    <div className="overflow-hidden border-y border-title/20 bg-bg-card">
-                        <WikipediaSection data={wikiData} />
-                    </div>
-                </section>
-            )}
+                <GobiernoSection data={data} />
 
-            <GobiernoSection data={data} />
+                <AlquilerSection data={data} />
 
-            <PrensaSection data={data} />
+                <CoberturaSection data={data} />
+
+                {data.cod_int && ineData && (
+                    <section id="lo-que-cuentan-los-datos" className="relative">
+                        <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                            <h2 className="title-font text-3xl font-semibold tracking-tight sm:text-4xl">Lo que cuentan los datos</h2>
+                        </div>
+                        <div className="overflow-hidden border border-title/20 bg-white/30">
+                            <DatosSection ineData={ineData} />
+                        </div>
+                        <Source href="https://www.ine.es/">
+                            Instituto Nacional de Estadística
+                        </Source>
+                    </section>
+                )}
+
+                <PrensaSection data={data} />
+            </div>
             {scores && <DownloadReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} wikiData={wikiData} />}
         </article>
     );
