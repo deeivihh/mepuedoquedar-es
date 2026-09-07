@@ -18,6 +18,7 @@ import CoberturaSection from "./CoberturaSection";
 import PrensaSection from "./PrensaSection";
 import GobiernoSection from "./GobiernoSection";
 import Source from "./Source";
+import MunicipioIndex from "./MunicipioIndex";
 import { fetchAllTables } from "@/lib/datos/ine";
 import { TABLES } from "@/lib/config/tables";
 import dynamic from "next/dynamic";
@@ -193,7 +194,8 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     }
 
     return (
-        <article className="w-full text-title card border border-title/20">
+        <article className="w-full text-title card border border-title/20 relative">
+            <MunicipioIndex />
             <div className="flex flex-col min-h-[75svh] max-md:py-4">
                 <MunicipioHero data={data} />
                 <section className="border-y border-title/30 shadow-xs">
