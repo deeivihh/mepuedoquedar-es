@@ -8,6 +8,9 @@ export default function CoberturaSection({ data }: { data: any }) {
     if (!cobertura) return null;
 
     const esCompetitiva = cobertura.zona_cnmc === "competitiva";
+    const teletrabajoScore = cobertura.ftth >= 90 ? "Excelente" : cobertura.ftth >= 80 ? "Muy bueno" : "Básico";
+    const videollamadas = cobertura.ftth >= 85 ? "Óptimo (Múltiples HD/4K)" : "Adecuado (1-2 flujos)";
+    const estabilidad = cobertura.ftth >= 80 ? "Alta (Fibra simétrica)" : "Media (Sujeta a cobertura)";
 
     return (
         <section id="conectividad" className="relative">
@@ -92,6 +95,48 @@ export default function CoberturaSection({ data }: { data: any }) {
                         </div>
                     </div>
                 )}
+
+                <div className="grid grid-cols-1 divide-y divide-title/15 border-t border-title/15 md:grid-cols-2 md:divide-y-0 md:divide-x">
+                    <div className="flex flex-col divide-y divide-title/10 p-6 sm:p-8">
+                        <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
+                            <span className="text-title/65">Nivel de idoneidad</span>
+                            <span className="font-semibold text-title">{teletrabajoScore}</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
+                            <span className="text-title/65">Videoconferencia simultánea</span>
+                            <span className="font-semibold text-title">{videollamadas}</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
+                            <span className="text-title/65">Estabilidad de conexión</span>
+                            <span className="font-semibold text-title">{estabilidad}</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
+                            <span className="text-title/65">Acceso móvil en exteriores</span>
+                            <span className="font-semibold text-title">Tecnología {cobertura.red_movil}</span>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col divide-y divide-title/10 p-6 sm:p-8">
+                        <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
+                            <span className="text-title/65">Tecnología de banda ancha</span>
+                            <span className="font-semibold text-title">FTTH (Fibra hasta el hogar)</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
+                            <span className="text-title/65">Hogares con cobertura FTTH</span>
+                            <span className="font-semibold text-title">{cobertura.ftth}%</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
+                            <span className="text-title/65">Velocidad máxima teórica</span>
+                            <span className="font-semibold text-title">{cobertura.velocidad_max}</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
+                            <span className="text-title/65">Régimen regulatorio CNMC</span>
+                            <span className="font-semibold text-title">
+                                {esCompetitiva ? "Mercado desregulado" : "Obligación mayorista NEBA"}
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <Source href="https://data.cnmc.es/">
