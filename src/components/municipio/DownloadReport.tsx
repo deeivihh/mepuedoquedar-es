@@ -277,18 +277,22 @@ function LineChart({ series, fullWidth, height = 126 }: { series: { label: strin
         return `${linePath(pts)} L ${pos(pts.at(-1)!, pts.length - 1, pts.length).x} ${plot.bottom} L ${pos(pts[0], 0, pts.length).x} ${plot.bottom} Z`;
     };
 
-    const ticks = [max, min + (max - min) / 2, min];
+    const ticks = [
+        { id: "tick-max", val: max },
+        { id: "tick-mid", val: min + (max - min) / 2 },
+        { id: "tick-min", val: min },
+    ];
     const dateIdxs = longest <= 1 ? [0] : [0, Math.floor((longest - 1) / 2), longest - 1].filter((idx, p, l) => l.indexOf(idx) === p);
 
     return (
         <View wrap={false}>
             <Svg width="100%" height={height} viewBox={`0 0 ${vbW} ${height}`}>
-                {ticks.map((val, i) => {
+                {ticks.map((tick, i) => {
                     const y = plot.top + i * ((plot.bottom - plot.top) / 2);
                     return (
-                        <G key={i}>
+                        <G key={tick.id}>
                             <Line x1={plot.left} y1={y} x2={plot.right} y2={y} stroke={`${colors.green}20`} strokeWidth="0.8" />
-                            <Text x="26" y={y + 2.5} fill={colors.muted} style={{ fontSize: 6 }} textAnchor="end">{formatCompact(val)}</Text>
+                            <Text x="26" y={y + 2.5} fill={colors.muted} style={{ fontSize: 6 }} textAnchor="end">{formatCompact(tick.val)}</Text>
                         </G>
                     );
                 })}
@@ -298,13 +302,13 @@ function LineChart({ series, fullWidth, height = 126 }: { series: { label: strin
                         <Path d={linePath(item.points)} fill="none" stroke={CHART_PALETTE[idx % CHART_PALETTE.length]} strokeWidth="2.2" />
                         {item.points.map((pt, pIdx) => {
                             const p = pos(pt, pIdx, item.points.length);
-                            return <Circle key={pIdx} cx={p.x} cy={p.y} r="2.2" fill={colors.card} stroke={CHART_PALETTE[idx % CHART_PALETTE.length]} strokeWidth="1.3" />;
+                            return <Circle key={`${item.label}-${pt.period || pIdx}`} cx={p.x} cy={p.y} r="2.2" fill={colors.card} stroke={CHART_PALETTE[idx % CHART_PALETTE.length]} strokeWidth="1.3" />;
                         })}
                     </G>
                 ))}
                 <Line x1={plot.left} y1={plot.bottom} x2={plot.right} y2={plot.bottom} stroke={`${colors.green}55`} strokeWidth="0.8" />
                 {dateIdxs.map((idx) => (
-                    <Text key={idx} x={longest <= 1 ? (plot.left + plot.right) / 2 : plot.left + (idx / Math.max(longest - 1, 1)) * (plot.right - plot.left)} y={height - 17} fill={colors.muted} style={{ fontSize: 6 }} textAnchor="middle">{shorten(dates[idx] || "", 10)}</Text>
+                    <Text key={dates[idx] || `date-${idx}`} x={longest <= 1 ? (plot.left + plot.right) / 2 : plot.left + (idx / Math.max(longest - 1, 1)) * (plot.right - plot.left)} y={height - 17} fill={colors.muted} style={{ fontSize: 6 }} textAnchor="middle">{shorten(dates[idx] || "", 10)}</Text>
                 ))}
             </Svg>
             <ChartLegend entries={series.map((s) => ({ label: s.label, value: s.points.at(-1)?.value ?? 0 }))} />
@@ -601,6 +605,158 @@ function MarketIcon() {
     );
 }
 
+function CoberturaReportBlock({ cobertura }: { cobertura: CoberturaData }) {
+    const esCompetitiva = cobertura.zona_cnmc === "competitiva";
+    const teletrabajoScore = cobertura.ftth >= 90 ? "Excelente" : cobertura.ftth >= 80 ? "Muy bueno" : "Básico";
+    const videollamadas = cobertura.ftth >= 85 ? "Óptimo (Múltiples HD/4K)" : "Adecuado (1-2 flujos)";
+    const estabilidad = cobertura.ftth >= 80 ? "Alta (Fibra simétrica)" : "Media (Sujeta a cobertura)";
+
+    return (
+        <View>
+            <View style={styles.coberturaContainer}>
+                <View style={styles.coberturaGrid}>
+                    <View style={[styles.coberturaCol, styles.coberturaColBorder]}>
+                        <View>
+                            <View style={styles.coberturaEyebrowRow}>
+                                <Text style={styles.coberturaEyebrow}>Fibra óptica (FTTH)</Text>
+                                <WifiIcon />
+                            </View>
+                            <Text style={styles.coberturaBigNumber}>{cobertura.ftth}%</Text>
+                            <View style={styles.coberturaBarTrack}>
+                                <View style={[styles.coberturaBarFill, { width: `${cobertura.ftth}%` }]} />
+                            </View>
+                        </View>
+                        <Text style={styles.coberturaDesc}>
+                            Población con cobertura de red fija de fibra simétrica para teletrabajo y uso intensivo.
+                        </Text>
+                    </View>
+
+                    <View style={[styles.coberturaCol, styles.coberturaColBorder]}>
+                        <View>
+                            <View style={styles.coberturaEyebrowRow}>
+                                <Text style={styles.coberturaEyebrow}>Velocidad y móvil</Text>
+                                <SignalIcon />
+                            </View>
+                            <Text style={styles.coberturaBigNumber}>{cobertura.velocidad_max}</Text>
+                        </View>
+                        <Text style={styles.coberturaDesc}>
+                            Velocidad máxima disponible en el núcleo urbano y tecnología móvil predominante.
+                        </Text>
+                    </View>
+
+                    <View style={styles.coberturaCol}>
+                        <View>
+                            <View style={styles.coberturaEyebrowRow}>
+                                <Text style={styles.coberturaEyebrow}>Mercado y operadores</Text>
+                                <MarketIcon />
+                            </View>
+                            <Text style={styles.coberturaSubTitle}>
+                                {esCompetitiva ? "Alta competencia" : "Acceso mayorista"}
+                            </Text>
+                        </View>
+                        <Text style={styles.coberturaDesc}>
+                            {esCompetitiva
+                                ? "Presencia de múltiples redes independientes (Digi, Movistar, Orange, Vodafone) con las tarifas más ventajosas."
+                                : "Municipio regulado por la CNMC con servicio asegurado a través de la red mayorista NEBA."}
+                        </Text>
+                    </View>
+                </View>
+
+                {cobertura.satelite_rural && (
+                    <View style={styles.coberturaSatelliteBanner}>
+                        <Text style={styles.coberturaSatelliteText}>
+                            Dispone además de derecho a internet por satélite subvencionado a 200 Mbps (35 €/mes) mediante el programa estatal Conéctate35.
+                        </Text>
+                    </View>
+                )}
+            </View>
+
+            <View style={styles.coberturaDetailsGrid}>
+                <View style={styles.coberturaDetailCard}>
+                    <View style={styles.coberturaRow}>
+                        <Text style={styles.coberturaRowLabel}>Nivel de idoneidad</Text>
+                        <Text style={styles.coberturaRowValue}>{teletrabajoScore}</Text>
+                    </View>
+                    <View style={styles.coberturaRow}>
+                        <Text style={styles.coberturaRowLabel}>Videoconferencia simultánea</Text>
+                        <Text style={styles.coberturaRowValue}>{videollamadas}</Text>
+                    </View>
+                    <View style={styles.coberturaRow}>
+                        <Text style={styles.coberturaRowLabel}>Estabilidad de conexión</Text>
+                        <Text style={styles.coberturaRowValue}>{estabilidad}</Text>
+                    </View>
+                    <View style={styles.coberturaRow}>
+                        <Text style={styles.coberturaRowLabel}>Acceso móvil en exteriores</Text>
+                        <Text style={styles.coberturaRowValue}>Tecnología {cobertura.red_movil}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.coberturaDetailCard}>
+                    <View style={styles.coberturaRow}>
+                        <Text style={styles.coberturaRowLabel}>Tecnología de banda ancha</Text>
+                        <Text style={styles.coberturaRowValue}>FTTH (Fibra hasta el hogar)</Text>
+                    </View>
+                    <View style={styles.coberturaRow}>
+                        <Text style={styles.coberturaRowLabel}>Hogares con cobertura FTTH</Text>
+                        <Text style={styles.coberturaRowValue}>{cobertura.ftth}%</Text>
+                    </View>
+                    <View style={styles.coberturaRow}>
+                        <Text style={styles.coberturaRowLabel}>Velocidad máxima teórica</Text>
+                        <Text style={styles.coberturaRowValue}>{cobertura.velocidad_max}</Text>
+                    </View>
+                    <View style={styles.coberturaRow}>
+                        <Text style={styles.coberturaRowLabel}>Régimen regulatorio CNMC</Text>
+                        <Text style={styles.coberturaRowValue}>{esCompetitiva ? "Mercado desregulado" : "Obligación mayorista NEBA"}</Text>
+                    </View>
+                </View>
+            </View>
+        </View>
+    );
+}
+
+function GobiernoReportBlock({ summary }: { summary: NonNullable<ReturnType<typeof getEleccionesSummary>> }) {
+    const sectionEyebrow = summary.alcaldia?.nombre ? "Alcaldía y Gobernabilidad" : "Composición y Gobernabilidad";
+
+    return (
+        <View wrap={false}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomColor: `${colors.green}44`, borderBottomWidth: 1, marginBottom: 8, paddingBottom: 5 }}>
+                <Text style={[styles.sectionTitle, { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 }]}>
+                    Equipo de gobierno
+                </Text>
+                {summary.legislatura && (
+                    <Text style={{ color: `${colors.green}99`, fontFamily: "Helvetica-Bold", fontSize: 7.5, textTransform: "uppercase" }}>
+                        Mandato {summary.legislatura}
+                    </Text>
+                )}
+            </View>
+            <View style={styles.gobContainer}>
+                <View style={styles.gobLeftCol}>
+                    <HemicicloReport
+                        totalSeats={summary.totalSeats}
+                        majorityThreshold={summary.majorityThreshold}
+                        seats={summary.seats}
+                    />
+                    <AlcaldiaCardReport
+                        eyebrow={sectionEyebrow}
+                        displayName={summary.displayName}
+                        partyTag={summary.partyTag}
+                        leadPartyColor={summary.leadPartyColor}
+                        badgeText={summary.badgeText}
+                        narrative={summary.narrative}
+                    />
+                </View>
+
+                <View style={styles.gobRightCol}>
+                    <PartidosListReport
+                        partidos={summary.partidos}
+                        totalSeats={summary.totalSeats}
+                    />
+                </View>
+            </View>
+        </View>
+    );
+}
+
 function TerritorioReportSection({
     cobertura,
     elecciones,
@@ -611,11 +767,6 @@ function TerritorioReportSection({
     municipio: string;
 }) {
     const summary = elecciones ? getEleccionesSummary(elecciones) : null;
-    const esCompetitiva = cobertura?.zona_cnmc === "competitiva";
-    const teletrabajoScore = cobertura ? (cobertura.ftth >= 90 ? "Excelente" : cobertura.ftth >= 80 ? "Muy bueno" : "Básico") : "";
-    const videollamadas = cobertura ? (cobertura.ftth >= 85 ? "Óptimo (Múltiples HD/4K)" : "Adecuado (1-2 flujos)") : "";
-    const estabilidad = cobertura ? (cobertura.ftth >= 80 ? "Alta (Fibra simétrica)" : "Media (Sujeta a cobertura)") : "";
-    const sectionEyebrow = summary?.alcaldia?.nombre ? "Alcaldía y Gobernabilidad" : "Composición y Gobernabilidad";
 
     return (
         <View style={styles.section}>
@@ -626,145 +777,11 @@ function TerritorioReportSection({
                             Conectividad
                         </Text>
                     </View>
-
-                    <View style={styles.coberturaContainer}>
-                        <View style={styles.coberturaGrid}>
-                            <View style={[styles.coberturaCol, styles.coberturaColBorder]}>
-                                <View>
-                                    <View style={styles.coberturaEyebrowRow}>
-                                        <Text style={styles.coberturaEyebrow}>Fibra óptica (FTTH)</Text>
-                                        <WifiIcon />
-                                    </View>
-                                    <Text style={styles.coberturaBigNumber}>{cobertura.ftth}%</Text>
-                                    <View style={styles.coberturaBarTrack}>
-                                        <View style={[styles.coberturaBarFill, { width: `${cobertura.ftth}%` }]} />
-                                    </View>
-                                </View>
-                                <Text style={styles.coberturaDesc}>
-                                    Población con cobertura de red fija de fibra simétrica para teletrabajo y uso intensivo.
-                                </Text>
-                            </View>
-
-                            <View style={[styles.coberturaCol, styles.coberturaColBorder]}>
-                                <View>
-                                    <View style={styles.coberturaEyebrowRow}>
-                                        <Text style={styles.coberturaEyebrow}>Velocidad y móvil</Text>
-                                        <SignalIcon />
-                                    </View>
-                                    <Text style={styles.coberturaBigNumber}>{cobertura.velocidad_max}</Text>
-                                </View>
-                                <Text style={styles.coberturaDesc}>
-                                    Velocidad máxima disponible en el núcleo urbano y tecnología móvil predominante.
-                                </Text>
-                            </View>
-
-                            <View style={styles.coberturaCol}>
-                                <View>
-                                    <View style={styles.coberturaEyebrowRow}>
-                                        <Text style={styles.coberturaEyebrow}>Mercado y operadores</Text>
-                                        <MarketIcon />
-                                    </View>
-                                    <Text style={styles.coberturaSubTitle}>
-                                        {esCompetitiva ? "Alta competencia" : "Acceso mayorista"}
-                                    </Text>
-                                </View>
-                                <Text style={styles.coberturaDesc}>
-                                    {esCompetitiva
-                                        ? "Presencia de múltiples redes independientes (Digi, Movistar, Orange, Vodafone) con las tarifas más ventajosas."
-                                        : "Municipio regulado por la CNMC con servicio asegurado a través de la red mayorista NEBA."}
-                                </Text>
-                            </View>
-                        </View>
-
-                        {cobertura.satelite_rural && (
-                            <View style={styles.coberturaSatelliteBanner}>
-                                <Text style={styles.coberturaSatelliteText}>
-                                    Dispone además de derecho a internet por satélite subvencionado a 200 Mbps (35 €/mes) mediante el programa estatal Conéctate35.
-                                </Text>
-                            </View>
-                        )}
-                    </View>
-
-                    <View style={styles.coberturaDetailsGrid}>
-                        <View style={styles.coberturaDetailCard}>
-                            <View style={styles.coberturaRow}>
-                                <Text style={styles.coberturaRowLabel}>Nivel de idoneidad</Text>
-                                <Text style={styles.coberturaRowValue}>{teletrabajoScore}</Text>
-                            </View>
-                            <View style={styles.coberturaRow}>
-                                <Text style={styles.coberturaRowLabel}>Videoconferencia simultánea</Text>
-                                <Text style={styles.coberturaRowValue}>{videollamadas}</Text>
-                            </View>
-                            <View style={styles.coberturaRow}>
-                                <Text style={styles.coberturaRowLabel}>Estabilidad de conexión</Text>
-                                <Text style={styles.coberturaRowValue}>{estabilidad}</Text>
-                            </View>
-                            <View style={styles.coberturaRow}>
-                                <Text style={styles.coberturaRowLabel}>Acceso móvil en exteriores</Text>
-                                <Text style={styles.coberturaRowValue}>Tecnología {cobertura.red_movil}</Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.coberturaDetailCard}>
-                            <View style={styles.coberturaRow}>
-                                <Text style={styles.coberturaRowLabel}>Tecnología de banda ancha</Text>
-                                <Text style={styles.coberturaRowValue}>FTTH (Fibra hasta el hogar)</Text>
-                            </View>
-                            <View style={styles.coberturaRow}>
-                                <Text style={styles.coberturaRowLabel}>Hogares con cobertura FTTH</Text>
-                                <Text style={styles.coberturaRowValue}>{cobertura.ftth}%</Text>
-                            </View>
-                            <View style={styles.coberturaRow}>
-                                <Text style={styles.coberturaRowLabel}>Velocidad máxima teórica</Text>
-                                <Text style={styles.coberturaRowValue}>{cobertura.velocidad_max}</Text>
-                            </View>
-                            <View style={styles.coberturaRow}>
-                                <Text style={styles.coberturaRowLabel}>Régimen regulatorio CNMC</Text>
-                                <Text style={styles.coberturaRowValue}>{esCompetitiva ? "Mercado desregulado" : "Obligación mayorista NEBA"}</Text>
-                            </View>
-                        </View>
-                    </View>
+                    <CoberturaReportBlock cobertura={cobertura} />
                 </View>
             )}
 
-            {summary && (
-                <View wrap={false}>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomColor: `${colors.green}44`, borderBottomWidth: 1, marginBottom: 8, paddingBottom: 5 }}>
-                        <Text style={[styles.sectionTitle, { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 }]}>
-                            Equipo de gobierno
-                        </Text>
-                        {summary.legislatura && (
-                            <Text style={{ color: `${colors.green}99`, fontFamily: "Helvetica-Bold", fontSize: 7.5, textTransform: "uppercase" }}>
-                                Mandato {summary.legislatura}
-                            </Text>
-                        )}
-                    </View>
-                    <View style={styles.gobContainer}>
-                        <View style={styles.gobLeftCol}>
-                            <HemicicloReport
-                                totalSeats={summary.totalSeats}
-                                majorityThreshold={summary.majorityThreshold}
-                                seats={summary.seats}
-                            />
-                            <AlcaldiaCardReport
-                                eyebrow={sectionEyebrow}
-                                displayName={summary.displayName}
-                                partyTag={summary.partyTag}
-                                leadPartyColor={summary.leadPartyColor}
-                                badgeText={summary.badgeText}
-                                narrative={summary.narrative}
-                            />
-                        </View>
-
-                        <View style={styles.gobRightCol}>
-                            <PartidosListReport
-                                partidos={summary.partidos}
-                                totalSeats={summary.totalSeats}
-                            />
-                        </View>
-                    </View>
-                </View>
-            )}
+            {summary && <GobiernoReportBlock summary={summary} />}
         </View>
     );
 }
@@ -877,7 +894,7 @@ function ChartsReportSection({ chartRows }: { chartRows: any[][] }) {
             </View>
             <View style={styles.chartsContainer}>
                 {chartRows.map((row, rIdx) => (
-                    <View key={rIdx} style={[styles.chartRow, rIdx > 0 ? { marginTop: -1 } : {}]} wrap={false}>
+                    <View key={`chart-row-${row.map((item) => getTableKey(item.table)).join("-")}`} style={[styles.chartRow, rIdx > 0 ? { marginTop: -1 } : {}]} wrap={false}>
                         {row.map((item, cIdx) => (
                             <IneChart key={getTableKey(item.table)} table={item.table} data={item.data} fullWidth={row.length === 1} borderRight={row.length > 1 && cIdx === 0} />
                         ))}

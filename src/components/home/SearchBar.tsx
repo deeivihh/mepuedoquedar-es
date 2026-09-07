@@ -152,9 +152,7 @@ export default function SearchBar() {
                 setHasSearched(true);
             }
         } finally {
-            if (abortRef.current === ctrl) {
-                setIsLoading(false);
-            }
+            setIsLoading(false);
         }
     }, [locationParams]);
 

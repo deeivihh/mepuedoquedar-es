@@ -37,7 +37,7 @@ export default function CoberturaSection({ data }: { data: any }) {
                             </div>
                             <div className="mt-4 h-1.5 w-full overflow-hidden bg-title/10">
                                 <div
-                                    className="h-full bg-text-2 transition-all duration-500"
+                                    className="h-full bg-text-2 transition-[width] duration-500"
                                     style={{ width: `${cobertura.ftth}%` }}
                                 />
                             </div>
