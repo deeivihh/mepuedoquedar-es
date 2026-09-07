@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { EleccionesData, EleccionesPartido } from "@/types";
-import { MdAccountBalance, MdCheckCircleOutline } from "react-icons/md";
+import { MdAccountBalance } from "react-icons/md";
 
 import { getEleccionesSummary } from "@/lib/elecciones";
 import Source from "./Source";
@@ -23,7 +23,7 @@ function Hemiciclo({
     onHoverParty: (siglas: string | null) => void;
 }) {
     return (
-        <div className="flex flex-col items-center justify-center pb-8">
+        <div className="flex flex-col items-center justify-center p-6 sm:p-8 pb-6">
             <div className="w-full max-w-[340px] aspect-[320/180] relative">
                 <svg viewBox="0 0 320 180" className="w-full h-full overflow-visible">
                     {seats.map((seat) => {
@@ -161,15 +161,26 @@ function GruposPoliticosList({
     onHoverParty: (siglas: string | null) => void;
     totalSeats: number;
 }) {
-    const isGrid = partidos.length >= 5;
+    const isMultiParty = partidos.length > 1;
 
     return (
-        <div className="lg:col-span-5 w-full p-6 flex flex-col justify-between">
-            <div className={isGrid ? "grid grid-cols-1sm:grid-cols-2 gap-3 flex-1 w-full" : "flex flex-col gap-3 flex-1 justify-between"}>
+        <div className="lg:col-span-5 w-full p-6 sm:p-8 flex flex-col justify-between gap-4">
+            <div className="flex items-center justify-between pb-3 border-b border-title/15 shrink-0">
+                <div className="flex items-center gap-2 text-title/60">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-title/60">
+                        Representación en el Pleno
+                    </span>
+                </div>
+                <span className="text-[11px] font-mono text-title/60">
+                    {partidos.length} {partidos.length === 1 ? "candidatura" : "candidaturas"}
+                </span>
+            </div>
+
+            <div className={`grid gap-2.5 w-full flex-1 auto-rows-fr ${isMultiParty ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
                 {partidos.map((p, i) => {
                     const isHovered = Boolean(p.siglas && hoveredParty === p.siglas);
                     const isFaded = hoveredParty !== null && !isHovered;
-                    const isOddLast = isGrid && partidos.length % 2 === 1 && i === partidos.length - 1;
+                    const isHero = isMultiParty && (partidos.length % 2 === 1) && i === 0;
                     const concejales = p.concejales ?? 0;
                     const pctVal = typeof p.pct === "number" ? p.pct : (p.pct ? parseFloat(p.pct) : undefined);
                     const hasPct = pctVal !== undefined && !Number.isNaN(pctVal);
@@ -181,26 +192,29 @@ function GruposPoliticosList({
                             key={p.siglas}
                             onMouseEnter={() => p.siglas && onHoverParty(p.siglas)}
                             onMouseLeave={() => onHoverParty(null)}
-                            className={`p-6 bg-white/40 border border-title/20 transition-colors duration-150 flex flex-col justify-center gap-2 hover:bg-white/70 cursor-pointer ${isGrid ? (isOddLast ? "sm:col-span-2" : "") : "flex-1"
+                            className={`group p-3 sm:p-3.5 bg-white/40 border border-title/20 transition-all duration-150 flex flex-col justify-between gap-2.5 hover:bg-white/75 hover:border-title/35 cursor-pointer ${isHero ? "sm:col-span-2 sm:p-4 bg-white/55" : "sm:col-span-1"
                                 }`}
-                            style={{ opacity: isFaded ? 0.4 : 1 }}
+                            style={{ opacity: isFaded ? 0.35 : 1 }}
                         >
-                            <div className="flex items-start justify-between h-full gap-2">
-                                <div className="flex items-center gap-2 min-w-0 pt-1">
+                            <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-1.5 min-w-0">
                                     <span
-                                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                                        className="w-2.5 h-2.5 rounded-full shrink-0 transition-transform duration-150 group-hover:scale-125"
                                         style={{ backgroundColor: p.color || "#1F3A2E" }}
                                         aria-hidden="true"
                                     />
-                                    <span className="font-bold text-sm sm:text-base text-title tracking-wide truncate">
+                                    <span
+                                        className="font-bold text-sm sm:text-base text-title tracking-wide truncate"
+                                        title={p.nombre || p.siglas}
+                                    >
                                         {p.siglas}
                                     </span>
                                 </div>
                                 <div className="flex items-baseline gap-1 shrink-0">
-                                    <span className="title-font text-lg sm:text-xl font-bold text-title">
+                                    <span className="title-font text-lg sm:text-xl font-bold text-title leading-none">
                                         {concejales}
                                     </span>
-                                    <span className="text-[11px] text-title/60">
+                                    <span className="text-[10px] sm:text-[11px] text-title/60 font-medium">
                                         {concejales === 1 ? "concejal" : "concejales"}
                                     </span>
                                 </div>
