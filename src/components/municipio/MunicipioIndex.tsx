@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { MdOutlineFormatListNumbered, MdClose } from "react-icons/md";
+import LocationNotice from "@/components/common/LocationNotice";
+import { useLocation } from "@/hooks/useLocation";
 
 const SECTION_LABELS: Record<string, string> = {
     "conoce-el-lugar": "Conoce el lugar",
@@ -26,9 +27,9 @@ interface SectionItem {
 }
 
 export default function MunicipioIndex() {
+    const { permissionDenied } = useLocation();
     const [sections, setSections] = useState<SectionItem[]>([]);
     const [activeId, setActiveId] = useState<string>("");
-    const [mobileOpen, setMobileOpen] = useState(false);
 
     const updateSections = useCallback(() => {
         const elements = document.querySelectorAll("article section[id]");
@@ -89,40 +90,42 @@ export default function MunicipioIndex() {
             setActiveId(id);
             window.history.replaceState(null, "", `#${id}`);
         }
-        setMobileOpen(false);
     };
 
-    if (sections.length === 0) return null;
+    if (sections.length === 0 && !permissionDenied) return null;
 
     return (
-        <>
-            <aside className="hidden xl:block absolute left-[calc(100%+1.5rem)] h-full pointer-events-none z-30">
-                <div className="sticky top-6 pointer-events-auto w-50 2xl:w-50 bg-white/50 border border-title/30 shadow p-2">
-                    <nav className="flex flex-col gap-1">
-                        {sections.map((sec, idx) => {
-                            const isActive = activeId === sec.id;
-                            return (
-                                <button
-                                    key={sec.id}
-                                    onClick={(e) => scrollToSection(sec.id, e)}
-                                    className={`group flex items-baseline text-left py-1.5 px-2 rounded-xs transition-colors duration-150 text-xs ${isActive
-                                        ? "bg-white/60 text-title font-semibold shadow-2xs"
-                                        : "text-title/70 hover:text-title hover:bg-white"
-                                        }`}
-                                >
-                                    <span
-                                        className={`font-mono text-[11px] mr-1.5 shrink-0 ${isActive ? "text-text-2 font-bold" : "text-title/40 group-hover:text-text-2"
+        <aside className="hidden xl:block absolute left-[calc(100%+1.5rem)] h-full pointer-events-none z-30">
+            <div className="sticky top-6 pointer-events-auto flex flex-col gap-3 w-50 2xl:w-50">
+                {sections.length > 0 && (
+                    <div className="bg-white/50 border border-title/30 shadow p-2">
+                        <nav className="flex flex-col gap-1">
+                            {sections.map((sec, idx) => {
+                                const isActive = activeId === sec.id;
+                                return (
+                                    <button
+                                        key={sec.id}
+                                        onClick={(e) => scrollToSection(sec.id, e)}
+                                        className={`group flex items-baseline text-left py-1.5 px-2 rounded-xs transition-colors duration-150 text-xs ${isActive
+                                            ? "bg-white/60 text-title font-semibold shadow-2xs"
+                                            : "text-title/70 hover:text-title hover:bg-white"
                                             }`}
                                     >
-                                        {idx + 1}.
-                                    </span>
-                                    <span className="truncate leading-tight">{sec.label}</span>
-                                </button>
-                            );
-                        })}
-                    </nav>
-                </div>
-            </aside>
-        </>
+                                        <span
+                                            className={`font-mono text-[11px] mr-1.5 shrink-0 ${isActive ? "text-text-2 font-bold" : "text-title/40 group-hover:text-text-2"
+                                                }`}
+                                        >
+                                            {idx + 1}.
+                                        </span>
+                                        <span className="truncate leading-tight">{sec.label}</span>
+                                    </button>
+                                );
+                            })}
+                        </nav>
+                    </div>
+                )}
+                <LocationNotice />
+            </div>
+        </aside>
     );
 }

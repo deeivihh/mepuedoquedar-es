@@ -1,5 +1,6 @@
 import MunicipioDetail from "@/components/municipio/MunicipioDetail";
 import SearchBar from "@/components/home/SearchBar";
+import LocationNotice from "@/components/common/LocationNotice";
 
 export default async function DetailPage({
     params,
@@ -14,6 +15,8 @@ export default async function DetailPage({
                 <header className="relative z-50 w-full">
                     <SearchBar />
                 </header>
+
+                <LocationNotice className="xl:hidden" />
 
                 <section className="w-full">
                     <MunicipioDetail cod={cod} />
