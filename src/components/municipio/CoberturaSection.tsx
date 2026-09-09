@@ -86,16 +86,6 @@ export default function CoberturaSection({ data }: { data: any }) {
                     </div>
                 </div>
 
-                {cobertura.satelite_rural && (
-                    <div className="border-t border-title/15 bg-white/20 px-6 py-3 sm:px-8">
-                        <div className="flex items-center gap-2 text-xs text-title/70">
-                            <span>
-                                Dispone además de derecho a internet por satélite subvencionado a 200 Mbps (35 €/mes) mediante el programa estatal Conéctate35.
-                            </span>
-                        </div>
-                    </div>
-                )}
-
                 <div className="grid grid-cols-1 divide-y divide-title/15 border-t border-title/15 md:grid-cols-2 md:divide-y-0 md:divide-x">
                     <div className="flex flex-col divide-y divide-title/10 p-6 sm:p-8">
                         <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
@@ -136,6 +126,25 @@ export default function CoberturaSection({ data }: { data: any }) {
                             </span>
                         </div>
                     </div>
+
+                    {cobertura.satelite_rural && (
+                        <div className="col-span-full border-t border-title/15 bg-white/20 px-6 py-3 sm:px-8">
+                            <div className="flex items-center justify-center gap-2 text-xs text-title/70">
+                                <span>
+                                    Dispone además de derecho a internet por satélite subvencionado a 200 Mbps (35 €/mes) mediante el programa estatal{" "}
+                                    <a
+                                        className="font-semibold hover:text-title"
+                                        href="https://www.conectate35.es/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        Conéctate35
+                                    </a>
+                                    .
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
