@@ -188,7 +188,7 @@ function GruposPoliticosList({
                             key={p.siglas}
                             onMouseEnter={() => p.siglas && onHoverParty(p.siglas)}
                             onMouseLeave={() => onHoverParty(null)}
-                            className="group p-3.5 sm:p-4 bg-white/40 border border-title/20 transition-all duration-150 flex flex-col gap-2.5 hover:bg-white/75 hover:border-title/35 cursor-pointer shrink-0"
+                            className="group p-3.5 sm:p-4 bg-white/40 border border-title/20 transition-[opacity, background-color, border-color] duration-150 flex flex-col gap-2.5 hover:bg-white/75 hover:border-title/35 cursor-pointer shrink-0"
                             style={{ opacity: isFaded ? 0.35 : 1 }}
                         >
                             <div className="flex items-center justify-between gap-3">
