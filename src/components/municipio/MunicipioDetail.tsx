@@ -38,7 +38,7 @@ const loadingMsgs = [
     "Preparando el informe final...",
 ];
 
-function MunicipioHero({ data }: { data: any }) {
+function MunicipioHero({ data, scores, ineData, preferences, isDefault, wikiData }: { data: any, scores: ScoreResult | null, ineData: any, preferences: any, isDefault: boolean, wikiData: any }) {
     const mapRef = useRef<HTMLDivElement>(null);
     const [mapSize, setMapSize] = useState({ w: 400, h: 200 });
 
@@ -78,12 +78,12 @@ function MunicipioHero({ data }: { data: any }) {
                         )}
                     </div>
                 </div>
-                <div className="flex items-end justify-start h-full mt-6 gap-4 z-999">
+                <div className="flex items-end justify-start h-full mt-6 gap-2 z-999">
                     <a
                         href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-text-2 hover:opacity-90 text-text-3 font-semibold h-10 px-4 w-fit"
+                        className="flex items-center max-md:justify-center gap-2 bg-text-2 hover:opacity-90 text-text-3 font-semibold h-10 px-4 min-md:w-fit w-full"
                     >
                         Cómo llegar <SiGooglemaps aria-hidden="true" />
                     </a>
@@ -92,13 +92,14 @@ function MunicipioHero({ data }: { data: any }) {
                             href={data.web}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center bg-white/10 backdrop-blur-sm gap-2 border border-title/30 hover:border-title/50 font-medium h-10 px-4 w-fit group relative hover:pr-8"
+                            className="flex items-center max-md:justify-center bg-white/10 backdrop-blur-sm gap-2 border border-title/30 hover:border-title/50 font-medium h-10 px-4 min-md:w-fit w-full group relative hover:pr-8"
                         >
                             Pagina web
                             <span className="absolute transition duration-150 opacity-0 group-hover:opacity-100 blur-xs group-hover:blur-none right-2"><MdArrowOutward aria-hidden="true" /></span>
                         </a>
                     )}
                 </div>
+                {scores && <DownloadReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} wikiData={wikiData} />}
             </div>
 
             <div ref={mapRef} className="image-fade relative order-3 h-[260px] w-full cursor-move overflow-hidden bg-title/10 md:absolute md:inset-y-0 md:right-0 md:order-none md:h-full md:w-4/5">
@@ -194,10 +195,10 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     }
 
     return (
-        <article className="w-full text-title card border border-title/20 relative">
+        <article className="w-full text-title card border border-title/30 relative">
             <MunicipioIndex />
             <div className="flex flex-col min-h-[75svh] max-md:py-4">
-                <MunicipioHero data={data} />
+                <MunicipioHero data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} wikiData={wikiData} />
                 <section className="border-y border-title/30 shadow-xs">
                     <div className="px-6 py-10 sm:px-10 lg:px-14 lg:py-12">
                         <GeneralScore number={scores?.global ?? 0} scoresDepartments={scores?.departments ?? {}} />
@@ -239,7 +240,6 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
                 <PrensaSection data={data} />
             </div>
-            {scores && <DownloadReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} wikiData={wikiData} />}
         </article>
     );
 }
