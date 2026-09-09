@@ -72,7 +72,35 @@ export async function getData(cod_ine: string) {
     if (!data) return null;
 
     const row = data as Record<string, any>;
-    const codInt = row.cod_int ?? (await getIneCodInt(row.codigo));
+    const isCity = row.poblacion >= 30000;
+    const baseQuery = getSupabase()
+        .from("municipios")
+        .select("codigo, municipio, provincia, poblacion")
+        .neq("codigo", row.codigo);
+
+    const [codInt, { data: pool }] = await Promise.all([
+        row.cod_int ?? getIneCodInt(row.codigo),
+        (isCity
+            ? baseQuery.gte("poblacion", 20000).order("poblacion", { ascending: false })
+            : baseQuery.eq("provincia", row.provincia).gte("poblacion", Math.max(0, Math.floor(row.poblacion * 0.3)))
+        ).limit(10),
+    ]);
+
+    let similarPool = pool ?? [];
+    if (similarPool.length === 0) {
+        const { data: fallback } = await getSupabase()
+            .from("municipios")
+            .select("codigo, municipio, provincia, poblacion")
+            .neq("codigo", row.codigo)
+            .eq("provincia", row.provincia)
+            .order("poblacion", { ascending: false })
+            .limit(5);
+        similarPool = fallback ?? [];
+    }
+
+    const similares = similarPool
+        .sort((a, b) => Math.abs(a.poblacion - row.poblacion) - Math.abs(b.poblacion - row.poblacion))
+        .slice(0, 4);
 
     return {
         codigo: row.codigo,
@@ -85,5 +113,6 @@ export async function getData(cod_ine: string) {
         mas: row.mas ?? null,
         web: row.web ?? null,
         datos: buildDatos(row),
+        similares,
     };
 }

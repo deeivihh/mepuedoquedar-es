@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import LocationNotice from "@/components/common/LocationNotice";
 import { useLocation } from "@/hooks/useLocation";
+import MunicipiosSimilares, { MunicipioSimilar } from "./MunicipiosSimilares";
 
 const SECTION_LABELS: Record<string, string> = {
     "conoce-el-lugar": "Conoce el lugar",
@@ -26,7 +27,7 @@ interface SectionItem {
     label: string;
 }
 
-export default function MunicipioIndex() {
+export default function MunicipioIndex({ similares }: { similares?: MunicipioSimilar[] }) {
     const { permissionDenied } = useLocation();
     const [sections, setSections] = useState<SectionItem[]>([]);
     const [activeId, setActiveId] = useState<string>("");
@@ -92,7 +93,7 @@ export default function MunicipioIndex() {
         }
     };
 
-    if (sections.length === 0 && !permissionDenied) return null;
+    if (sections.length === 0 && !permissionDenied && (!similares || similares.length === 0)) return null;
 
     return (
         <aside className="hidden xl:block absolute left-[calc(100%+1.5rem)] h-full pointer-events-none z-30">
@@ -100,6 +101,9 @@ export default function MunicipioIndex() {
                 {sections.length > 0 && (
                     <div className="bg-white/50 border border-title/30 shadow p-2">
                         <nav className="flex flex-col gap-1">
+                            <span className="text-[11px] font-semibold uppercase tracking-wider text-title/60 px-1 py-0.5">
+                                Tabla de contenidos
+                            </span>
                             {sections.map((sec, idx) => {
                                 const isActive = activeId === sec.id;
                                 return (
@@ -124,6 +128,7 @@ export default function MunicipioIndex() {
                         </nav>
                     </div>
                 )}
+                <MunicipiosSimilares items={similares} />
                 <LocationNotice />
             </div>
         </aside>

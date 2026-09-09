@@ -19,6 +19,7 @@ import PrensaSection from "./PrensaSection";
 import GobiernoSection from "./GobiernoSection";
 import Source from "./Source";
 import MunicipioIndex from "./MunicipioIndex";
+import MunicipiosSimilares from "./MunicipiosSimilares";
 import { fetchAllTables } from "@/lib/datos/ine";
 import { TABLES } from "@/lib/config/tables";
 import dynamic from "next/dynamic";
@@ -196,7 +197,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     return (
         <article className="w-full text-title card border border-title/30 relative">
-            <MunicipioIndex />
+            <MunicipioIndex similares={data?.similares} />
             <div className="flex flex-col min-h-[75svh] max-md:py-4">
                 <MunicipioHero data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} wikiData={wikiData} />
                 <section className="border-y border-title/30 shadow-xs">
@@ -239,6 +240,10 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
                 )}
 
                 <PrensaSection data={data} />
+            </div>
+
+            <div className="xl:hidden px-6 pb-8">
+                <MunicipiosSimilares items={data?.similares} />
             </div>
         </article>
     );
