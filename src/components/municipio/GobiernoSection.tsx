@@ -161,26 +161,22 @@ function GruposPoliticosList({
     onHoverParty: (siglas: string | null) => void;
     totalSeats: number;
 }) {
-    const isMultiParty = partidos.length > 1;
-
     return (
-        <div className="lg:col-span-5 w-full p-6 sm:p-8 flex flex-col justify-between gap-4">
+        <div className="lg:col-span-5 w-full p-6 sm:p-8 flex flex-col justify-start gap-4">
             <div className="flex items-center justify-between pb-3 border-b border-title/15 shrink-0">
-                <div className="flex items-center gap-2 text-title/60">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-title/60">
-                        Representación en el Pleno
-                    </span>
-                </div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-title/60">
+                    Representación en el Pleno
+                </span>
                 <span className="text-[11px] font-mono text-title/60">
+                    {totalSeats > 0 ? `${totalSeats} ${totalSeats === 1 ? "escaño" : "escaños"} · ` : ""}
                     {partidos.length} {partidos.length === 1 ? "candidatura" : "candidaturas"}
                 </span>
             </div>
 
-            <div className={`grid gap-2.5 w-full flex-1 auto-rows-fr ${isMultiParty ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
-                {partidos.map((p, i) => {
+            <div className="flex flex-col gap-2.5 w-full overflow-y-auto min-md:h-[450px] pr-1">
+                {partidos.map((p) => {
                     const isHovered = Boolean(p.siglas && hoveredParty === p.siglas);
                     const isFaded = hoveredParty !== null && !isHovered;
-                    const isHero = isMultiParty && (partidos.length % 2 === 1) && i === 0;
                     const concejales = p.concejales ?? 0;
                     const pctVal = typeof p.pct === "number" ? p.pct : (p.pct ? parseFloat(p.pct) : undefined);
                     const hasPct = pctVal !== undefined && !Number.isNaN(pctVal);
@@ -192,25 +188,29 @@ function GruposPoliticosList({
                             key={p.siglas}
                             onMouseEnter={() => p.siglas && onHoverParty(p.siglas)}
                             onMouseLeave={() => onHoverParty(null)}
-                            className={`group p-3 sm:p-3.5 bg-white/40 border border-title/20 transition-all duration-150 flex flex-col justify-between gap-2.5 hover:bg-white/75 hover:border-title/35 cursor-pointer ${isHero ? "sm:col-span-2 sm:p-4 bg-white/55" : "sm:col-span-1"
-                                }`}
+                            className="group p-3.5 sm:p-4 bg-white/40 border border-title/20 transition-all duration-150 flex flex-col gap-2.5 hover:bg-white/75 hover:border-title/35 cursor-pointer shrink-0"
                             style={{ opacity: isFaded ? 0.35 : 1 }}
                         >
-                            <div className="flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-1.5 min-w-0">
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                     <span
                                         className="w-2.5 h-2.5 rounded-full shrink-0 transition-transform duration-150 group-hover:scale-125"
                                         style={{ backgroundColor: p.color || "#1F3A2E" }}
                                         aria-hidden="true"
                                     />
-                                    <span
-                                        className="font-bold text-sm sm:text-base text-title tracking-wide truncate"
-                                        title={p.nombre || p.siglas}
-                                    >
-                                        {p.siglas}
-                                    </span>
+                                    <div className="min-w-0 flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-2">
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            <span
+                                                className="font-bold text-sm sm:text-base text-title tracking-wide"
+                                                title={p.nombre || p.siglas}
+                                            >
+                                                {p.siglas}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex items-baseline gap-1 shrink-0">
+
+                                <div className="flex items-baseline gap-1.5 shrink-0">
                                     <span className="title-font text-lg sm:text-xl font-bold text-title leading-none">
                                         {concejales}
                                     </span>
@@ -220,9 +220,12 @@ function GruposPoliticosList({
                                 </div>
                             </div>
 
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <div className="flex items-center justify-between text-[11px] text-title/70 font-mono">
-                                    <span>{hasPct ? `${pctVal.toFixed(1)}% votos` : "—"}</span>
+                                    <span>
+                                        {hasPct ? `${pctVal.toFixed(1)}% votos` : "—"}
+                                        {p.votos ? ` · ${p.votos.toLocaleString("es-ES")} votos` : ""}
+                                    </span>
                                     <span>{totalSeats > 0 ? `${pctPleno.toFixed(0)}% pleno` : "—"}</span>
                                 </div>
                                 <div className="w-full h-1.5 bg-title/10 overflow-hidden">
