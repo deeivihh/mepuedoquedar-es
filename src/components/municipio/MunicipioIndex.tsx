@@ -97,7 +97,7 @@ export default function MunicipioIndex({ similares }: { similares?: MunicipioSim
 
     return (
         <aside className="hidden xl:block absolute left-[calc(100%+1.5rem)] h-full pointer-events-none z-30">
-            <div className="sticky top-6 pointer-events-auto flex flex-col gap-3 w-50 2xl:w-50">
+            <div className="sticky top-6 pointer-events-auto flex flex-col gap-5.5 w-50 2xl:w-50">
                 {sections.length > 0 && (
                     <div className="bg-white/50 border border-title/30 shadow p-2">
                         <nav className="flex flex-col gap-1">

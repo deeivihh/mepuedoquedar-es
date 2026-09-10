@@ -57,6 +57,20 @@ function buildDatos(data: Record<string, any>) {
     return datos;
 }
 
+export async function getMunicipioName(cod_ine: string): Promise<string | null> {
+    const raw = cod_ine.trim();
+    const candidates = Array.from(new Set([raw, raw.padStart(5, "0"), raw.replace(/^0+/, "")]));
+
+    const { data } = await getSupabase()
+        .from("municipios")
+        .select("municipio")
+        .in("codigo", candidates)
+        .limit(1)
+        .maybeSingle();
+
+    return data?.municipio ?? null;
+}
+
 export async function getData(cod_ine: string) {
     const raw = cod_ine.trim();
     const candidates = Array.from(new Set([raw, raw.padStart(5, "0"), raw.replace(/^0+/, "")]));

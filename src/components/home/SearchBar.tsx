@@ -179,7 +179,7 @@ export default function SearchBar() {
                             href="/"
                             title="Volver al inicio"
                             aria-label="Volver al inicio"
-                            className="flex items-center justify-center w-12 h-12 shrink-0 border border-title/30 bg-bg-card hover:bg-bg-card/80 active:bg-bg-card text-title transition-colors shadow-xs"
+                            className="flex items-center justify-center w-14 h-12 shrink-0 border border-title/30 hover:bg-bg-card/80 active:bg-bg-card text-title transition-colors shadow-xs"
                         >
                             <FaArrowLeft size={18} />
                         </Link>
