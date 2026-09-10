@@ -305,7 +305,7 @@ export default function MetodologiaPage() {
                                     className="w-6 h-6 object-contain shrink-0"
                                 />
                                 <h3 className="title-font text-lg font-bold text-title">
-                                    B. Instituto Nacional de Estadística
+                                    Instituto Nacional de Estadística
                                 </h3>
                             </div>
                             <p className="text-black/70 text-xs md:text-sm leading-relaxed">

@@ -32,6 +32,7 @@ export default async function Home() {
                         </p>
                         <nav className="pointer-events-auto flex items-center gap-3 shrink-0 order-first md:order-last">
                             <Link
+                                prefetch={false}
                                 href="/metodologia"
                                 title="Metodología"
                                 aria-label="Metodología"
