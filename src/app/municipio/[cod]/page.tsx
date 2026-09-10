@@ -82,7 +82,7 @@ export default async function DetailPage({
                     <SearchBar />
                 </header>
 
-                <LocationNotice className="xl:hidden" />
+                <LocationNotice className="2xl:hidden" />
 
                 <section className="w-full" aria-label="Detalle del municipio">
                     <MunicipioDetail cod={cod} initialName={municipio} />

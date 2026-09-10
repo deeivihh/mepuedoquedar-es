@@ -96,10 +96,10 @@ export default function MunicipioIndex({ similares }: { similares?: MunicipioSim
     if (sections.length === 0 && !permissionDenied && (!similares || similares.length === 0)) return null;
 
     return (
-        <aside className="hidden xl:block absolute left-[calc(100%+1.5rem)] h-full pointer-events-none z-30">
+        <aside className="hidden 2xl:block absolute left-[calc(100%+1.5rem)] h-full pointer-events-none z-30">
             <div className="sticky top-6 pointer-events-auto flex flex-col gap-5.5 w-50 2xl:w-50">
                 {sections.length > 0 && (
-                    <div className="bg-white/50 border border-title/30 shadow p-2">
+                    <div className="bg-white/50 border border-title/30 shadow-sm p-2">
                         <nav className="flex flex-col gap-1">
                             <span className="text-[11px] font-semibold uppercase tracking-wider text-title/60 px-1 py-0.5">
                                 Tabla de contenidos
@@ -110,7 +110,7 @@ export default function MunicipioIndex({ similares }: { similares?: MunicipioSim
                                     <button
                                         key={sec.id}
                                         onClick={(e) => scrollToSection(sec.id, e)}
-                                        className={`group flex items-baseline text-left py-1.5 px-2 transition-colors duration-150 text-xs ${isActive
+                                        className={`group flex items-baseline text-left py-1.5 px-2 transition-[background-color,color,transform] duration-150 active:scale-[0.98] text-xs ${isActive
                                             ? "bg-white/60 text-title font-semibold shadow-2xs"
                                             : "text-title/70 hover:text-title hover:bg-white"
                                             }`}

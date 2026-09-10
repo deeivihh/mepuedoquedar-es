@@ -26,7 +26,7 @@ function ScoreItem({ name, number, multiplier, isDefault, preferences }: { name:
     const priority = getDepartmentPriority(name, multiplier, preferences, isDefault);
 
     return (
-        <details className={`group bg-white/30 border border-title/20 p-4 text-title transition-colors hover:bg-white/30 ${name === "ine" ? "md:col-span-2" : ""}`}>
+        <details className={`group bg-white/30 border border-title/20 p-4 text-title transition-[background-color,border-color] duration-150 hover:bg-white/40 ${name === "ine" ? "md:col-span-2" : ""}`}>
             <summary className="list-none cursor-pointer [&::-webkit-details-marker]:hidden">
                 <div className="flex min-h-11 items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-2">
@@ -92,23 +92,23 @@ export default function GeneralScore({ number, scoresDepartments }: { number: nu
 
                 <div className="hidden h-14 w-px bg-title/20 sm:block" aria-hidden="true" />
 
-                <div className="flex flex-col gap-4 w-full items-center min-md:justify-end">
-                    <p className="title-font text-2xl font-semibold w-full min-md:text-right sm:text-3xl">{getGlobalLabel(number)}</p>
+                <div className="flex flex-col gap-4 w-full items-center md:justify-end">
+                    <p className="title-font text-2xl font-semibold w-full md:text-right sm:text-3xl">{getGlobalLabel(number)}</p>
                     <button
                         type="button"
                         onClick={() => setShowDepartments((v) => !v)}
                         aria-expanded={showDepartments}
-                        className="inline-flex items-center gap-2 self-start text-[11px] font-bold uppercase tracking-[0.18em] text-text-2 transition-colors hover:text-title sm:ml-auto sm:self-center"
+                        className="inline-flex items-center gap-2 self-start text-[11px] font-bold uppercase tracking-[0.18em] text-text-2 transition-[color,transform] duration-150 active:scale-[0.96] hover:text-title sm:ml-auto sm:self-center"
                     >
                         {showDepartments ? "Ocultar puntuación" : "Ver puntuación por departamento"}
-                        <FaArrowRight className={`text-[10px] transition-transform ${showDepartments ? "rotate-90" : ""}`} aria-hidden="true" />
+                        <FaArrowRight className={`text-[10px] transition-transform duration-150 ${showDepartments ? "rotate-90" : ""}`} aria-hidden="true" />
                     </button>
                 </div>
             </div>
 
-            <div className="h-1 w-full bg-title/10">
-                <div className="h-full bg-text-2 transition-[width] duration-500 ease-out" style={{ width: `${Math.min(100, Math.max(0, number))}%` }} />
-                <div className="h-full bg-text-2 transition-[width] duration-500 ease-out blur-xl scale-105 opacity-80" style={{ width: `${Math.min(100, Math.max(0, number))}%` }} />
+            <div className="relative h-1.5 w-full bg-title/10">
+                <div className="h-full bg-text-2 transition-[width] duration-500 ease-out" style={{ width: `${Math.min(100, Math.max(0, number))}%`, zIndex: "2" }} />
+                <div className="h-full -mt-1 bg-text-2 transition-[width] duration-500 ease-out scale-102 blur-xl opacity-75" style={{ width: `${Math.min(100, Math.max(0, number))}%` }} />
             </div>
 
 

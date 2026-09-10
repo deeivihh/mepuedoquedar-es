@@ -60,11 +60,11 @@ function MunicipioHero({ data, scores, ineData, preferences, isDefault, wikiData
         : "Castilla y León, España";
 
     return (
-        <section className="relative isolate flex min-h-0 flex-col overflow-hidden min-md:h-[50svh]">
-            <div className="relative max-md:p-6 p-16 flex flex-col justify-between w-full h-full gap-2 z-999 max-w-xl">
+        <section className="relative isolate flex min-h-0 flex-col overflow-hidden md:h-[50svh]">
+            <div className="relative p-6 md:p-12 lg:p-16 flex flex-col justify-between w-full h-full gap-4 z-10 max-w-xl">
                 <div className="flex flex-col gap-2">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-title/55 px-1">{locationLabel}</p>
-                    <h1 className="title-font text-6xl font-bold text-pretty max-md:text-5xl">{data.municipio}</h1>
+                    <h1 className="title-font text-5xl sm:text-6xl font-bold text-pretty">{data.municipio}</h1>
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-title/75 mt-2 px-1">
                         {data.poblacion > 0 && (
                             <span className="inline-flex items-center gap-2">
@@ -80,28 +80,29 @@ function MunicipioHero({ data, scores, ineData, preferences, isDefault, wikiData
                         )}
                     </div>
                 </div>
-                <div className="flex items-end justify-start h-full mt-6 gap-2 z-999">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-start mt-6 gap-3 z-10">
                     <a
                         href={`https://www.google.com/maps/dir/?api=1&destination=${data.latitud},${data.longitud}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center max-md:justify-center gap-2 bg-text-2 hover:opacity-90 text-text-3 font-semibold h-10 px-4 min-md:w-fit w-full"
+                        className="inline-flex items-center justify-center gap-2 bg-text-2 hover:opacity-90 active:scale-[0.96] text-text-3 font-semibold h-10 px-5 transition-[transform,opacity] duration-150 w-full sm:w-auto text-sm"
                     >
-                        Cómo llegar <SiGooglemaps aria-hidden="true" />
+                        <span>Cómo llegar</span>
+                        <SiGooglemaps className="shrink-0 text-sm" aria-hidden="true" />
                     </a>
                     {data.web && (
                         <a
                             href={data.web}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center max-md:justify-center bg-white/10 backdrop-blur-sm gap-2 border border-title/30 hover:border-title/50 font-medium h-10 px-4 min-md:w-fit w-full group relative hover:pr-8"
+                            className="relative inline-flex items-center justify-center bg-white/20 backdrop-blur-sm gap-2 border border-title/30 hover:border-title/60 hover:bg-white/30 active:scale-[0.96] font-medium h-10 px-5 transition-[transform,background-color,border-color] duration-150 w-full sm:w-auto text-sm group"
                         >
-                            Página web
-                            <span className="absolute transition duration-150 opacity-0 group-hover:opacity-100 blur-xs group-hover:blur-none right-2"><MdArrowOutward aria-hidden="true" /></span>
+                            <span>Página web</span>
+                            <MdArrowOutward className="opacity-0 group-hover:opacity-100 -ml-4 group-hover:ml-0 blur group-hover:blur-none transition-[opacity, margin, blur] duration-150" aria-hidden="true" />
                         </a>
                     )}
+                    {scores && <DownloadReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} wikiData={wikiData} />}
                 </div>
-                {scores && <DownloadReport data={data} scores={scores} ineData={ineData} preferences={preferences} isDefault={isDefault} wikiData={wikiData} />}
             </div>
 
             <div ref={mapRef} className="image-fade relative order-3 h-[260px] w-full cursor-move overflow-hidden bg-title/10 md:absolute md:inset-y-0 md:right-0 md:order-none md:h-full md:w-4/5">
@@ -176,10 +177,16 @@ export default function MunicipioDetail({ cod, initialName }: { cod: string; ini
 
     if (error) {
         return (
-            <div className="flex flex-col justify-center items-center w-full min-h-[20svh] px-4 py-8">
-                <div className="p-8 md:p-10 max-w-md w-full flex flex-col items-center text-center gap-5">
-                    <h1 className="text-xl font-bold text-title">Error al consultar el municipio</h1>
-                    <p className="text-sm text-black/70 text-balance">{error}</p>
+            <div className="p-8 md:p-10 w-full flex flex-col items-center justify-center text-center gap-5">
+
+                <div className="flex max-w-md flex-col gap-2">
+                    <h1 className="text-3xl font-bold text-title">Ha ocurrido un error</h1>
+                    <p className="text-sm text-black/70 leading-relaxed text-balance">
+                        No se ha podido cargar la información del municipio. Revisa tu conexión a internet e intenta de nuevo.
+                    </p>
+                </div>
+
+                <div className="pt-2">
                     <button onClick={fetchAllData} className="px-5 py-2.5 font-medium text-sm text-white bg-text-2 hover:opacity-90">Reintentar</button>
                 </div>
             </div>
@@ -222,7 +229,7 @@ export default function MunicipioDetail({ cod, initialName }: { cod: string; ini
                 </section>
             </div>
 
-            <div className="min-md:px-14 p-6 py-8 flex flex-col gap-16">
+            <div className="p-6 py-8 md:px-10 lg:px-14 flex flex-col gap-16">
                 {wikiData && (
                     <section id="conoce-el-lugar">
                         <div className="mb-4">
@@ -257,7 +264,7 @@ export default function MunicipioDetail({ cod, initialName }: { cod: string; ini
                 <PrensaSection data={data} />
             </div>
 
-            <div className="xl:hidden px-6 pb-8">
+            <div className="2xl:hidden px-6 pb-8">
                 <MunicipiosSimilares items={data?.similares} />
             </div>
         </article>

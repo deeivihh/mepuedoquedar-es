@@ -25,7 +25,7 @@ export default function LocationNotice({ className = "" }: { className?: string 
     };
 
     return (
-        <div className={`w-full bg-white/60 backdrop-blur-xs border border-title/30 shadow p-2.5 sm:p-3 pointer-events-auto flex flex-col gap-2 transition-all ${className}`.trim()}>
+        <div className={`w-full bg-white/60 backdrop-blur-xs border border-title/30 shadow-sm p-2.5 sm:p-3 pointer-events-auto flex flex-col gap-2 ${className}`.trim()}>
             <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-title/15">
                 <div className="flex items-center gap-1.5 min-w-0">
                     <MdLocationOff className="text-text-2 text-sm shrink-0" aria-hidden="true" />
@@ -35,7 +35,7 @@ export default function LocationNotice({ className = "" }: { className?: string 
                 </div>
                 <button
                     onClick={() => setDismissed(true)}
-                    className="text-title/50 hover:text-title p-0.5 transition-colors cursor-pointer"
+                    className="text-title/50 hover:text-title active:scale-[0.96] p-0.5 transition-[color,transform] duration-150 cursor-pointer"
                     aria-label="Cerrar aviso de ubicación"
                 >
                     <MdClose size={14} />
@@ -49,7 +49,7 @@ export default function LocationNotice({ className = "" }: { className?: string 
             <button
                 onClick={handleRetry}
                 disabled={retryStatus === "loading"}
-                className={`mt-0.5 w-full py-1 text-center text-[11px] font-medium transition-colors cursor-pointer ${retryStatus === "error"
+                className={`mt-0.5 w-full py-1 text-center text-[11px] font-medium transition-[background-color,color,transform] duration-150 active:scale-[0.96] cursor-pointer ${retryStatus === "error"
                         ? "bg-red-500/15 text-red-700 hover:bg-red-500/20 font-medium"
                         : retryStatus === "loading"
                             ? "bg-title/10 text-title/50 cursor-wait"

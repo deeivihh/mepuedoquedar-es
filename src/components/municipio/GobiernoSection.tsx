@@ -173,7 +173,7 @@ function GruposPoliticosList({
                 </span>
             </div>
 
-            <div className="flex flex-col gap-2.5 w-full overflow-y-auto min-md:h-[450px] pr-1">
+            <div className="flex flex-col gap-2.5 w-full overflow-y-auto md:h-[450px] pr-1">
                 {partidos.map((p) => {
                     const isHovered = Boolean(p.siglas && hoveredParty === p.siglas);
                     const isFaded = hoveredParty !== null && !isHovered;
@@ -188,7 +188,7 @@ function GruposPoliticosList({
                             key={p.siglas}
                             onMouseEnter={() => p.siglas && onHoverParty(p.siglas)}
                             onMouseLeave={() => onHoverParty(null)}
-                            className="group p-3.5 sm:p-4 bg-white/40 border border-title/20 transition-[opacity, background-color, border-color] duration-150 flex flex-col gap-2.5 hover:bg-white/75 hover:border-title/35 cursor-pointer shrink-0"
+                            className="group p-3.5 sm:p-4 bg-white/40 border border-title/20 transition-[opacity,background-color,border-color,transform] duration-150 flex flex-col gap-2.5 hover:bg-white/75 hover:border-title/35 cursor-pointer shrink-0 active:scale-[0.98]"
                             style={{ opacity: isFaded ? 0.35 : 1 }}
                         >
                             <div className="flex items-center justify-between gap-3">

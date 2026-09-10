@@ -1073,18 +1073,18 @@ export default function DownloadReport({ data, scores, ineData, preferences, isD
             <button
                 onClick={handleDownload}
                 disabled={loading}
-                className="max-md:flex max-md:items-center max-md:justify-center max-md:gap-2 max-md:border max-md:border-title/30 max-md:p-2 min-md:hidden"
+                className="flex md:hidden items-center justify-center gap-2 border border-title/30 bg-white/20 hover:bg-white/30 active:scale-[0.96] font-medium h-10 px-4 w-full text-sm transition-[transform,background-color,border-color] duration-150 disabled:opacity-50"
             >
-                {loading ? <VscLoading className="animate-spin" aria-hidden="true" /> : <FaFileArrowDown aria-hidden="true" />}
-                {loading ? "Generando informe..." : "Descargar informe"}
+                {loading ? <VscLoading className="animate-spin text-sm" aria-hidden="true" /> : <FaFileArrowDown className="text-sm text-text-2" aria-hidden="true" />}
+                <span>{loading ? "Generando informe..." : "Descargar informe"}</span>
             </button>
             <button
                 onClick={handleDownload}
                 disabled={loading}
-                className="max-md:hidden fixed bottom-5 right-5 z-50 inline-flex min-h-11 items-center gap-2 bg-text-2 px-4 py-3 text-sm font-semibold text-text-3 shadow-lg shadow-title/20 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-title sm:bottom-7 sm:right-7 disabled:opacity-50"
+                className="hidden md:inline-flex fixed bottom-5 right-5 z-50 min-h-11 items-center gap-2.5 bg-text-2 px-5 py-3 text-sm font-semibold text-text-3 shadow-lg shadow-title/20 hover:opacity-95 active:scale-[0.96] transition-[transform,opacity] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-title sm:bottom-7 sm:right-7 disabled:opacity-50"
             >
-                {loading ? <VscLoading className="animate-spin" aria-hidden="true" /> : <FaFileArrowDown aria-hidden="true" />}
-                {loading ? "Generando informe..." : "Descargar informe"}
+                {loading ? <VscLoading className="animate-spin text-sm" aria-hidden="true" /> : <FaFileArrowDown className="text-sm" aria-hidden="true" />}
+                <span>{loading ? "Generando informe..." : "Descargar informe"}</span>
             </button>
         </>
     );

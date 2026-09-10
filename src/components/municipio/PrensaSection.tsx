@@ -10,10 +10,19 @@ export default function PrensaSection({ data }: { data: any }) {
             </div>
             <div className="grid grid-cols-1 bg-white/30 md:grid-cols-2 gap-2 p-4 border border-title/20">
                 {data.mas.medios.map((medio: { nombre: string; directorio_superior: string | null; paginas_de_internet: string | null }, i: number) => (
-                    <a title={`Abrir ${medio.nombre}`} href={medio.paginas_de_internet || `https://www.google.com/search?q=${medio.nombre.replace(" ", "+")}`} target="_blank" rel="noopener noreferrer" key={medio.nombre} className={`border border-title/20 flex flex-col gap-2 p-4 transition-colors hover:bg-white/40 ${data.mas.medios.length % 2 === 1 && i === data.mas.medios.length - 1 ? "md:col-span-2" : ""}`}>
+                    <a
+                        title={`Abrir ${medio.nombre}`}
+                        href={medio.paginas_de_internet || `https://www.google.com/search?q=${medio.nombre.replace(" ", "+")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        key={medio.nombre}
+                        className={`group border border-title/20 flex flex-col gap-2 p-4 transition-[background-color,border-color,transform] duration-150 hover:bg-white/50 hover:border-title/40 active:scale-[0.98] ${data.mas.medios.length % 2 === 1 && i === data.mas.medios.length - 1 ? "md:col-span-2" : ""}`}
+                    >
                         <div className="flex items-start justify-between gap-4">
                             <h3 className="title-font text-lg font-semibold leading-snug text-title">{medio.nombre}</h3>
-                            <span className="flex items-center justify-center gap-1"><MdArrowOutward /></span>
+                            <span className="flex items-center justify-center text-title/70 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                                <MdArrowOutward aria-hidden="true" />
+                            </span>
                         </div>
                     </a>
                 ))}
