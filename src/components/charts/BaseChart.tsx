@@ -171,10 +171,10 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                         </button>
                     )}
                     {chartData.latestYear && (
-                        <h4 title={`Última actualización: ${chartData.latestYear}`} className="flex gap-1 items-center justify-center font-semibold text-title/70 text-xs">
+                        <span title={`Última actualización: ${chartData.latestYear}`} className="flex gap-1 items-center justify-center font-semibold text-title/70 text-xs">
                             <IoTimeSharp size={13} />
                             {chartData.latestYear}
-                        </h4>
+                        </span>
                     )}
                 </div>
             </div>

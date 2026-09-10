@@ -94,9 +94,9 @@ export default function MetodologiaPage() {
             <article className="w-full max-w-3xl flex flex-col gap-10">
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 text-sm text-title/60 hover:text-title transition-colors font-medium w-fit"
+                    className="inline-flex items-center gap-2 text-sm text-title/60 hover:text-title transition-colors font-medium w-fit active:scale-[0.96]"
                 >
-                    <FaArrowLeft size={11} /> Volver
+                    <FaArrowLeft size={11} /> Volver al buscador
                 </Link>
 
                 <header className="border-b-2 border-title/20 pb-6 flex flex-col gap-2">

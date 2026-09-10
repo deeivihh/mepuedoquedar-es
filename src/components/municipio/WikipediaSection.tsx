@@ -72,8 +72,13 @@ export default function WikipediaSection({ data }: { data: WikipediaData | null 
                 </div>
 
                 {paras.length > 2 && (
-                    <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-2 text-xs uppercase text-title/60 hover:text-text-2">
-                        {expanded ? <>Menos <FaChevronUp size={10} /></> : <>Más <FaChevronDown size={10} /></>}
+                    <button
+                        type="button"
+                        onClick={() => setExpanded(!expanded)}
+                        aria-expanded={expanded}
+                        className="flex items-center gap-2 text-xs font-semibold text-title/70 hover:text-title cursor-pointer py-1"
+                    >
+                        {expanded ? <>Mostrar menos texto <FaChevronUp size={10} /></> : <>Leer más <FaChevronDown size={10} /></>}
                     </button>
                 )}
                 <Source section="wikipedia" href={data.pageUrl}>Wikipedia</Source>

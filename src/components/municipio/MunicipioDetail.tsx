@@ -5,7 +5,7 @@ import { useLocation } from "@/hooks/useLocation";
 import { Map } from "pigeon-maps";
 import { IoPeopleSharp } from "react-icons/io5";
 import { FaCarSide } from "react-icons/fa";
-import { MdArrowOutward } from "react-icons/md";
+import { MdArrowBack, MdArrowOutward } from "react-icons/md";
 import { calculateScores, ScoreResult } from "@/lib/scores/calculateScores";
 import GeneralScore from "@/components/municipio/GeneralScore";
 import { usePreferences } from "@/contexts/PreferencesContext";
@@ -24,6 +24,7 @@ import { fetchAllTables } from "@/lib/datos/ine";
 import { TABLES } from "@/lib/config/tables";
 import dynamic from "next/dynamic";
 import { SiGooglemaps } from "react-icons/si";
+import Link from "next/link";
 
 const DownloadReport = dynamic(() => import("./DownloadReport"), { ssr: false });
 
@@ -186,10 +187,23 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
 
     if (!data) {
         return (
-            <div className="flex flex-col justify-center items-center w-full min-h-[20svh] px-4 py-8">
-                <div className="p-8 md:p-10 max-w-md w-full flex flex-col items-center text-center gap-5">
-                    <h2 className="text-xl font-bold text-title">Municipio no encontrado</h2>
-                    <p className="text-sm text-black/70 text-balance">No hemos encontrado datos para el código de municipio solicitado.</p>
+            <div className="p-8 md:p-10 w-full flex flex-col items-center justify-center text-center gap-5">
+
+                <div className="flex max-w-md flex-col gap-2">
+                    <h1 className="text-3xl font-bold text-title">Página no encontrada</h1>
+                    <p className="text-sm text-black/70 leading-relaxed text-balance">
+                        El municipio o la sección que buscas no existe o no se encuentra disponible.
+                    </p>
+                </div>
+
+                <div className="pt-2">
+                    <Link
+                        href="/"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 font-medium text-sm text-white bg-text-2 hover:opacity-90 active:scale-[0.96] transition-all"
+                    >
+                        <MdArrowBack size={18} />
+                        Volver al buscador
+                    </Link>
                 </div>
             </div>
         );

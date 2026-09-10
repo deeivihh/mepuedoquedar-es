@@ -72,7 +72,7 @@ function PreferencesPanel({ preferences, onChange }: { preferences: any; onChang
     );
 }
 
-function SearchResults({ results, isLoading, query, isHome }: { results: Site[]; isLoading: boolean; query: string; isHome: boolean }) {
+function SearchResults({ results, isLoading, query, isHome, onClear }: { results: Site[]; isLoading: boolean; query: string; isHome: boolean; onClear?: () => void }) {
     if (isLoading) {
         return (
             <div className="flex flex-col gap-2 w-full animate-pulse">
@@ -109,7 +109,25 @@ function SearchResults({ results, isLoading, query, isHome }: { results: Site[];
     }
 
     if (query.trim().length >= 3) {
-        return <div className="flex items-center justify-center h-48 text-sm text-title/60 font-medium">No se encontraron municipios</div>;
+        return (
+            <div className="flex flex-col items-center justify-center p-8 text-center gap-2 w-full">
+                <p className="text-sm text-title font-medium text-balance">
+                    No encontramos municipios para &ldquo;{query.trim()}&rdquo;
+                </p>
+                <p className="text-xs text-title/60 text-balance">
+                    Comprueba que el nombre esté bien escrito o prueba con otra localidad.
+                </p>
+                {onClear && (
+                    <button
+                        type="button"
+                        onClick={onClear}
+                        className="mt-2 px-3 py-1.5 text-xs font-semibold text-title border border-title/30 hover:bg-white/60 active:scale-[0.96] transition-transform cursor-pointer"
+                    >
+                        Limpiar búsqueda
+                    </button>
+                )}
+            </div>
+        );
     }
 
     return null;
@@ -128,6 +146,14 @@ export default function SearchBar() {
     const abortRef = useRef<AbortController | null>(null);
 
     const isSearching = query.trim().length >= 3 && (isLoading || results.length > 0 || hasSearched);
+
+    const handleClear = useCallback(() => {
+        abortRef.current?.abort();
+        setQuery("");
+        setResults([]);
+        setIsLoading(false);
+        setHasSearched(false);
+    }, []);
 
     const doSearch = useCallback(async (q: string) => {
         abortRef.current?.abort();
@@ -212,13 +238,7 @@ export default function SearchBar() {
                                 <button
                                     type="button"
                                     aria-label="Limpiar búsqueda"
-                                    onClick={() => {
-                                        abortRef.current?.abort();
-                                        setQuery("");
-                                        setResults([]);
-                                        setIsLoading(false);
-                                        setHasSearched(false);
-                                    }}
+                                    onClick={handleClear}
                                     className="text-title hover:opacity-70 shrink-0 w-11 h-11 flex items-center justify-center"
                                 >
                                     <IoMdClose size={20} />
@@ -236,7 +256,7 @@ export default function SearchBar() {
                     </div>
                     {isSearching && (
                         <m.div className="col-start-1 row-start-1 w-full flex flex-col gap-4 min-md:max-h-[40rem] overflow-y-auto z-10 self-start">
-                            <SearchResults results={results} isLoading={isLoading} query={query} isHome={true} />
+                            <SearchResults results={results} isLoading={isLoading} query={query} isHome={true} onClear={handleClear} />
                         </m.div>
                     )}
                 </div>
@@ -244,7 +264,7 @@ export default function SearchBar() {
                 isSearching && (
                     <div className="bg-bg-card h-[15rem] overflow-y-auto my-2 border border-title/30">
                         <m.div className="w-full min-h-full flex flex-col gap-2 p-4">
-                            <SearchResults results={results} isLoading={isLoading} query={query} isHome={false} />
+                            <SearchResults results={results} isLoading={isLoading} query={query} isHome={false} onClear={handleClear} />
                         </m.div>
                     </div>
                 )

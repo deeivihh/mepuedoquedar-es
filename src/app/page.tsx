@@ -39,9 +39,9 @@ export default async function Home() {
                     </video>
                     <div className="absolute bottom-0 inset-x-0 h-50 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none z-999" />
                     <div className="absolute bottom-6 left-6 right-6 flex flex-col md:flex-row items-start md:items-end justify-between gap-4 text-text-3 pointer-events-none z-999 p-4">
-                        <h2 className="text-5xl max-w-xl text-balance font-semibold title-font shadow-sm">
+                        <p className="text-5xl max-w-xl text-balance font-semibold title-font shadow-sm">
                             Tu <span className="text-text-2 brightness-108">próximo gran capítulo</span> empieza aquí
-                        </h2>
+                        </p>
                         <nav className="pointer-events-auto flex items-center gap-3 shrink-0 order-first md:order-last">
                             <Link
                                 href="/metodologia"
