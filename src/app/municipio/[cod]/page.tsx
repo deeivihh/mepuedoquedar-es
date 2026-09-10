@@ -77,7 +77,7 @@ export default async function DetailPage({
 
     return (
         <main className="min-h-[100dvh] w-full px-4 sm:px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] flex justify-center">
-            <div className="flex w-full max-w-5xl flex-col gap-4 sm:gap-6">
+            <div className="flex w-full max-w-5xl flex-col gap-4">
                 <header className="relative z-50 w-full" aria-label="Búsqueda y navegación">
                     <SearchBar />
                 </header>

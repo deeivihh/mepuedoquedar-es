@@ -198,14 +198,14 @@ export default function SearchBar() {
 
     return (
         <div className="relative flex flex-col w-full" style={{ zIndex: 100 }}>
-            <div className="flex flex-col gap-1 w-full">
-                <div className="flex items-center gap-3 w-full">
+            <div className="flex flex-col w-full">
+                <div className="flex items-center gap-4 h-12 w-full">
                     {!isHome && (
                         <Link
                             href="/"
                             title="Volver al inicio"
                             aria-label="Volver al inicio"
-                            className="flex items-center justify-center w-14 h-12 shrink-0 border border-title/30 hover:bg-bg-card/80 active:bg-bg-card text-title transition-colors shadow-xs"
+                            className="flex items-center h-full p-4 justify-center shrink-0 border border-title/30 hover:bg-bg-card/80 active:bg-bg-card text-title transition-colors shadow-xs"
                         >
                             <FaArrowLeft size={18} />
                         </Link>
