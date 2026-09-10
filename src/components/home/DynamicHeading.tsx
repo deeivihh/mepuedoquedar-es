@@ -10,7 +10,7 @@ export default function DynamicHeading({ sites = [] }: { sites?: string[] }) {
     const typed = useTypewriter(names, 70, 35, 4000);
 
     return (
-        <h1 className="text-4xl max-md:text-3xl text-center font-semibold tracking-tight flex flex-col justify-center items-center">
+        <h1 className="text-4xl max-md:text-3xl text-center font-semibold tracking-tight flex flex-col justify-center items-center w-full">
             <span className="block">¿Me puedo quedar en</span>
             <span className="block text-balance">
                 <span className="text-color-2">{typed || "\u00A0"}</span>

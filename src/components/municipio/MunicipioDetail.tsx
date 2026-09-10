@@ -95,7 +95,7 @@ function MunicipioHero({ data, scores, ineData, preferences, isDefault, wikiData
                             rel="noopener noreferrer"
                             className="flex items-center max-md:justify-center bg-white/10 backdrop-blur-sm gap-2 border border-title/30 hover:border-title/50 font-medium h-10 px-4 min-md:w-fit w-full group relative hover:pr-8"
                         >
-                            Pagina web
+                            Página web
                             <span className="absolute transition duration-150 opacity-0 group-hover:opacity-100 blur-xs group-hover:blur-none right-2"><MdArrowOutward aria-hidden="true" /></span>
                         </a>
                     )}

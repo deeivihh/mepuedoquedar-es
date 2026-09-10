@@ -31,13 +31,17 @@ function PreferencesPanel({ preferences, onChange }: { preferences: any; onChang
                             </div>
                             <button
                                 id={`pref-${cfg.id}`}
+                                type="button"
                                 role="switch"
                                 aria-checked={checked}
                                 aria-label={cfg.label}
                                 onClick={() => update(cfg.id, !checked)}
-                                className={`font-bold text-sm uppercase border-2 border-title px-3 py-1 min-w-[3.5rem] transition-colors ${checked ? "bg-title text-bg-card" : "bg-transparent text-title"}`}
+                                className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer border-2 border-title p-0.5 transition-colors duration-200 ease-in-out focus-visible:ring-2 focus-visible:ring-title ${checked ? "bg-title" : "bg-transparent"}`}
                             >
-                                {checked ? "SÍ" : "NO"}
+                                <span
+                                    aria-hidden="true"
+                                    className={`pointer-events-none inline-block h-5 w-5 transition-transform duration-200 ease-in-out ${checked ? "translate-x-5 bg-bg-card" : "translate-x-0 bg-title"}`}
+                                />
                             </button>
                         </div>
                     );
@@ -55,7 +59,7 @@ function PreferencesPanel({ preferences, onChange }: { preferences: any; onChang
                             value={val}
                             aria-label={cfg.label}
                             onChange={(e) => update(cfg.id, Number(e.target.value))}
-                            className="w-full h-2 bg-title rounded-none appearance-none cursor-pointer accent-bg-card mt-2 border-2 border-title"
+                            className="w-full h-4 bg-transparent appearance-none cursor-pointer mt-2"
                         />
                         <div className="flex justify-between text-xs font-bold text-title w-full mt-1">
                             <span>{cfg.min}</span>
@@ -169,51 +173,58 @@ export default function SearchBar() {
     return (
         <div className="relative flex flex-col w-full" style={{ zIndex: 100 }}>
             <div className="flex flex-col gap-1 w-full">
-                <div className="flex justify-center items-center divide-x divide-title/30 border border-title/30 h-12 overflow-hidden">
+                <div className="flex items-center gap-3 w-full">
                     {!isHome && (
-                        <Link href="/" title="Volver" className="justify-center items-center flex p-4 px-4.5 opacity-80 hover:opacity-100 text-title hover:bg-bg-card">
-                            <FaArrowLeft size={20} />
+                        <Link
+                            href="/"
+                            title="Volver al inicio"
+                            aria-label="Volver al inicio"
+                            className="flex items-center justify-center w-12 h-12 shrink-0 border border-title/30 bg-bg-card hover:bg-bg-card/80 active:bg-bg-card text-title transition-colors shadow-xs"
+                        >
+                            <FaArrowLeft size={18} />
                         </Link>
                     )}
-                    <div className={`w-full flex gap-4 justify-center items-center h-full pl-4 pr-3 focus-within:bg-bg-card ${isHome ? "bg-bg-card" : "hover:bg-bg-card/80"} active:bg-bg-card`}>
-                        <FaSearch size={20} className="opacity-80 text-title shrink-0" />
-                        <input
-                            id="search-municipios"
-                            aria-label="Buscar municipio"
-                            placeholder="Busca tu municipio..."
-                            autoFocus={isHome}
-                            value={query}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                setQuery(val);
-                                if (val.trim().length < 3) {
-                                    abortRef.current?.abort();
-                                    setResults([]);
-                                    setIsLoading(false);
-                                    setHasSearched(false);
-                                } else {
-                                    setIsLoading(true);
-                                }
-                            }}
-                            className="w-full flex-1 min-w-0 h-full outline-none text-title font-medium bg-transparent"
-                        />
-                        {isLoading && <AiOutlineLoading3Quarters size={15} className="text-title shrink-0 mr-2.5 animate-spin" />}
-                        {query.length > 0 && !isLoading && (
-                            <button
-                                type="button"
-                                aria-label="Limpiar búsqueda"
-                                onClick={() => {
-                                    abortRef.current?.abort();
-                                    setQuery("");
-                                    setResults([]);
-                                    setIsLoading(false);
-                                    setHasSearched(false);
+                    <div className="flex justify-center items-center border border-title/30 h-12 overflow-hidden flex-1 min-w-0">
+                        <div className={`w-full flex gap-4 justify-center items-center h-full pl-4 pr-1.5 focus-within:bg-bg-card ${isHome ? "bg-bg-card" : "hover:bg-bg-card/80"} active:bg-bg-card`}>
+                            <FaSearch size={20} className="opacity-80 text-title shrink-0" />
+                            <input
+                                id="search-municipios"
+                                aria-label="Buscar municipio"
+                                placeholder="Busca tu municipio..."
+                                autoFocus={isHome}
+                                value={query}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setQuery(val);
+                                    if (val.trim().length < 3) {
+                                        abortRef.current?.abort();
+                                        setResults([]);
+                                        setIsLoading(false);
+                                        setHasSearched(false);
+                                    } else {
+                                        setIsLoading(true);
+                                    }
                                 }}
-                                className="text-title hover:opacity-70 shrink-0 w-8 h-8 flex items-center justify-center"
-                            >
-                                <IoMdClose size={20} />
-                            </button>
-                        )}
+                                className="w-full flex-1 min-w-0 h-full outline-none text-title font-medium bg-transparent"
+                            />
+                            {isLoading && <AiOutlineLoading3Quarters size={15} className="text-title shrink-0 mr-2.5 animate-spin" />}
+                            {query.length > 0 && !isLoading && (
+                                <button
+                                    type="button"
+                                    aria-label="Limpiar búsqueda"
+                                    onClick={() => {
+                                        abortRef.current?.abort();
+                                        setQuery("");
+                                        setResults([]);
+                                        setIsLoading(false);
+                                        setHasSearched(false);
+                                    }}
+                                    className="text-title hover:opacity-70 shrink-0 w-11 h-11 flex items-center justify-center"
+                                >
+                                    <IoMdClose size={20} />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

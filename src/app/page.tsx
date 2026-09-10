@@ -37,19 +37,19 @@ export default async function Home() {
                     >
                         <source src="/videos/hero-video.mp4" type="video/mp4" />
                     </video>
-                    <div className="absolute bottom-0 inset-x-0 h-50 backdrop-blur-[1px] bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none z-999" />
+                    <div className="absolute bottom-0 inset-x-0 h-50 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none z-999" />
                     <div className="absolute bottom-6 left-6 right-6 flex flex-col md:flex-row items-start md:items-end justify-between gap-4 text-text-3 pointer-events-none z-999 p-4">
                         <h2 className="text-5xl max-w-xl text-balance font-semibold title-font shadow-sm">
                             Tu <span className="text-text-2 brightness-108">próximo gran capítulo</span> empieza aquí
                         </h2>
-                        <nav className="pointer-events-auto flex items-center gap-2 shrink-0 order-first md:order-last">
+                        <nav className="pointer-events-auto flex items-center gap-3 shrink-0 order-first md:order-last">
                             <Link
                                 href="/metodologia"
                                 title="Metodología"
                                 aria-label="Metodología"
-                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-colors shadow-sm flex items-center justify-center"
+                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md w-11 h-11 rounded-full border border-white/30 text-white hover:text-title transition-colors shadow-sm flex items-center justify-center"
                             >
-                                <FaBookOpen size={14} />
+                                <FaBookOpen size={16} />
                             </Link>
                             <a
                                 href="https://github.com/deeivihh/mepuedoquedar.es"
@@ -57,9 +57,9 @@ export default async function Home() {
                                 rel="noopener noreferrer"
                                 title="Repositorio"
                                 aria-label="Repositorio"
-                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-colors shadow-sm flex items-center justify-center"
+                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md w-11 h-11 rounded-full border border-white/30 text-white hover:text-title transition-colors shadow-sm flex items-center justify-center"
                             >
-                                <FaGithub size={15} />
+                                <FaGithub size={17} />
                             </a>
                             <a
                                 href="https://linkedin.com/in/deeivihh"
@@ -67,18 +67,20 @@ export default async function Home() {
                                 rel="noopener noreferrer"
                                 title="LinkedIn"
                                 aria-label="LinkedIn"
-                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-white/30 text-white hover:text-title transition-colors shadow-sm flex items-center justify-center"
+                                className="bg-white/20 hover:bg-white/90 backdrop-blur-md w-11 h-11 rounded-full border border-white/30 text-white hover:text-title transition-colors shadow-sm flex items-center justify-center"
                             >
-                                <FaLinkedin size={14} />
+                                <FaLinkedin size={16} />
                             </a>
                         </nav>
                     </div>
                 </div>
             </div>
             <div className="w-full lg:w-[40%] min-h-screen lg:h-full lg:overflow-y-auto flex flex-col items-center justify-center p-6 lg:px-12 lg:py-8">
-                <div className="w-full max-w-xl flex flex-col items-center gap-6 shrink-0">
+                <div className="w-full flex flex-col items-center gap-6 shrink-0">
                     <DynamicHeading sites={randomSites} />
-                    <SearchBar />
+                    <div className="max-w-xl w-full">
+                        <SearchBar />
+                    </div>
                 </div>
             </div>
         </main>
