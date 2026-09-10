@@ -131,3 +131,18 @@ export async function getData(cod_ine: string) {
         similares,
     };
 }
+
+export async function getRandomSites(limit = 10): Promise<string[]> {
+    try {
+        const offset = Math.max(0, Math.floor(Math.random() * 2235));
+        const { data, error } = await getSupabase()
+            .from("municipios")
+            .select("municipio")
+            .range(offset, offset + limit - 1);
+
+        if (error || !data || data.length === 0) return [];
+        return data.map((r) => r.municipio).sort(() => Math.random() - 0.5);
+    } catch {
+        return [];
+    }
+}

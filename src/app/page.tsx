@@ -2,25 +2,13 @@ import Link from "next/link";
 import DynamicHeading from "@/components/home/DynamicHeading";
 import SearchBar from "@/components/home/SearchBar";
 import { FaBookOpen, FaGithub, FaLinkedin } from "react-icons/fa";
+import { getRandomSites } from "@/lib/supabase/municipalities";
 
 export const dynamic = "force-static";
 export const revalidate = 86400;
 
-async function getRandomSites() {
-    try {
-        const offset = Math.floor(Math.random() * 2200);
-        const url = `https://analisis.datosabiertos.jcyl.es/api/explore/v2.1/catalog/datasets/registro-de-municipios-de-castilla-y-leon/records?limit=10&offset=${offset}`;
-        const res = await fetch(url, { headers: { Accept: "application/json" } });
-        if (!res.ok) return [];
-        const data = (await res.json()) as { results: { municipio: string }[] };
-        return data.results.map((r) => r.municipio);
-    } catch {
-        return [];
-    }
-}
-
 export default async function Home() {
-    const randomSites = await getRandomSites();
+    const randomSites = await getRandomSites(10);
 
     return (
         <main className="flex flex-col lg:flex-row min-h-screen w-full lg:h-screen lg:overflow-hidden">
