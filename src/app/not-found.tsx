@@ -16,7 +16,7 @@ export default function NotFound() {
                 <div className="pt-2">
                     <Link
                         href="/"
-                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 font-medium text-sm text-white bg-text-2 hover:opacity-90 active:scale-[0.96] transition-all"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 font-medium text-sm text-white bg-text-2 hover:opacity-90 active:scale-[0.96] transition-[background-color,color,opacity,box-shadow,transform] duration-200"
                     >
                         <MdArrowBack size={18} />
                         Volver al buscador
