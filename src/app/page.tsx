@@ -19,7 +19,7 @@ export default async function Home() {
                         loop
                         muted
                         playsInline
-                        preload="auto"
+                        preload="none"
                         poster="/videos/hero-poster.webp"
                         className="w-full h-full object-cover"
                     >
