@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { getSupabase } from "./client";
 import { getIneCodInt } from "../datos/ine";
 import weightsConfig from "../scores/weights.json";
@@ -57,7 +58,7 @@ function buildDatos(data: Record<string, any>) {
     return datos;
 }
 
-export async function getMunicipioName(cod_ine: string): Promise<string | null> {
+export const getMunicipioName = cache(async (cod_ine: string): Promise<string | null> => {
     const raw = cod_ine.trim();
     const candidates = Array.from(new Set([raw, raw.padStart(5, "0"), raw.replace(/^0+/, "")]));
 
@@ -69,7 +70,7 @@ export async function getMunicipioName(cod_ine: string): Promise<string | null> 
         .maybeSingle();
 
     return data?.municipio ?? null;
-}
+});
 
 export async function getData(cod_ine: string) {
     const raw = cod_ine.trim();

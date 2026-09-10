@@ -111,7 +111,7 @@ function MunicipioHero({ data, scores, ineData, preferences, isDefault, wikiData
     );
 }
 
-export default function MunicipioDetail({ cod }: { cod: string }) {
+export default function MunicipioDetail({ cod, initialName }: { cod: string; initialName?: string | null }) {
     const { locationParams, ready } = useLocation(false);
     const { preferences, isDefault } = usePreferences();
 
@@ -168,6 +168,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center gap-3 w-full min-h-[50svh] px-4">
+                <h1 className="sr-only">{initialName ? `¿Me puedo quedar en ${initialName}?` : "¿Me puedo quedar?"}</h1>
                 <p className="text-sm md:text-base font-medium text-black/70 animate-pulse text-center">{loadingMsgs[msgIdx]}</p>
             </div>
         );
@@ -177,7 +178,7 @@ export default function MunicipioDetail({ cod }: { cod: string }) {
         return (
             <div className="flex flex-col justify-center items-center w-full min-h-[20svh] px-4 py-8">
                 <div className="p-8 md:p-10 max-w-md w-full flex flex-col items-center text-center gap-5">
-                    <h2 className="text-xl font-bold text-title">Error al consultar el municipio</h2>
+                    <h1 className="text-xl font-bold text-title">Error al consultar el municipio</h1>
                     <p className="text-sm text-black/70 text-balance">{error}</p>
                     <button onClick={fetchAllData} className="px-5 py-2.5 font-medium text-sm text-white bg-text-2 hover:opacity-90">Reintentar</button>
                 </div>
