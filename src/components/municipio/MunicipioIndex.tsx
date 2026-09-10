@@ -110,7 +110,7 @@ export default function MunicipioIndex({ similares }: { similares?: MunicipioSim
                                     <button
                                         key={sec.id}
                                         onClick={(e) => scrollToSection(sec.id, e)}
-                                        className={`group flex items-baseline text-left py-1.5 px-2 rounded-xs transition-colors duration-150 text-xs ${isActive
+                                        className={`group flex items-baseline text-left py-1.5 px-2 transition-colors duration-150 text-xs ${isActive
                                             ? "bg-white/60 text-title font-semibold shadow-2xs"
                                             : "text-title/70 hover:text-title hover:bg-white"
                                             }`}

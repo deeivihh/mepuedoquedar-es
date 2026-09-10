@@ -72,7 +72,7 @@ function createPolarDefinition(type: ChartType, pieData: any[]) {
                 marks: [
                     radialArc(pie(pieData, { value: (d: any) => d.value }), {
                         innerRadius: type === "donut" ? ({ radius }) => radius * 0.58 : 0,
-                        cornerRadius: 3,
+                        cornerRadius: 0,
                         color: (d: any) => d.label,
                         key: (d: any) => d.label,
                     }),
@@ -163,7 +163,7 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                         <button
                             type="button"
                             onClick={() => setShowLegend((prev) => !prev)}
-                            className={`flex items-center transition-colors cursor-pointer p-1 rounded ${showLegend ? "text-title bg-title/10" : "text-title/60 hover:text-title hover:bg-title/5"}`}
+                            className={`flex items-center transition-colors cursor-pointer p-1 ${showLegend ? "text-title bg-title/10" : "text-title/60 hover:text-title hover:bg-title/5"}`}
                             title={showLegend ? "Ocultar leyenda" : "Mostrar leyenda"}
                             aria-label={showLegend ? "Ocultar leyenda" : "Mostrar leyenda"}
                         >
@@ -233,7 +233,7 @@ export default function BaseChart({ type = "line", data, title, height = 260, fo
                     {legends.map((item: any, idx: number) => (
                         <div key={item.label} className="flex items-center justify-between gap-2 py-0.5 min-w-0">
                             <div className="flex items-center gap-2 min-w-0">
-                                <span className="w-2.5 h-2.5 rounded-full shrink-0 border border-title/20" style={{ backgroundColor: CHART_PALETTE[idx % CHART_PALETTE.length] }} />
+                                <span className="w-2.5 h-2.5 shrink-0 border border-title/20" style={{ backgroundColor: CHART_PALETTE[idx % CHART_PALETTE.length] }} />
                                 <span className="font-medium text-title/85 text-[11px] sm:text-xs truncate">{item.label}</span>
                             </div>
                             <div className="flex items-center gap-1.5 shrink-0">

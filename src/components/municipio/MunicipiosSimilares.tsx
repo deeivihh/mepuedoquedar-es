@@ -27,7 +27,7 @@ export default function MunicipiosSimilares({
                     <Link
                         key={m.codigo}
                         href={`/municipio/${m.codigo}`}
-                        className="group flex flex-col py-1.5 px-2 rounded-xs transition-colors duration-150 hover:bg-white text-title/80 hover:text-title"
+                        className="group flex flex-col py-1.5 px-2 transition-colors duration-150 hover:bg-white text-title/80 hover:text-title"
                     >
                         <span className="text-xs font-medium truncate group-hover:underline" title={m.municipio}>
                             {m.municipio}

@@ -130,7 +130,7 @@ function GobernabilidadCard({
                     {partyTag && (
                         <span className="inline-flex items-center gap-2 px-2.5 py-0.5 text-xs font-semibold tracking-wider text-title bg-white/70 border border-title/20">
                             <span
-                                className="w-2.5 h-2.5 rounded-full shrink-0"
+                                className="w-2.5 h-2.5 shrink-0"
                                 style={{ backgroundColor: leadPartyColor }}
                                 aria-hidden="true"
                             />
@@ -194,7 +194,7 @@ function GruposPoliticosList({
                             <div className="flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                     <span
-                                        className="w-2.5 h-2.5 rounded-full shrink-0 transition-transform duration-150 group-hover:scale-125"
+                                        className="w-2.5 h-2.5 shrink-0 transition-transform duration-150 group-hover:scale-125"
                                         style={{ backgroundColor: p.color || "#1F3A2E" }}
                                         aria-hidden="true"
                                     />
