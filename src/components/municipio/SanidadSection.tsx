@@ -44,12 +44,12 @@ export default function SanidadSection({ data }: { data: any }) {
     const hospitales: Hospital[] = data?.datos?.sanidad?.hospitales?.detalles ?? [];
     const centrosSalud: CentroSalud[] = data?.datos?.sanidad?.centrosSalud?.detalles ?? [];
 
-    const [expandedHospitals, setExpandedHospitals] = useState<Record<number, boolean>>({});
+    const [expandedHospitals, setExpandedHospitals] = useState<Record<string, boolean>>({});
 
     if (hospitales.length === 0 && centrosSalud.length === 0) return null;
 
-    const toggleHospital = (idx: number) => {
-        setExpandedHospitals((prev) => ({ ...prev, [idx]: !prev[idx] }));
+    const toggleHospital = (id: string) => {
+        setExpandedHospitals((prev) => ({ ...prev, [id]: !prev[id] }));
     };
 
     return (
@@ -72,15 +72,16 @@ export default function SanidadSection({ data }: { data: any }) {
                         </div>
 
                         <div className="flex flex-col gap-4">
-                            {hospitales.map((h, idx) => {
+                            {hospitales.map((h) => {
                                 const specialties = parseSpecialties(h.finalidad_asistencial);
-                                const isExpanded = Boolean(expandedHospitals[idx]);
+                                const hospitalId = h.nombre_del_centro;
+                                const isExpanded = Boolean(expandedHospitals[hospitalId]);
                                 const visibleSpecialties = isExpanded ? specialties : specialties.slice(0, 12);
                                 const coords = parseCoords(h.posicion);
 
                                 return (
                                     <div
-                                        key={`${h.nombre_del_centro}-${idx}`}
+                                        key={`${h.nombre_del_centro}_${h.localidad || ""}`}
                                         className="p-5 bg-white/45 border border-title/25 flex flex-col gap-4"
                                     >
                                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -116,7 +117,7 @@ export default function SanidadSection({ data }: { data: any }) {
                                                 {h.telefono && (
                                                     <a
                                                         href={`tel:${h.telefono.replace(/\s+/g, "")}`}
-                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-text-2 text-text-3 hover:opacity-90 active:scale-[0.97] transition-all"
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-text-2 text-text-3 hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] duration-150"
                                                     >
                                                         <MdPhone size={14} />
                                                         <span>{h.telefono}</span>
@@ -144,7 +145,7 @@ export default function SanidadSection({ data }: { data: any }) {
                                                 {specialties.length > 12 && (
                                                     <button
                                                         type="button"
-                                                        onClick={() => toggleHospital(idx)}
+                                                        onClick={() => toggleHospital(hospitalId)}
                                                         className="self-start mt-1 text-xs font-bold text-text-2 hover:underline cursor-pointer"
                                                     >
                                                         {isExpanded
@@ -170,12 +171,12 @@ export default function SanidadSection({ data }: { data: any }) {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                            {centrosSalud.map((cs, idx) => {
+                            {centrosSalud.map((cs) => {
                                 const services = parseSpecialties(cs.finalidad_asistencial);
 
                                 return (
                                     <div
-                                        key={`${cs.nombre_del_centro}-${idx}`}
+                                        key={`${cs.nombre_del_centro}_${cs.direccion || cs.telefono || ""}`}
                                         className="p-4 bg-white/40 border border-title/20 flex flex-col justify-between gap-3 hover:bg-white/60 transition-[background-color,border-color] duration-150"
                                     >
                                         <div className="flex flex-col gap-1.5">

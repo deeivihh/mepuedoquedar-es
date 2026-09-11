@@ -119,13 +119,13 @@ export default function PatrimonioCulturaSection({ data }: { data: any }) {
                     {activeTab === "monumentos" && (
                         <div className="flex flex-col gap-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {visibleMonumentos.map((m, idx) => {
+                                {visibleMonumentos.map((m) => {
                                     const coords = parseCoordinates(m.coordenadas);
                                     const isBic = Boolean(m.identificadorbieninterescultural && m.identificadorbieninterescultural.trim());
 
                                     return (
                                         <div
-                                            key={`${m.nombre}-${idx}`}
+                                            key={`${m.nombre}_${m.identificadorbieninterescultural || m.tipomonumento || ""}`}
                                             className="p-4 bg-white/40 border border-title/20 flex flex-col justify-between gap-3 hover:bg-white/60 transition-[background-color,border-color] duration-150"
                                         >
                                             <div className="flex flex-col gap-1.5">
@@ -185,11 +185,11 @@ export default function PatrimonioCulturaSection({ data }: { data: any }) {
 
                     {activeTab === "museos" && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {museos.map((m, idx) => {
+                            {museos.map((m) => {
                                 const url = m.enlace_al_contenido || `https://www.google.com/search?q=${encodeURIComponent(m.nombreentidad + " " + (m.localidad || ""))}`;
                                 return (
                                     <a
-                                        key={`${m.nombreentidad}-${idx}`}
+                                        key={m.enlace_al_contenido || `${m.nombreentidad}_${m.localidad || ""}`}
                                         title={`Abrir información de ${m.nombreentidad}`}
                                         href={url}
                                         target="_blank"
@@ -224,9 +224,9 @@ export default function PatrimonioCulturaSection({ data }: { data: any }) {
 
                     {activeTab === "teatros" && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {teatros.map((t, idx) => (
+                            {teatros.map((t) => (
                                 <div
-                                    key={`${t.sala}-${idx}`}
+                                    key={`${t.sala}_${t.direccion || t.email || ""}`}
                                     className="p-4 bg-white/40 border border-title/20 flex flex-col justify-between gap-3 hover:bg-white/60 transition-[background-color,border-color] duration-150"
                                 >
                                     <div className="flex flex-col gap-1">
@@ -259,11 +259,11 @@ export default function PatrimonioCulturaSection({ data }: { data: any }) {
 
                     {activeTab === "bibliotecas" && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {bibliotecas.map((b, idx) => {
+                            {bibliotecas.map((b) => {
                                 const url = b.enlace_contenido || `https://www.google.com/search?q=${encodeURIComponent(b.nombre_entidad + " " + (b.localidad || ""))}`;
                                 return (
                                     <a
-                                        key={`${b.nombre_entidad}-${idx}`}
+                                        key={b.enlace_contenido || `${b.nombre_entidad}_${b.localidad || ""}`}
                                         title={`Abrir información de ${b.nombre_entidad}`}
                                         href={url}
                                         target="_blank"
