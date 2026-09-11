@@ -896,7 +896,7 @@ function SanidadReportBlock({ sanidad }: { sanidad: any }) {
                         ))}
                         {remainingCs > 0 && (
                             <Text style={{ color: `${colors.green}99`, fontSize: 6.8 }}>
-                                • +{remainingCs} más
+                                +{remainingCs} más
                             </Text>
                         )}
                     </View>
