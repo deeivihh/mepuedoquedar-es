@@ -2,11 +2,73 @@
 
 import { useTypewriter } from "@/hooks/useTypewriter";
 import * as m from "motion/react-m";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 
-export default function DynamicHeading({ sites = [] }: { sites?: string[] }) {
-    const defaultSites = useMemo(() => ["Castilla y León", "tu pueblo", "tu ciudad"], []);
-    const names = sites.length > 0 ? sites : defaultSites;
+const SITES = [
+    "Valladolid",
+    "Ponferrada",
+    "Burgos",
+    "León",
+    "Salamanca",
+    "Zamora",
+    "Palencia",
+    "Ávila",
+    "Segovia",
+    "Soria",
+    "Medina del Campo",
+    "Aranda de Duero",
+    "Miranda de Ebro",
+    "Astorga",
+    "Benavente",
+    "Béjar",
+    "Ciudad Rodrigo",
+    "Cuéllar",
+    "Tordesillas",
+    "El Burgo de Osma",
+    "Aguilar de Campoo",
+    "Arévalo",
+    "Toro",
+    "Puebla de Sanabria",
+    "La Alberca",
+    "Cervera de Pisuerga",
+    "Lerma",
+    "Sahagún",
+    "Arenas de San Pedro",
+    "Sepúlveda",
+    "Pedraza",
+    "Medinaceli",
+    "Peñafiel",
+    "Villafranca del Bierzo",
+    "Guardo",
+    "Almazán",
+    "Candeleda",
+    "Frías",
+    "La Bañeza",
+    "Olmedo",
+    "Laguna de Duero",
+    "El Espinar",
+    "San Esteban de Gormaz",
+    "El Barco de Ávila",
+    "Real Sitio de San Ildefonso",
+];
+
+function shuffle(list: string[]): string[] {
+    const arr = [...list];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+export default function DynamicHeading({ sites }: { sites?: string[] } = {}) {
+    const [names, setNames] = useState(sites && sites.length > 0 ? sites : SITES);
+
+    useEffect(() => {
+        if (sites && sites.length > 0) return;
+        setNames(shuffle(SITES));
+    }, [sites]);
+
     const typed = useTypewriter(names, 70, 35, 4000);
 
     return (
@@ -25,3 +87,4 @@ export default function DynamicHeading({ sites = [] }: { sites?: string[] }) {
         </h1>
     );
 }
+

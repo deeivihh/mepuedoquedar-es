@@ -2,13 +2,10 @@ import Link from "next/link";
 import DynamicHeading from "@/components/home/DynamicHeading";
 import SearchBar from "@/components/home/SearchBar";
 import { FaBookOpen, FaGithub, FaLinkedin } from "react-icons/fa";
-import { getRandomSites } from "@/lib/supabase/municipalities";
-
 export const dynamic = "force-static";
 export const revalidate = 86400;
 
-export default async function Home() {
-    const randomSites = await getRandomSites(10);
+export default function Home() {
 
     return (
         <main className="flex flex-col lg:flex-row min-h-screen w-full lg:h-screen lg:overflow-hidden">
@@ -66,7 +63,7 @@ export default async function Home() {
             </div>
             <div className="w-full lg:w-[40%] min-h-screen lg:h-full lg:overflow-y-auto flex flex-col items-center justify-center p-6 lg:px-12 lg:py-8">
                 <div className="w-full flex flex-col items-center gap-6 shrink-0">
-                    <DynamicHeading sites={randomSites} />
+                    <DynamicHeading />
                     <div className="max-w-xl w-full">
                         <SearchBar />
                     </div>
