@@ -17,6 +17,9 @@ import AlquilerSection from "./AlquilerSection";
 import CoberturaSection from "./CoberturaSection";
 import PrensaSection from "./PrensaSection";
 import GobiernoSection from "./GobiernoSection";
+import SanidadSection from "./SanidadSection";
+import EducacionSection from "./EducacionSection";
+import PatrimonioCulturaSection from "./PatrimonioCulturaSection";
 import Source from "./Source";
 import MunicipioIndex from "./MunicipioIndex";
 import MunicipiosSimilares from "./MunicipiosSimilares";
@@ -95,7 +98,7 @@ function MunicipioHero({ data, scores, ineData, preferences, isDefault, wikiData
                             href={data.web}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="relative inline-flex items-center justify-center bg-white/20 backdrop-blur-sm gap-2 border border-title/30 hover:border-title/60 hover:bg-white/30 active:scale-[0.96] font-medium h-10 px-5 transition-[transform,background-color,border-color] duration-150 w-full sm:w-auto text-sm group"
+                            className="relative inline-flex items-center justify-center bg-white/20 backdrop-blur-sm gap-2 border border-title/30 hover:border-title/60 hover:bg-white/30 active:scale-[0.96] font-medium h-10 pl-5 pr-4 transition-[transform,background-color,border-color] duration-150 w-full sm:w-auto text-sm group"
                         >
                             <span>Página web</span>
                             <MdArrowOutward className="opacity-0 group-hover:opacity-100 -ml-4 group-hover:ml-0 blur group-hover:blur-none transition-[opacity, margin, blur] duration-150" aria-hidden="true" />
@@ -246,6 +249,12 @@ export default function MunicipioDetail({ cod, initialName }: { cod: string; ini
                 <AlquilerSection data={data} />
 
                 <CoberturaSection data={data} />
+
+                <SanidadSection data={data} />
+
+                <EducacionSection data={data} />
+
+                <PatrimonioCulturaSection data={data} />
 
                 {data.cod_int && ineData && (
                     <section id="lo-que-cuentan-los-datos" className="relative">

@@ -10,6 +10,9 @@ const SECTION_LABELS: Record<string, string> = {
     "equipo-de-gobierno": "Equipo de gobierno",
     "vivir-aqui": "Vivir aquí",
     "conectividad": "Conectividad",
+    "atencion-sanitaria": "Atención sanitaria",
+    "educacion-y-formacion": "Educación y FP",
+    "patrimonio-y-cultura": "Patrimonio y cultura",
     "lo-que-cuentan-los-datos": "Lo que cuentan los datos",
     "prensa-local": "Prensa local",
 };

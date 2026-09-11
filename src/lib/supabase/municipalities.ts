@@ -78,7 +78,7 @@ export async function getData(cod_ine: string) {
 
     const { data, error } = await getSupabase()
         .from("municipios")
-        .select(`codigo, cod_int, municipio, poblacion, provincia, latitud, longitud, mas, web, ${datosSelect}`)
+        .select(`codigo, cod_int, municipio, poblacion, provincia, latitud, longitud, mas, web, datos, ${datosSelect}`)
         .in("codigo", candidates)
         .limit(1)
         .maybeSingle();
@@ -127,7 +127,7 @@ export async function getData(cod_ine: string) {
         longitud: row.longitud,
         mas: row.mas ?? null,
         web: row.web ?? null,
-        datos: buildDatos(row),
+        datos: row.datos ?? buildDatos(row),
         similares,
     };
 }
