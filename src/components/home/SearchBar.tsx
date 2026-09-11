@@ -19,12 +19,12 @@ function PreferencesPanel({ preferences, onChange }: { preferences: any; onChang
     const update = (id: string, val: any) => onChange({ ...preferences, [id]: val });
 
     return (
-        <div className="w-full flex flex-col gap-6 pt-6">
+        <div className="w-full flex flex-col gap-4 lg:gap-5 xl:gap-6 pt-4 lg:pt-6">
             {PREFERENCES_SCHEMA.map((cfg) => {
                 if (cfg.type === "boolean") {
                     const checked = Boolean(preferences[cfg.id]);
                     return (
-                        <div key={cfg.id} className="flex items-center justify-between gap-6 text-left border-b-2 border-title/20 pb-4">
+                        <div key={cfg.id} className="flex items-center justify-between gap-4 lg:gap-6 text-left border-b-2 border-title/20 pb-3 lg:pb-4">
                             <div>
                                 <label htmlFor={`pref-${cfg.id}`} className="text-sm text-title font-semibold uppercase cursor-pointer">{cfg.label}</label>
                                 <p className="text-xs font-bold text-title/85 mt-1 uppercase">{cfg.description}</p>

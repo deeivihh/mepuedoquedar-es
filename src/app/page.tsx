@@ -9,7 +9,7 @@ export default function Home() {
 
     return (
         <main className="flex flex-col lg:flex-row min-h-screen w-full lg:h-screen lg:overflow-hidden">
-            <div className="w-full lg:w-[60%] h-[100svh] lg:h-screen lg:overflow-y-auto relative no-scrollbar flex flex-col shrink-0">
+            <div className="w-full lg:w-1/2 xl:w-[58%] 2xl:w-[60%] h-[100svh] lg:h-screen lg:overflow-y-auto relative no-scrollbar flex flex-col shrink-0">
                 <div className="relative w-full h-[100svh] shrink-0">
                     <video
                         autoPlay
@@ -24,7 +24,7 @@ export default function Home() {
                     </video>
                     <div className="absolute bottom-0 inset-x-0 h-50 bg-gradient-to-t from-black via-black/70 to-transparent pointer-events-none z-999" />
                     <div className="absolute bottom-6 left-6 right-6 flex flex-col md:flex-row items-start md:items-end justify-between gap-4 text-text-3 pointer-events-none z-999 p-4">
-                        <p className="text-5xl max-w-xl text-balance font-semibold title-font shadow-sm">
+                        <p className="text-3xl sm:text-4xl lg:text-3xl xl:text-4xl 2xl:text-5xl max-w-xl text-balance font-semibold title-font shadow-sm">
                             Tu <span className="text-text-2 brightness-108">próximo gran capítulo</span> empieza aquí
                         </p>
                         <nav className="pointer-events-auto flex items-center gap-3 shrink-0 order-first md:order-last">
@@ -61,8 +61,8 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="w-full lg:w-[40%] min-h-screen lg:h-full lg:overflow-y-auto flex flex-col items-center justify-center p-6 lg:px-12 lg:py-8">
-                <div className="w-full flex flex-col items-center gap-6 shrink-0">
+            <div className="w-full lg:w-1/2 xl:w-[42%] 2xl:w-[40%] min-h-screen lg:h-full lg:overflow-y-auto flex flex-col items-center p-6 lg:px-8 xl:px-12 lg:py-6 xl:py-8">
+                <div className="w-full flex flex-col items-center gap-5 lg:gap-6 shrink-0 my-auto">
                     <DynamicHeading />
                     <div className="max-w-xl w-full">
                         <SearchBar />
