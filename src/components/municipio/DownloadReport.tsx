@@ -154,6 +154,17 @@ const styles: any = {
     coberturaRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 2.8, borderBottomColor: `${colors.green}10`, borderBottomWidth: 0.6 },
     coberturaRowLabel: { color: colors.ink, fontSize: 6.8, width: "55%" },
     coberturaRowValue: { color: colors.green, fontFamily: "Helvetica-Bold", fontSize: 6.8, textAlign: "right", width: "45%" },
+    serviciosBox: { backgroundColor: colors.card, borderColor: `${colors.green}22`, borderWidth: 1, padding: 8, marginBottom: 7 },
+    serviciosTitleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 },
+    serviciosEyebrowRow: { flexDirection: "row", alignItems: "center", gap: 3 },
+    serviciosEyebrow: { color: `${colors.green}88`, fontFamily: "Helvetica-Bold", fontSize: 6.2, letterSpacing: 0.8, textTransform: "uppercase" },
+    serviciosItemTitle: { color: colors.green, fontFamily: "Times-Bold", fontSize: 8.5 },
+    serviciosItemSubtitle: { color: colors.muted, fontSize: 6.5, marginTop: 1 },
+    serviciosRow: { flexDirection: "row", flexWrap: "wrap", gap: 3, marginTop: 4 },
+    serviciosPill: { backgroundColor: "#FFFFFF88", borderColor: `${colors.green}18`, borderWidth: 0.6, paddingHorizontal: 4, paddingVertical: 1.5 },
+    serviciosPillText: { color: colors.green, fontSize: 6, fontFamily: "Helvetica" },
+    serviciosBicBadge: { backgroundColor: colors.terracotta, paddingHorizontal: 3, paddingVertical: 1, marginRight: 3 },
+    serviciosBicText: { color: "#FFFFFF", fontSize: 5.5, fontFamily: "Helvetica-Bold" },
 };
 
 const capitalize = (v: string) => v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
@@ -786,6 +797,366 @@ function TerritorioReportSection({
     );
 }
 
+function HospitalIcon() {
+    return (
+        <Svg width={10} height={10} viewBox="0 0 24 24">
+            <Path fill={colors.terracotta} d="M19 10.5h-5.5V5c0-.55-.45-1-1-1h-1c-.55 0-1 .45-1 1v5.5H5c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h5.5V19c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-5.5H19c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1z" />
+        </Svg>
+    );
+}
+
+function SchoolIcon() {
+    return (
+        <Svg width={10} height={10} viewBox="0 0 24 24">
+            <Path fill={colors.terracotta} d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" />
+        </Svg>
+    );
+}
+
+function LandmarkIcon() {
+    return (
+        <Svg width={10} height={10} viewBox="0 0 24 24">
+            <Path fill={colors.terracotta} d="M12 2L2 7v2h20V7L12 2zm-8 8v8h2v-8H4zm5 0v8h2v-8H9zm5 0v8h2v-8h-2zm5 0v8h2v-8h-2zM2 19v3h20v-3H2z" />
+        </Svg>
+    );
+}
+
+function parseSpecialtiesList(raw?: string): string[] {
+    if (!raw) return [];
+    return raw
+        .split("#")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase());
+}
+
+function SanidadReportBlock({ sanidad }: { sanidad: any }) {
+    const hospitales: any[] = sanidad?.hospitales?.detalles ?? [];
+    const centrosSalud: any[] = sanidad?.centrosSalud?.detalles ?? [];
+    if (!hospitales.length && !centrosSalud.length) return null;
+
+    const mainHospital = hospitales[0];
+    const allSpecialties = mainHospital ? parseSpecialtiesList(mainHospital.finalidad_asistencial) : [];
+    const hospitalSpecialties = allSpecialties.slice(0, 12);
+    const remainingSpecialties = allSpecialties.length - hospitalSpecialties.length;
+
+    const displayedCs = centrosSalud.slice(0, 3);
+    const remainingCs = centrosSalud.length - displayedCs.length;
+
+    return (
+        <View style={styles.serviciosBox} wrap={false}>
+            <View style={styles.serviciosTitleRow}>
+                <View style={styles.serviciosEyebrowRow}>
+                    <HospitalIcon />
+                    <Text style={styles.serviciosEyebrow}>Atención sanitaria · Sacyl</Text>
+                </View>
+                {centrosSalud.length > 0 && (
+                    <Text style={styles.serviciosEyebrow}>
+                        {centrosSalud.length} {centrosSalud.length === 1 ? "centro de atención primaria" : "centros de salud y consultorios"}
+                    </Text>
+                )}
+            </View>
+
+            {mainHospital && (
+                <View style={{ marginBottom: 6 }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" }}>
+                        <Text style={styles.serviciosItemTitle}>
+                            Hospital de referencia: {mainHospital.nombre_del_centro}
+                        </Text>
+                    </View>
+                    {hospitalSpecialties.length > 0 && (
+                        <View style={styles.serviciosRow}>
+                            {hospitalSpecialties.map((spec) => (
+                                <View key={spec} style={styles.serviciosPill}>
+                                    <Text style={styles.serviciosPillText}>{spec}</Text>
+                                </View>
+                            ))}
+                            {remainingSpecialties > 0 && (
+                                <View style={styles.serviciosPill}>
+                                    <Text style={[styles.serviciosPillText, { fontFamily: "Helvetica-Bold" }]}>
+                                        +{remainingSpecialties} más
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+                    )}
+                </View>
+            )}
+
+            {centrosSalud.length > 0 && (
+                <View style={{ borderTopColor: `${colors.green}15`, borderTopWidth: 0.6, paddingTop: 4, marginTop: 2 }}>
+                    <Text style={[styles.serviciosItemSubtitle, { fontFamily: "Helvetica-Bold", color: colors.green }]}>
+                        Red de atención primaria en el término municipal:
+                    </Text>
+                    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
+                        {displayedCs.map((cs) => (
+                            <Text key={`${cs.nombre_del_centro}_${cs.direccion || cs.telefono || ""}`} style={{ color: colors.muted, fontSize: 6.8 }}>
+                                • {cs.nombre_del_centro} {cs.direccion ? `(${cs.direccion})` : ""}
+                            </Text>
+                        ))}
+                        {remainingCs > 0 && (
+                            <Text style={{ color: `${colors.green}99`, fontSize: 6.8 }}>
+                                • +{remainingCs} más
+                            </Text>
+                        )}
+                    </View>
+                </View>
+            )}
+        </View>
+    );
+}
+
+function getEducacionStats(centrosDocentes: any[], ofertaFP: any[]) {
+    let publicSchools = 0;
+    for (const c of centrosDocentes) {
+        if (c.naturaleza?.toUpperCase() === "PÚBLICO") publicSchools++;
+    }
+    const privateSchools = centrosDocentes.length - publicSchools;
+
+    const fpLevels = new Set<string>();
+    const fpFamilies = new Set<string>();
+    for (const fp of ofertaFP) {
+        if (fp.nivel_educativo) fpLevels.add(fp.nivel_educativo.replace(/^Grado\s+/i, ""));
+        if (fp.familia_profesional) fpFamilies.add(fp.familia_profesional);
+    }
+
+    const schoolSubtitle = [
+        publicSchools > 0 ? `${publicSchools} públicos` : "",
+        privateSchools > 0 ? `${privateSchools} concertados/privados` : "",
+    ].filter(Boolean).join(" · ");
+
+    const allFamilies = Array.from(fpFamilies);
+
+    return {
+        schoolSubtitle,
+        fpLevelsText: Array.from(fpLevels).join(" · ") || "Ciclos formativos",
+        fpFamiliesList: allFamilies.slice(0, 8),
+        remainingFamiliesCount: Math.max(0, allFamilies.length - 8),
+    };
+}
+
+function CentrosDocentesList({ centrosDocentes, subtitle }: { centrosDocentes: any[]; subtitle: string }) {
+    const displayedCentros = centrosDocentes.slice(0, 4);
+    const remainingCentros = centrosDocentes.length - displayedCentros.length;
+
+    return (
+        <View style={{ flex: 1 }}>
+            <Text style={styles.serviciosItemTitle}>
+                Centros escolares e institutos
+            </Text>
+            {subtitle ? <Text style={styles.serviciosItemSubtitle}>{subtitle}</Text> : null}
+            <View style={{ marginTop: 3 }}>
+                {displayedCentros.map((c) => {
+                    const name = c.denominacion_especifica || c.denominacion_generica || "Centro";
+                    const tipo = c.denominacion_generica_breve || (c.naturaleza === "PÚBLICO" ? "Público" : "Concertado");
+                    return (
+                        <Text key={`${name}_${c.telefono || ""}`} style={{ color: colors.muted, fontSize: 6.8, marginBottom: 1.5 }}>
+                            • {name} <Text style={{ color: `${colors.green}99`, fontSize: 6 }}>({tipo})</Text>
+                        </Text>
+                    );
+                })}
+                {remainingCentros > 0 && (
+                    <Text style={{ color: `${colors.green}99`, fontSize: 6.8, marginTop: 1.5 }}>
+                        +{remainingCentros} más
+                    </Text>
+                )}
+            </View>
+        </View>
+    );
+}
+
+function OfertaFPList({ ofertaFP, levelsText, families, remainingFamilies }: { ofertaFP: any[]; levelsText: string; families: string[]; remainingFamilies: number }) {
+    if (!ofertaFP.length) {
+        return (
+            <View style={{ flex: 1, borderLeftColor: `${colors.green}18`, borderLeftWidth: 0.8, paddingLeft: 10 }}>
+                <Text style={styles.serviciosItemTitle}>Formación Profesional (FP)</Text>
+                <Text style={[styles.serviciosItemSubtitle, { marginTop: 4 }]}>
+                    Sin oferta de FP censada en el municipio (acceso mediante centro de cabecera comarcal).
+                </Text>
+            </View>
+        );
+    }
+
+    return (
+        <View style={{ flex: 1, borderLeftColor: `${colors.green}18`, borderLeftWidth: 0.8, paddingLeft: 10 }}>
+            <Text style={styles.serviciosItemTitle}>Formación Profesional (FP)</Text>
+            <View style={styles.serviciosRow}>
+                {families.map((fam) => (
+                    <View key={fam} style={styles.serviciosPill}>
+                        <Text style={styles.serviciosPillText}>{fam}</Text>
+                    </View>
+                ))}
+                {remainingFamilies > 0 && (
+                    <View style={styles.serviciosPill}>
+                        <Text style={[styles.serviciosPillText, { fontFamily: "Helvetica-Bold" }]}>+{remainingFamilies} más</Text>
+                    </View>
+                )}
+            </View>
+        </View>
+    );
+}
+
+function EducacionReportBlock({ educacion }: { educacion: any }) {
+    const centrosDocentes: any[] = educacion?.centrosDocentes?.detalles ?? [];
+    const ofertaFP: any[] = educacion?.ofertaFP?.detalles ?? [];
+    if (!centrosDocentes.length && !ofertaFP.length) return null;
+
+    const { schoolSubtitle, fpLevelsText, fpFamiliesList, remainingFamiliesCount } = getEducacionStats(centrosDocentes, ofertaFP);
+
+    return (
+        <View style={styles.serviciosBox} wrap={false}>
+            <View style={styles.serviciosTitleRow}>
+                <View style={styles.serviciosEyebrowRow}>
+                    <SchoolIcon />
+                    <Text style={styles.serviciosEyebrow}>Educación y formación</Text>
+                </View>
+                <Text style={styles.serviciosEyebrow}>
+                    {centrosDocentes.length} {centrosDocentes.length === 1 ? "centro docente" : "centros docentes"} {ofertaFP.length > 0 ? `· ${ofertaFP.length} ciclos FP` : ""}
+                </Text>
+            </View>
+
+            <View style={{ flexDirection: "row", gap: 10 }}>
+                <CentrosDocentesList centrosDocentes={centrosDocentes} subtitle={schoolSubtitle} />
+                <OfertaFPList ofertaFP={ofertaFP} levelsText={fpLevelsText} families={fpFamiliesList} remainingFamilies={remainingFamiliesCount} />
+            </View>
+        </View>
+    );
+}
+
+function getBicCount(monumentos: any[]): number {
+    let count = 0;
+    for (const m of monumentos) {
+        if (m.identificadorbieninterescultural && m.identificadorbieninterescultural.trim()) {
+            count++;
+        }
+    }
+    return count;
+}
+
+function MonumentosList({ monumentos }: { monumentos: any[] }) {
+    const displayedMonuments = monumentos.slice(0, 4);
+    const remainingMonuments = monumentos.length - displayedMonuments.length;
+
+    return (
+        <View style={{ flex: 1 }}>
+            <Text style={styles.serviciosItemTitle}>
+                Monumentos y patrimonio histórico
+            </Text>
+            <View style={{ marginTop: 3 }}>
+                {displayedMonuments.map((m) => {
+                    const isBic = Boolean(m.identificadorbieninterescultural && m.identificadorbieninterescultural.trim());
+                    return (
+                        <View key={`${m.nombre}_${m.identificadorbieninterescultural || ""}`} style={{ flexDirection: "row", alignItems: "center", marginBottom: 2 }}>
+                            {isBic && (
+                                <View style={styles.serviciosBicBadge}>
+                                    <Text style={styles.serviciosBicText}>BIC</Text>
+                                </View>
+                            )}
+                            <Text style={{ color: colors.muted, fontSize: 6.8, flex: 1 }}>
+                                {m.nombre} {m.periodohistorico ? `(${m.periodohistorico})` : ""}
+                            </Text>
+                        </View>
+                    );
+                })}
+                {remainingMonuments > 0 && (
+                    <Text style={{ color: `${colors.green}99`, fontSize: 6.8, marginTop: 2 }}>
+                        +{remainingMonuments} más
+                    </Text>
+                )}
+            </View>
+        </View>
+    );
+}
+
+function EquipamientosCulturalesList({ museos, bibliotecas, teatros }: { museos: any[]; bibliotecas: any[]; teatros: any[] }) {
+    const hasItems = museos.length > 0 || bibliotecas.length > 0 || teatros.length > 0;
+    return (
+        <View style={{ flex: 1, borderLeftColor: `${colors.green}18`, borderLeftWidth: 0.8, paddingLeft: 10 }}>
+            <Text style={styles.serviciosItemTitle}>
+                Equipamientos culturales
+            </Text>
+            <View style={{ marginTop: 3 }}>
+                {museos.length > 0 && (
+                    <Text style={{ color: colors.muted, fontSize: 6.8, marginBottom: 2 }}>
+                        • <Text style={{ fontFamily: "Helvetica-Bold", color: colors.green }}>Museos ({museos.length}): </Text>
+                        {museos.slice(0, 2).map((m) => m.nombreentidad).join(", ")}
+                        {museos.length > 2 ? ` (+${museos.length - 2} más)` : ""}
+                    </Text>
+                )}
+                {bibliotecas.length > 0 && (
+                    <Text style={{ color: colors.muted, fontSize: 6.8, marginBottom: 2 }}>
+                        • <Text style={{ fontFamily: "Helvetica-Bold", color: colors.green }}>Bibliotecas ({bibliotecas.length}): </Text>
+                        {bibliotecas.slice(0, 2).map((b) => b.nombre_entidad).join(", ")}
+                        {bibliotecas.length > 2 ? ` (+${bibliotecas.length - 2} más)` : ""}
+                    </Text>
+                )}
+                {teatros.length > 0 && (
+                    <Text style={{ color: colors.muted, fontSize: 6.8, marginBottom: 2 }}>
+                        • <Text style={{ fontFamily: "Helvetica-Bold", color: colors.green }}>Teatros y auditorios: </Text>
+                        {teatros.slice(0, 2).map((t) => t.sala).join(", ")}
+                        {teatros.length > 2 ? ` (+${teatros.length - 2} más)` : ""}
+                    </Text>
+                )}
+                {!hasItems && (
+                    <Text style={[styles.serviciosItemSubtitle, { marginTop: 2 }]}>
+                        Equipamientos bibliotecarios comarcales.
+                    </Text>
+                )}
+            </View>
+        </View>
+    );
+}
+
+function CulturaReportBlock({ cultura, ocio }: { cultura: any; ocio: any }) {
+    const monumentos: any[] = cultura?.monumentos?.detalles ?? [];
+    const museos: any[] = ocio?.museos?.detalles ?? [];
+    const bibliotecas: any[] = ocio?.bibiliotecas?.detalles ?? [];
+    const teatros: any[] = ocio?.teatros?.detalles ?? [];
+
+    if (!monumentos.length && !museos.length && !bibliotecas.length && !teatros.length) return null;
+
+    const bicCount = getBicCount(monumentos);
+
+    return (
+        <View style={styles.serviciosBox} wrap={false}>
+            <View style={styles.serviciosTitleRow}>
+                <View style={styles.serviciosEyebrowRow}>
+                    <LandmarkIcon />
+                    <Text style={styles.serviciosEyebrow}>Patrimonio cultural y ocio</Text>
+                </View>
+                <Text style={styles.serviciosEyebrow}>
+                    {monumentos.length} monumentos {bicCount > 0 ? `(${bicCount} BIC)` : ""}
+                </Text>
+            </View>
+
+            <View style={{ flexDirection: "row", gap: 10 }}>
+                <MonumentosList monumentos={monumentos} />
+                <EquipamientosCulturalesList museos={museos} bibliotecas={bibliotecas} teatros={teatros} />
+            </View>
+        </View>
+    );
+}
+
+function ServiciosReportSection({ data }: { data: MunicipioData }) {
+    const hasSanidad = Boolean(data.datos?.sanidad?.hospitales?.detalles?.length || data.datos?.sanidad?.centrosSalud?.detalles?.length);
+    const hasEducacion = Boolean(data.datos?.educacion?.centrosDocentes?.detalles?.length || data.datos?.educacion?.ofertaFP?.detalles?.length);
+    const hasCultura = Boolean(data.datos?.cultura?.monumentos?.detalles?.length || data.datos?.ocio?.museos?.detalles?.length || data.datos?.ocio?.bibiliotecas?.detalles?.length || data.datos?.ocio?.teatros?.detalles?.length);
+
+    if (!hasSanidad && !hasEducacion && !hasCultura) return null;
+
+    return (
+        <View style={styles.section}>
+            <View wrap={false}>
+                <Text style={styles.sectionTitle}>Servicios públicos</Text>
+            </View>
+
+            {hasSanidad && <SanidadReportBlock sanidad={data.datos?.sanidad} />}
+            {hasEducacion && <EducacionReportBlock educacion={data.datos?.educacion} />}
+            {hasCultura && <CulturaReportBlock cultura={data.datos?.cultura} ocio={data.datos?.ocio} />}
+        </View>
+    );
+}
+
 function SummaryReportSection({ data, wikiData }: { data: MunicipioData; wikiData?: WikipediaData | null }) {
     const hasWikiText = Boolean(wikiData?.paragraphs?.length);
     const images = wikiData?.images || [];
@@ -964,20 +1335,40 @@ function MetodologiaReportSection() {
     );
 }
 
+function hasServiciosData(data: MunicipioData): boolean {
+    const d = data.datos;
+    if (!d) return false;
+    return Boolean(
+        d.sanidad?.hospitales?.detalles?.length ||
+        d.sanidad?.centrosSalud?.detalles?.length ||
+        d.educacion?.centrosDocentes?.detalles?.length ||
+        d.educacion?.ofertaFP?.detalles?.length ||
+        d.cultura?.monumentos?.detalles?.length ||
+        d.ocio?.museos?.detalles?.length ||
+        d.ocio?.bibiliotecas?.detalles?.length
+    );
+}
+
+function getChartRows(ineData: IneData) {
+    if (!ineData) return [];
+    const visibleTables = TABLES.filter((t) => filterData(ineData[getTableKey(t)] ?? [], t.filter).length > 0);
+    const chartItems = visibleTables.map((t) => ({ type: "ine" as const, table: t, data: ineData[getTableKey(t)] ?? [] }));
+    const rows: (typeof chartItems)[] = [];
+    for (let i = 0; i < chartItems.length; i += 2) {
+        rows.push(i === chartItems.length - 1 ? [chartItems[i]] : [chartItems[i], chartItems[i + 1]]);
+    }
+    return rows;
+}
+
 function MunicipioReport({ data, scores, ineData, preferences, wikiData }: { data: MunicipioData; scores: ScoreResult; ineData: IneData; preferences: Record<string, any>; isDefault: boolean; wikiData?: WikipediaData | null }) {
     const elecciones: EleccionesData | undefined = data.mas?.elecciones;
     const hasElecciones = Boolean(elecciones && (elecciones.alcaldia || (elecciones.partidos && elecciones.partidos.length > 0)));
     const cobertura: CoberturaData | undefined = data.mas?.cobertura;
     const hasCobertura = Boolean(cobertura);
-    const visibleTables = ineData ? TABLES.filter((t) => filterData(ineData[getTableKey(t)] ?? [], t.filter).length > 0) : [];
     const showAlquiler = Boolean(data.mas?.vivienda?.alquiler?.precio || data.mas?.vivienda?.alquiler?.serie?.length);
-
-    const chartItems = visibleTables.map((t) => ({ type: "ine" as const, table: t, data: ineData?.[getTableKey(t)] ?? [] }));
-
-    const chartRows: (typeof chartItems)[] = [];
-    for (let i = 0; i < chartItems.length; i += 2) {
-        chartRows.push(i === chartItems.length - 1 ? [chartItems[i]] : [chartItems[i], chartItems[i + 1]]);
-    }
+    const hasTerritorio = showAlquiler || hasCobertura || hasElecciones;
+    const hasServicios = hasServiciosData(data);
+    const chartRows = getChartRows(ineData);
 
     return (
         <Document title={`Informe de ${data.municipio}`} author="¿Me puedo quedar?" subject="Análisis territorial del municipio">
@@ -1018,6 +1409,13 @@ function MunicipioReport({ data, scores, ineData, preferences, wikiData }: { dat
                             municipio={data.municipio}
                         />
                     )}
+                </Page>
+            )}
+
+            {hasServicios && (
+                <Page size="A4" style={styles.page}>
+                    <ReportFooter />
+                    <ServiciosReportSection data={data} />
                 </Page>
             )}
 
