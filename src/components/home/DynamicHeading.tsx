@@ -80,7 +80,7 @@ export default function DynamicHeading({ sites }: { sites?: string[] } = {}) {
                     <m.span
                         animate={{ opacity: [1, 0] }}
                         transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-                        className="inline-block w-[2px] h-[1em] bg-current mx-[2px] align-middle translate-y-[-4px] text-color-2"
+                        className="inline-block w-[2px] h-[1em] bg-current mx-[2px] align-middle translate-y-[-4px] text-color-2 uppercase"
                     />?
                 </span>
             </span>
