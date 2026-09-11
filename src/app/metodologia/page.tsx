@@ -105,7 +105,7 @@ export default function MetodologiaPage() {
 
                 <section className="flex flex-col gap-4">
                     <h2 className="title-font text-2xl md:text-3xl font-bold text-title flex items-center gap-2.5">
-                        <span className="text-text-2 font-mono text-lg md:text-xl font-bold">1.</span> Introducción
+                        Introducción
                     </h2>
                     <p className="text-black/80 text-sm md:text-base leading-relaxed">
                         <strong className="text-title font-semibold">¿Me puedo quedar?</strong> es una plataforma de análisis territorial abierta e independiente concebida para evaluar de forma integral la calidad de vida, los servicios públicos y la vitalidad socioeconómica de los <strong>2.248 municipios de Castilla y León</strong>.
@@ -120,7 +120,7 @@ export default function MetodologiaPage() {
 
                 <section className="flex flex-col gap-4">
                     <h2 className="title-font text-2xl md:text-3xl font-bold text-title flex items-center gap-2.5">
-                        <span className="text-text-2 font-mono text-lg md:text-xl font-bold">2.</span> Sistema de puntuación
+                        Sistema de puntuación
                     </h2>
                     <p className="text-black/80 text-sm leading-relaxed">
                         El sistema calcula la puntuación final combinando los servicios locales con las estadísticas de cada municipio de forma directa y comprensible:
@@ -130,7 +130,7 @@ export default function MetodologiaPage() {
                         <div className="p-5 flex flex-col gap-3">
                             <h3 className="font-semibold text-title text-base flex items-center gap-2">
                                 <FaCalculator className="text-text-2" size={15} />
-                                A. Normalización de indicadores
+                                Normalización de indicadores
                             </h3>
                             <p className="text-black/70 text-xs md:text-sm leading-relaxed">
                                 Los diferentes servicios se convierten a una escala común de 0 a 100 puntos mediante tres funciones:
@@ -163,7 +163,7 @@ export default function MetodologiaPage() {
                         <div className="p-5 flex flex-col gap-3">
                             <h3 className="font-semibold text-title text-base flex items-center gap-2">
                                 <FaBalanceScale className="text-text-2" size={15} />
-                                B. Factor de corrección por población
+                                Factor de corrección por población
                             </h3>
                             <p className="text-black/70 text-xs md:text-sm leading-relaxed">
                                 Para evitar que los pueblos pequeños sean penalizados por no disponer de servicios propios de grandes ciudades (como hospitales), el peso de las categorías ausentes se ajusta según los habitantes del municipio:
@@ -179,7 +179,7 @@ export default function MetodologiaPage() {
                         <div className="p-5 flex flex-col gap-3">
                             <h3 className="font-semibold text-title text-base flex items-center gap-2">
                                 <FaChartLine className="text-text-2" size={15} />
-                                C. Indicadores del INE en tiempo real
+                                Indicadores del INE en tiempo real
                             </h3>
                             <p className="text-black/70 text-xs md:text-sm leading-relaxed">
                                 En esta sección se evalúan cuatro aspectos clave:
@@ -217,7 +217,7 @@ export default function MetodologiaPage() {
                         </div>
 
                         <div className="p-5 flex flex-col gap-2">
-                            <h3 className="font-semibold text-title text-base">D. Puntuación global</h3>
+                            <h3 className="font-semibold text-title text-base">Puntuación global</h3>
                             <p className="text-black/70 text-xs md:text-sm leading-relaxed">
                                 La puntuación final combina la media ponderada de todas las categorías adaptada a las preferencias del usuario:
                             </p>
@@ -231,7 +231,7 @@ export default function MetodologiaPage() {
                 <section className="flex flex-col gap-6">
                     <div className="flex flex-col gap-1">
                         <h2 className="title-font text-2xl md:text-3xl font-bold text-title flex items-center gap-2.5">
-                            <span className="text-text-2 font-mono text-lg md:text-xl font-bold">3.</span> Datasets utilizados
+                            Datasets utilizados
                         </h2>
                     </div>
 
@@ -358,7 +358,7 @@ export default function MetodologiaPage() {
 
                 <footer className="border-t-2 border-title/20 pt-6 pb-4 text-left flex flex-col gap-2">
                     <p className="text-xs text-black/60 leading-relaxed">
-                        Este proyecto es independiente y no está vinculado formalmente con la Junta de Castilla y León ni con el Instituto Nacional de Estadística. Los datos utilizados proceden de conjuntos de datos abiertos públicos conforme a la Ley 37/2007 sobre reutilización de la información del sector público.
+                        Este proyecto es independiente y no está vinculado con la Junta de Castilla y León ni con el Instituto Nacional de Estadística. Los datos utilizados proceden de conjuntos de datos abiertos públicos conforme a la Ley 37/2007 sobre reutilización de la información del sector público.
                     </p>
                     <p className="text-xs text-black/60 leading-relaxed">
                         Las puntuaciones e indicadores son modelos orientativos de análisis ciudadano y no constituyen una recomendación o asesoramiento vinculante.
